@@ -1,0 +1,42 @@
+# [index : awesome-macos-command-line](https://git.herrbischoff.com/awesome-macos-command-line/about/)
+#
+# .nosync: Any file or directory where the name contains “.nosync” is ignored by iCould synchronisation
+# .noindex: Any file or directory where the name contains “.noindex” is ignored by Spotlight
+# .nobackup: Any file or directory where the name contains “.nobackup” is ignored by Time Machine.
+
+#########################################################################
+##  App Store
+# (no use anymore) 应用商店显示调试菜单
+# defaults write com.apple.appstore ShowDebugMenu -bool true
+
+
+#########################################################################
+##  Dock
+#   隐藏窗口显示半透明效果
+defaults write com.apple.Dock showhidden -bool true
+#   清除App Store 图标上的更新标记（数字角标）
+#       禁用标记 App 图标（禁用数字角标）
+#       系统偏好设置… > 通知与专注模式，通知，选择 “App Store” 取消勾选 “标记 App 图标”（也可以完全关闭该项通知）。
+defaults write com.apple.appstored.plist BadgeCount 0
+#   清除 System Preferences 图标上的跟新标记 (数字角标)(System Preferences UI 中的 System Update 上的红点还在)
+defaults delete com.apple.systempreferences AttentionPrefBundleIDs
+
+#########################################################################
+##  Finder
+#   显示隐藏文件
+defaults write com.apple.finder AppleShowAllFiles -bool true
+#   阻止系统在网络卷和外部驱动器上创建.DS_Store文件
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool TRUE
+
+################################################################################
+##  Webview
+
+#   enable a context menu in a system web view
+defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+defaults write -g WebKitDeveloperExtras -bool YES
+
+#########################################################################
+#   最后让更新生效
+Killall Dock
+KillAll Finder
+

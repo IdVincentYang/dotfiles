@@ -1,0 +1,70 @@
+################################################################################
+# exclude all but self
+/*
+!/.gitignore
+!/justfile
+!/justfile.local
+################################################################################
+# include necessary items
+
+# include aria2 config
+!/aria2/
+
+# include asdf config
+!/asdf/
+
+# include backups all
+!/backups/
+
+# include bash config
+!/bash/
+
+# include bat config
+!/bat/
+
+# include broot config
+!/broot/
+/broot/*
+!/broot/*.hjson
+
+# include filezilla site config
+!/filezilla/
+/filezilla/*
+!/filezilla/sitemanager.xml
+
+# include mpv config
+!/mpv/
+
+# include git config
+!/git/
+
+# include grsync config
+!/grsync/
+
+# include hammerspoon config
+!/hammerspoon/
+
+# include karabiner config
+!/karabiner/
+/karabiner/automatic_backups/*
+
+# include kitty config
+!/kitty/
+
+# include npm config
+!/npm/
+
+# include trippy config
+!/trippy.toml
+
+# include UltiSnips
+!/UltiSnips/
+
+# include yadm config
+!/yadm/
+
+# include yt-dlp config
+!/yt-dlp/
+
+# include zsh config
+!/zsh/

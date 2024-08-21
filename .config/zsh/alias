@@ -1,0 +1,216 @@
+# vi: ft=sh
+
+alias help=$(which tldr || which man)
+
+alias l.='ls -a'
+alias l1='ls -1'
+alias ll='ls -l'
+alias ll.='l. -l'
+
+[[ $KITTY_WINDOW_ID ]] && alias rgh='rg --hyperlink-format=kitty'
+
+################################################################################
+# AA: adb shotcut
+
+_ADB_SCREEN_CAPTURE_USAGE="Usage: <cmd> [path, default='/tmp/screenshot.png']"
+function _adb_screen_capture() {
+    echo $_ADB_SCREEN_CAPTURE_USAGE
+    if [ ! -f `which adb` ] ; then
+        echo "Can't find adb command in BASH envirement variable!"
+    else
+        SAVE_PATH=$1
+        if [ -z "$SAVE_PATH" ] ; then
+           SAVE_PATH="/tmp/screenshot.png"
+        fi
+
+        echo "Capturing..."
+        adb shell screencap -p > $SAVE_PATH
+        #adb $2 $3 shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $SAVE_PATH
+        sleep 1
+        open $SAVE_PATH
+    fi
+}
+
+alias ,adbcapture='_adb_screen_capture'
+alias ,adbip="adb shell ip route | awk '{print $9}'"
+alias ,adbpower='adb shell input keyevent 26'
+alias ,adbpoweroff='adb shell reboot -p'
+alias ,adbscr='scrcpy --shortcut-mod=ralt --show-touches '
+if [ -f "$HOME/.local/share/yadb/yadb" ]
+then
+    alias ,adbkbw='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard'
+    alias ,adbkbr='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -readkeyboard'
+    alias ,adblayout='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -layout && adb pull /data/local/tmp/yadb_layout_dump.xml && adb shell rm /data/local/tmp/yadb_layout_dump.xml'
+    alias ,adbpress='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -touch'
+else
+    alias ,adbkbw='adb shell input text'
+fi
+alias ,adbtopactivity='adb shell dumpsys activity top | grep ACTIVITY' # get top activity name
+alias ,adbwifisignal='adb shell settings put global captive_portal_detection_enabled' # 0, 1
+
+################################################################################
+# DD: Docker
+alias ,d='docker'
+alias ,dci='docker rmi $(docker images -q -f dangling=true)'
+alias ,dcc='docker rm $(docker ps -a -q)'
+alias ,dc='docker-compose'
+alias ,dm='docker-machine'
+alias ,di='docker image'
+alias ,dnd='docker node'
+alias ,dnw='docker netowork'
+alias ,dp='docker plugin'
+alias ,dsr='docker secret'
+alias ,dst='docker stack'
+alias ,dsv='docker service'
+alias ,dsw='docker swarm'
+alias ,dv='docker volume'
+
+################################################################################
+# FF: fossil
+alias ,f='fossil'
+
+################################################################################
+# GG: git
+alias ,g='git'
+# add
+alias ,ga='git add'
+alias ,gaa='git add --all'
+alias ,gaf='git add -f'
+alias ,gapa='git add --patch'
+alias ,gau='git add --update'
+alias ,gav='git add --verbose'
+alias ,gap='git apply'
+# branch
+alias ,gb='git branch'
+alias ,gbr='git branch --remote'
+alias ,gba='git branch -a'
+alias ,gbrm='git branch -D'
+alias ,gbmv='git branch -M'
+alias ,gbt='git branch $(git_current_branch) -u'
+alias ,gbv='git branch -vv'
+alias ,gbsupo='git branch --set-upstream-to=origin/$(git_current_branch)'
+alias ,gbsupu='git branch --set-upstream-to=upstream/$(git_current_branch)'
+# checkout
+alias ,gcb='git checkout -b'
+alias ,gcbb='git checkout -B'
+alias ,gcd='git checkout develop'
+alias ,gcm='git checkout master'
+alias ,gco='git checkout'
+alias ,gct='git checkout --track'
+# cherry-pick
+alias ,gcp='git cherry-pick'
+alias ,gcpa='git cherry-pick --abort'
+alias ,gcpc='git cherry-pick --continue'
+# diff
+alias ,gd='git diff'
+alias ,gdno='git diff --name-only'
+alias ,gdpo='git diff --name-only | xargs -I{} realpath "$(git rev-parse --show-toplevel)/{}"'
+alias ,gdt='git difftool -y'
+# fetch
+alias ,gf='git fetch'
+alias ,gfo='git fetch origin'
+alias ,gfu='git fetch upstream'
+# gui
+alias ,gg='git gui citool'
+alias ,gga='git gui citool --amend'
+# gitk
+alias ,gk='\gitk --all --branches'
+alias ,gke='\gitk --all $(git log -g --pretty=%h)'
+# pull
+alias ,glo='git pull origin $(git_current_branch)'
+alias ,glu='git pull upstream $(git_current_branch)'
+# log
+alias ,glogs='git log --stat'
+alias ,glog='git log --oneline --decorate'
+alias ,gloga='git log --oneline --decorate --graph --all'
+# push
+alias ,gp='git push'
+alias ,gpt='git push --tags'
+alias ,gpo='git push origin $(git_current_branch)'
+# alias gpu='git push upstream $(git_current_branch)'
+# rebase
+alias ,grb='git rebase'
+alias ,grba='git rebase --abort'
+alias ,grbc='git rebase --continue'
+alias ,grbi='git rebase -i'
+# remote
+alias ,gra='git remote add'
+alias ,grmv='git remote rename'
+alias ,grrm='git remote remove'
+alias ,grset='git remote set-url'
+alias ,grup='git remote update'
+alias ,grv='git remote -v'
+# reset
+alias ,grh='git reset HEAD'
+alias ,grhh='git reset HEAD --hard'
+alias ,gru='git reset --'
+# rm
+alias ,grm='git rm'
+alias ,grmc='git rm --cached'
+# submodule
+alias ,gsm='git submodule'
+alias ,gsmu='git submodule update --init'
+# status
+alias ,gst='git status'
+alias ,gsts='git status -s'
+# stash
+alias ,gsta='git stash save'
+alias ,gstaa='git stash apply'
+alias ,gstac='git stash clear'
+alias ,gstad='git stash drop'
+alias ,gstal='git stash list'
+alias ,gstap='git stash pop'
+alias ,gstav='git stash show --text'
+# tag
+alias ,gt='git tag'
+alias ,gtv='git tag -l'
+alias ,gtrm='git tag -d'
+
+alias ,gexp='git archive --format=zip'
+
+################################################################################
+# KK: kitten
+alias ,kh='kitten hyperlinked-grep'
+alias ,ki='kitten icat'
+alias ,ks='kitten ssh'
+
+################################################################################
+# NN: Network
+alias ,nettel='rlwrap nc'
+alias ,netlisten='lsof -P -i -n'
+alias ,netports='netstat -tulanp'
+alias ,netip1='curl ifconfig.me/all.json'
+alias ,netip2='curl ip.network/more'
+
+################################################################################
+# visual machines
+alias ,vmstartu='vmrun start ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm nogui'
+alias ,vmstopu='vmrun stop ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm'
+alias ,vml='vmrun list'
+
+################################################################################
+# wgetsite
+# wget args:
+#   -c: --continue
+#   -nc:--no-clobber
+#   -k: --convert-links
+#   -np:--no-parent
+#   -r: --recursive
+#   -p: --page-requisites
+#   -e: --execute=COMMAND
+#   -U: --user-agent=AGENT
+#
+#   --domains website.org
+#   --restrict-file-names=windows
+alias ,wgetsite="wget --random-wait -c -nc -k -np -r -p -e robots=off -U mozilla"
+
+################################################################################
+# Media Download
+
+alias ,xdv="yt-dlp --cookies $HOME/.local/x.txt --paths home:\"$HOME/Downloads/ytdl/x/\" --no-embed-metadata --no-playlist -f \"bv[ext=mp4][height<=${_YDV_RES:-1080}]+ba[ext=m4a]/b[ext=mp4][height<=?${_YDV_RES:-1080}]/bv*[height<=${_YDV_RES:-1080}]+ba/b[height<=?${_YDV_RES:-1080}]\"  -o \"%(id)s.%(ext)s\" "
+
+alias ,yda="yt-dlp --no-embed-subs --no-playlist --console-title -f \"ba\" -S \"+acodec:mp3,abr,asr\" -o \"%(title)s %(id)s.%(ext)s\" "
+alias ,ydal="yt-dlp --no-embed-subs --yes-playlist --console-title -f \"ba\" -S \"+acodec:mp3,abr,asr\" -o \"%(playlist_uploader&[{playlist_uploader}]|)s%(playlist_title)s %(playlist_id)s/%(playlist_autonumber)02d %(title)s %(id)s.%(ext)s\" "
+alias ,ydv="yt-dlp --no-playlist --console-title -f \"bv[ext=mp4][height<=${_YDV_RES:-1080}]+ba[ext=m4a]/b[ext=mp4][height<=?${_YDV_RES:-1080}]/bv*[height<=${_YDV_RES:-1080}]+ba/b[height<=?${_YDV_RES:-1080}]\" -S \"vcodec:h265\" -o \"%(title)s %(id)s.%(ext)s\" "
+alias ,ydvl="yt-dlp --yes-playlist --console-title -f \"bv[ext=mp4][height<=${_YDV_RES:-1080}]+ba[ext=m4a]/b[ext=mp4][height<=?${_YDV_RES:-1080}]/bv*[height<=${_YDV_RES:-1080}]+ba/b[height<=?${_YDV_RES:-1080}]\"  -S \"vcodec:h265\" -o \"%(playlist_uploader&\[{playlist_uploader}]|)s%(playlist_uploader)s]%(playlist_title)s %(playlist_id)s/%(playlist_autonumber)02d %(title)s %(id)s.%(ext)s\" "
+

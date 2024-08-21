@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*.*~
+*.iml
+.cxx/
+.externalNativeBuild/
+.idea/
+*副本
+node_modules/
+~/

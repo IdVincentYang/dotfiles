@@ -1,0 +1,105 @@
+# vi: set ft=sh:
+
+function ,interval() {
+    local _ARGC=$#
+    if [[ $_ARGC -eq 0 ]]; then
+        echo 'Usage: interval bin_or_cmd_or_func [delay [arg1 [arg2] [... [argN]]]]
+
+    Repeatedly calls a executable or a function or a command string, with a fixed time delay between each call.
+
+    bin_or_cmd_or_func<required>:
+        - bin:  a executable name or path which to be run
+        - cmd:  a shell commands snippet string to be execute
+        - func: a shell function to be called
+    delay[optional(default: 0)]:
+        The time, in seconds, the timer should delay in between executions of bin_or_cmd_or_func.
+    arg1,...,argN[optional]:
+        Additional arguments which are passed through bin_or_cmd_or_func once the timer expires.
+
+    Notes:
+        When function invoked, it will repeatedly forever until the bin_or_cmd_or_func executions return not 0 or interrupt by user with CTRL+C.'
+
+        return 1
+    fi
+
+    local _CMD="$1"
+    local _IS_CMD_SNIPPET=true
+    if which "$_CMD" > /dev/null; then
+        _IS_CMD_SNIPPET=false
+    fi
+
+    local _DELAY=1
+    if [[ $_ARGC > 1 ]]; then
+        _DELAY=$(bc <<< "$2")
+        shift 2
+    else
+        shift 1
+    fi
+
+    local _ARGS=($@)
+
+    if [[ -z "$_CMD" ]]; then
+        echo 'bin_or_cmd_or_func not specified'
+        return 2
+    fi
+
+    local _RET=0
+    while [[ $_RET -eq 0 ]]; do
+        sleep "$_DELAY"
+        if [[ $_IS_CMD_SNIPPET ]]; then
+            eval "$_CMD ${_ARGS[@]}"
+        else
+            $_CMD ${_ARGS[@]}
+        fi
+        _RET=$?
+    done
+    return $_RET
+}
+
+function ,timeout() {
+    local _ARGC=$#
+    if [[ $_ARGC -eq 0 ]]; then
+        echo 'Usage: timeout bin_or_cmd_or_func [delay [arg1 [arg2] [... [argN]]]]
+
+    Sets a timer which executes a executable or a function or a command string once the timer expires.
+
+    bin_or_cmd_or_func<required>:
+        - bin:  a executable name or path which to be run
+        - cmd:  a shell commands snippet string to be execute
+        - func: a shell function to be called
+    delay[optional(default: 0)]:
+        The time, in seconds, the timer should delay in between executions of bin_or_cmd_or_func.
+    arg1,...,argN[optional]:
+        Additional arguments which are passed through bin_or_cmd_or_func once the timer expires.'
+
+        return 1
+    fi
+
+    local _CMD="$1"
+    local _IS_CMD_SNIPPET=true
+    if which "$_CMD" > /dev/null; then
+        _IS_CMD_SNIPPET=false
+    fi
+
+    local _DELAY=1
+    if [[ $_ARGC > 1 ]]; then
+        _DELAY=$(bc <<< "$2")
+        shift 2
+    else
+        shift 1
+    fi
+
+    local _ARGS=($@)
+
+    if [[ -z "$_CMD" ]]; then
+        echo 'bin_or_cmd_or_func not specified'
+        return 2
+    fi
+
+    sleep "$_DELAY"
+    if [[ $_IS_CMD_SNIPPET ]]; then
+        eval "$_CMD ${_ARGS[@]}"
+    else
+        $_CMD ${_ARGS[@]}
+    fi
+}

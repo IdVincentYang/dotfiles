@@ -1,0 +1,61 @@
+# vi: noexpandtab
+[user]
+	name = Vincent
+	email = idvincentyang@gmail.com
+
+[includeIf "gitdir:~/Documents/LittleGame/"]
+	path = ~/.config/git/gitconfig.yangws.github
+
+[core]
+    autocrlf = input
+	; excludesfile = ~/.gitignoreglobal
+	editor = vim
+	ignorecase = true
+	quotepath = false
+
+[color]
+    ui = true
+
+[push]
+	default = simple
+	recurseSubmodules = check
+
+[help]
+    autocorrect = 1
+
+[diff]
+	tool = bc4
+[difftool]
+    prompt = false
+[difftool "bc4"]
+	cmd = bcomp \"$LOCAL\" \"$REMOTE\"
+[merge]
+	tool = bc4
+[mergetool]
+    prompt = false
+    keepBackup = false
+[mergetool "bc4"]
+	cmd = bcomp \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
+    trustexitcode = true
+
+
+[pull]
+	rebase = true
+[gui]
+	encoding = UTF-8
+	pruneduringfetch = true
+[i18n]
+	commitencoding = utf-8
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[lfs "https://github-vincent/"]
+	locksverify = true
+[lfs "https://github.com/"]
+	locksverify = true
+[init]
+	defaultBranch = main
+[commit]
+	gpgSign = false

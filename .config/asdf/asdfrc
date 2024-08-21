@@ -1,0 +1,60 @@
+# vim:filetype=sh
+# vim:noexpandtab
+
+# doc: [Configuration](https://asdf-vm.com/manage/configuration.html)
+
+# Plugins with support can read the versions files used by other version managers, for example, .ruby-version in the case of Ruby's rbenv.
+#	Options	Description
+#	no	Use .tool-versions to read versions
+#	yes	Use plugin fallback to legacy version files (.ruby-version) if available
+#
+#	default: no
+legacy_version_file=no
+
+# Configure the asdf update command to upgrade to the latest Release Candidate instead of the latest Semantic Version.
+#	Options	Description
+#	no	Semantic Version is used
+#	yes	Release Candidate is used
+#
+#	default: no
+use_release_candidates=no
+
+# Configure the asdf install command to keep or delete the source code or binary it downloads.
+#	Options	Description
+#	no	Delete source code or binary after successful install
+#	yes	Keep source code or binary after install
+#
+#	default: no
+always_keep_download=no
+
+# Configure the duration (in minutes) between asdf plugin repository syncs. Trigger events result in a check of the duration. If more time has elapsed since the last sync than specified in the duration, a new sync occurs.
+#
+# Sync events occur when the following commands are executed:
+#	asdf plugin add <name>
+#	asdf plugin list all
+#	asdf plugin add <name> <git-url> does NOT trigger a plugin sync.
+#
+#	Options	Description
+#	> 0	Sync on trigger event if duration (in minutes) since last sync has been exceeded
+#	0	Sync on each trigger event
+#	never	Never sync
+#
+#	default: 60
+plugin_repository_last_check_duration=1440
+
+# Disable synchronization of the asdf plugin short-name repository. Sync events will exit early if the short-name repository is disabled.
+#	Options	Description
+#	no	Clone or update the asdf plugin repository on sync events
+#	yes	Disable the plugin short-name repository
+#
+#	default: no
+disable_plugin_short_name_repository=no
+
+# The default number of cores to use during compilation.
+#	Options	Description
+#	no	Number of cores to use when compiling the source code
+#	yes	Calculate the number of cores using nproc, then sysctl hw.ncpu, then /proc/cpuinfo or else 1
+#
+# Note: the environment variable ASDF_CONCURRENCY take precedence if set.
+concurrency=auto
+

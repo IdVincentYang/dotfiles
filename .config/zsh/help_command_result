@@ -1,0 +1,7 @@
+# vi:set ft=sh
+echo "!!: Recalls the previous line."
+echo "!<history num>: Recalls the specified history command by number."
+echo "!$: expand to the last parameter of the last command."
+echo "!*: expand the value of all of the parameters on the previous line."
+echo "^<prev_line_words>^<instead_of>: repeat the previous command after switching a matching word."
+

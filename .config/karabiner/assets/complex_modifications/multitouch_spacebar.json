@@ -1,0 +1,34 @@
+{
+  "title": "Multitouch + spacebar to (Enter)",
+  "rules": [
+    {
+      "description": "Multitouch + spacebar to (Enter)",
+      "available_since": "12.6.9",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "spacebar",
+            "modifiers": {
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "return_or_enter"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "multitouch_extension_finger_count_total",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

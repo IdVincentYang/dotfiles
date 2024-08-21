@@ -1,0 +1,107 @@
+# vi: ft=sh
+# [doc](https://just.systems/man/zh/)
+# [grammar](https://github.com/casey/just/blob/master/GRAMMAR.md)
+# [cheetsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/)
+
+kPWD := justfile_directory()
+
+default:
+    @just --justfile '{{justfile()}}' --list
+
+var:
+    @just --justfile '{{justfile()}}' --evaluate
+
+bin-colorized-logs:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    _REPO="https://github.com/kilobyte/colorized-logs.git"
+    _PWD="share/colorized-logs"
+    _PREFIX="${HOME}/.local"
+    _BIN="${_PREFIX}/bin/ansi2txt"  # for check has been installed
+    if [ ! -e "$_BIN" ]; then
+        if [ ! -e "$_PWD" ]; then
+            git clone --depth 1 "$_REPO" "$_PWD"
+        fi
+        cd "$_PWD"
+        [[ -e "build" ]] && rm -rf "build"
+        mkdir "build" && pushd "build"
+        cmake -DCMAKE_INSTALL_PREFIX:PATH="$_PREFIX" .. && make && make install
+        popd && rm -rf "build"
+    fi
+
+bin-authbind:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # if which authbind > /dev/null; then
+    #     # authbind installed, exit success
+    #     exit 0
+    # fi
+    if [[ $(uname) == "Darwin" ]]; then
+        _REPO="https://github.com/Castaglia/MacOSX-authbind.git"
+        _PWD="share/authbind"
+        if [ -e "$_PWD" ]; then rm -rf "$_PWD"; fi
+        git clone --depth 1 "$_REPO" "$_PWD"
+        pushd "$_PWD"
+        if [[ $(uname -m) == "arm64" ]]; then
+            sed -i '' 's/^ARCH=-arch.*$/ARCH=-arch arm64/g' Makefile
+        fi
+        make && sudo make install
+        popd && rm -rf "$_PWD"
+    else
+        # TODO
+        false
+    fi
+
+bin-autoadb:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    _REPO="https://github.com/rom1v/autoadb.git"
+    _PWD="share/autoadb"
+    _BIN="${HOME}/.local/bin/autoadb"
+    if [ ! -e "$_BIN" ]; then
+        if [ ! -e "$_PWD" ]; then
+            git clone --depth 1 "$_REPO" "$_PWD"
+        fi
+        cd "$_PWD"
+        cargo build --release
+        mv "target/release/autoadb" "$_BIN"
+    fi
+
+submodule:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    _OH_MY_ZSH="share/oh-my-zsh"
+    if [ ! -e "$_OH_MY_ZSH" ]; then
+        git submodule add -f "https://github.com/ohmyzsh/ohmyzsh.git" "$_OH_MY_ZSH"
+        git commit -am "[submodule] $_OH_MY_ZSH"
+    fi
+    _AUTOSUGGESTIONS="share/oh-my-zsh-custom/plugins/zsh-autosuggestions"
+    if [ ! -e "$_AUTOSUGGESTIONS" ]; then
+        git submodule add -f "https://github.com/zsh-users/zsh-autosuggestions.git" "$_AUTOSUGGESTIONS"
+        git commit -am "[submodule] $_AUTOSUGGESTIONS"
+    fi
+    _HISTORY_SUBSTRING_SEARCH="share/oh-my-zsh-custom/plugins/zsh-history-substring-search"
+    if [ ! -e "$_HISTORY_SUBSTRING_SEARCH" ]; then
+        git submodule add -f "https://github.com/zsh-users/zsh-history-substring-search.git" "$_HISTORY_SUBSTRING_SEARCH"
+        git commit -am "[submodule] $_HISTORY_SUBSTRING_SEARCH"
+    fi
+    _SYNTAX_HIGHLIGHTING="share/oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+    if [ ! -e "$_SYNTAX_HIGHLIGHTING" ]; then
+        git submodule add -f "https://github.com/zsh-users/zsh-syntax-highlighting.git" "$_SYNTAX_HIGHLIGHTING"
+        git commit -am "[submodule] $_SYNTAX_HIGHLIGHTING"
+    fi
+    _THEME_AGNOSTER="share/oh-my-zsh-custom/themes/agnoster-zsh-theme"
+    if [ ! -e "$_THEME_AGNOSTER" ]; then
+        git submodule add -f "https://github.com/agnoster/agnoster-zsh-theme.git" "$_THEME_AGNOSTER"
+        git commit -am "[submodule] $_THEME_AGNOSTER"
+    fi
+    _THEMEPOWERLEVEL10K="share/oh-my-zsh-custom/themes/powerlevel10k"
+    if [ ! -e "$_THEMEPOWERLEVEL10K" ]; then
+        git submodule add -f "https://github.com/romkatv/powerlevel10k.git" "$_THEMEPOWERLEVEL10K"
+        git commit -am "[submodule] $_THEMEPOWERLEVEL10K"
+    fi
+    _YADB="share/yadb"
+    if [ ! -e "$_YADB" ]; then
+        git submodule add -f "https://github.com/ysbing/YADB.git" "$_YADB"
+        git commit -am "[submodule] $_YADB"
+    fi
