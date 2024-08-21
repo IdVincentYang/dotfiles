@@ -11,9 +11,9 @@ alias ll.='l. -l'
 
 alias ,.='yadm'
 alias ,.a=',. add'
+alias ,.c=',. commit -am'
 alias ,.d=',. diff'
 alias ,.s=',. status'
-alias ,.c=',. commit -am'
 alias ,.p=',. push'
 
 ################################################################################
