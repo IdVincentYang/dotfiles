@@ -9,6 +9,13 @@ alias ll.='l. -l'
 
 [[ $KITTY_WINDOW_ID ]] && alias rgh='rg --hyperlink-format=kitty'
 
+alias ,.='yadm'
+alias ,.a=',. add'
+alias ,.d=',. diff'
+alias ,.s=',. status'
+alias ,.c=',. commit -am'
+alias ,.p=',. push'
+
 ################################################################################
 # AA: adb shotcut
 
