@@ -51,6 +51,7 @@ Class.Static(Window, "ToggleMaxsizeOrCenterPosition", function(wind)
             savedFrame[windID] = wind:frame();
         end
         if (wind:isMaximizable()) then
+            wind:move(wind:screen():frame().xy)
             wind:maximize();
         else
             wind:centerOnScreen();
