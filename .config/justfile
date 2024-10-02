@@ -117,7 +117,7 @@ cmd-common:
     # common commands alternatives
     brew install bat btop fd fzf ripgrep tealdeer
     # network client commands
-    brew install grsync rsync wget yt-dlp
+    brew install adwaita-icon-theme grsync rsync wget yt-dlp
 
 dev-tool-git:
     ### enhance git first
