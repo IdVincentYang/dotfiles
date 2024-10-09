@@ -41,8 +41,9 @@ source "$MYSH/utils.osx"
 
 # adb
 if which adb > /dev/null; then
-    # default android device: pixel4 XL
-    export ANDROID_SERIAL="99031FFBA00CPX"
+    export ANDROID_SERIAL_PIXEL4XL="99031FFBA00CPX"
+    export ANDROID_SERIAL_PIXEL8PRO="37291FDJG00ETD"
+    export ANDROID_SERIAL=$ANDROID_SERIAL_PIXEL8PRO
 fi
 
 # broot config
