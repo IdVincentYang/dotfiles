@@ -31,9 +31,9 @@ if ! which scrcpy > /dev/null; then
     exit 1
 fi
 if [[ "$1" = "$_PIXEL8P_SERIAL" ]]; then
-    ANDROID_SERIAL=$_PIXEL8P_SERIAL scrcpy -S -d -w -m 1122 --max-fps=30
+    ANDROID_SERIAL=$_PIXEL8P_SERIAL scrcpy -S -w -m 1122 --max-fps=30
 elif [[ "$1" = "$_PIXEL4XL_SERIAL" ]]; then
-    ANDROID_SERIAL=$_PIXEL4XL_SERIAL scrcpy -S -d -w -m 1520 --max-fps=20
+    ANDROID_SERIAL=$_PIXEL4XL_SERIAL scrcpy -S -w -m 1520 --max-fps=20
 elif [[ "$1" != "emulator-"* ]]; then
     echo "$@" > ~/Downloads/autoadb.txt
     echo "Unsupport param, detail in ~/Downloads/autoadb.txt"

@@ -29,10 +29,10 @@ if ! which scrcpy > /dev/null; then
 fi
 
 if [[ "$1" = "4" ]]; then
-    ANDROID_SERIAL=$_SP4 scrcpy -S -d -w -m 1520 --max-fps=20
+    ANDROID_SERIAL=$_SP4 scrcpy -S -w -m 1520 --max-fps=20
 elif [[ "$1" = "8" ]]; then
-    ANDROID_SERIAL=$_SP8 scrcpy -S -d -w -m 1122 --max-fps=30
+    ANDROID_SERIAL=$_SP8 scrcpy -S -w -m 1122 --max-fps=30
 else
-    ANDROID_SERIAL=$1 scrcpy -S -d -w --max-fps=30
+    ANDROID_SERIAL=$1 scrcpy -S -w --max-fps=30
 fi
 
