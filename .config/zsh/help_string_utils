@@ -1,0 +1,10 @@
+# vi:set ft=sh
+
+echo    '   Case convert:   ${str,,} to lower, ${str^^} to upper'
+echo    '   Compare:        [ "$str1" == "$str2" ]'
+echo    '   Find sub str:   [[ $str == *"sub str"* ]]'
+echo    '   Length:         ${#str}'
+echo    '   Replacement:    ${str/from/to}'
+echo    '   Split string:   IFS="delimiter" read -ra arr <<< "$str"; echo ${arr[0]}; echo ${arr[1]}; ...'
+echo    '   Sub string:     ${str:pos:len}, ${str:pos} to end'
+

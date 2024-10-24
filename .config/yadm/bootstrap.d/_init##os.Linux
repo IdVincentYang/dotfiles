@@ -1,0 +1,9 @@
+# vi:set ft=sh
+
+if [[ $(uname -r) == *android* ]]; then
+    _ANDORID=true
+
+    if [ -v TERMUX_APP_ID ]; then
+        echo "Bootstrap in Terminal Emulator: Termux:"
+    fi
+fi
