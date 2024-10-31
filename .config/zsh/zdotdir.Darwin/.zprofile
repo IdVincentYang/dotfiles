@@ -11,6 +11,8 @@ if which /opt/homebrew/bin/brew > /dev/null; then
         export HOMEBREW_CURL_PATH="$HOMEBREW_PREFIX/opt/curl/bin/curl"
     fi
 fi
+################################################################################
+#   programs path config
 
 # asdf config: https://asdf-vm.com/manage/configuration.html
 if which asdf > /dev/null; then
@@ -31,14 +33,18 @@ if [ -d ~/Library/Android/sdk ]; then
     export PATH=${ANDROID_SDK_ROOT}/platform-tools:${PATH}
 fi
 
-# rustup toolchain path
-[ -d "${HOME}/.cargo" ] && source "${HOME}/.cargo/env"
+# go env path
+if which go > /dev/null; then
+    export GOBIN="${HOME}/.local/bin"
+    export GOPATH="${XDG_DATA_HOME:-$HOME}/go"
+fi
 
 # npm config: https://docs.npmjs.com/cli/v7/using-npm/config
 if which npm > /dev/null; then
     export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/npm/config"
     export NPM_CONFIG_CACHE="${XDG_CACHE_HOME:-$HOME/Library/Caches}/npm"
 fi
+
 # pm2
 if which pm2 > /dev/null; then
     export PM2_HOME="${XDG_STATE_HOME:-~/.local/state}/pm2"
@@ -50,6 +56,10 @@ else
     echo "[WARN] pm2 not installed, via 'npm install -g pm2' to install."
 fi
 
+# rustup toolchain path
+[ -d "${HOME}/.cargo" ] && source "${HOME}/.cargo/env"
+
+################################################################################
 # add local/bin to path variable if not exists
 _LOCAL_BIN="${HOME}/.local/bin"
 if [ -d "${_LOCAL_BIN}" ]; then

@@ -58,3 +58,6 @@ disable_plugin_short_name_repository=no
 # Note: the environment variable ASDF_CONCURRENCY take precedence if set.
 concurrency=auto
 
+################################################################################
+# plug java: https://github.com/halcyon/asdf-java
+java_macos_integration_enable=yes

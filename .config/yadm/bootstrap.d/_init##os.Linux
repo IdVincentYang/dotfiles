@@ -1,9 +1,13 @@
 # vi:set ft=sh
 
+# Install necessary tools.
+
 if [[ $(uname -r) == *android* ]]; then
     _ANDORID=true
 
-    if [ -v TERMUX_APP_ID ]; then
+    if [ -v TERMUX_APP_PID ]; then
         echo "Bootstrap in Terminal Emulator: Termux:"
+
+        apt install -y openssh which
     fi
 fi
