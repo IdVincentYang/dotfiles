@@ -1,3 +1,12 @@
+## Steps
+
+1. install required app
+2. install brew
+3. restore zsh env
+4. restore vim env
+5. restore other envs
+3. [optional] install software from brew, mas, apt etc...
+
 
 ## References
 
