@@ -8,6 +8,9 @@ if [[ $(uname -r) == *android* ]]; then
     if [ -v TERMUX_APP_PID ]; then
         echo "Bootstrap in Terminal Emulator: Termux:"
 
-        apt install -y openssh which
+        if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then
+		yadm config --add local.class TE_Termux
+	fi
+        # apt install -y openssh which
     fi
 fi
