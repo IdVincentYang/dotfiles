@@ -11,6 +11,6 @@ if [[ $(uname -r) == *android* ]]; then
         if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then
 		yadm config --add local.class TE_Termux
 	fi
-        # apt install -y openssh which
+        # apt install -y file openssh which
     fi
 fi
