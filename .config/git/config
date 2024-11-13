@@ -13,6 +13,8 @@
 	bmv = branch --move
 	brm = branch --delete
 	bus = branch --set-up-stream-to
+	cm = commit --all --message
+	cma = commit --amend
 	cf = config
 	cfl = config --list
 	cfrm = config --unset
@@ -28,6 +30,7 @@
 	f = fetch
 	fo = fetch origin
 	fu = fetch upstream
+	h = help
 	l = log --oneline --decorate
 	la = log --oneline --decorate --graph --all
 	ll = log --stat
@@ -53,7 +56,7 @@
 	rshh = reset --hard HEAD
 	sm = submodule
 	smu = submodule update --init
-	ss = status --show-status
+	ss = status --show-stash
 	ssl = status --short
 	sh = stash
 	shls = stash list

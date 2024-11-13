@@ -148,7 +148,7 @@ dev-app:
     #   app: for file compare
     #       reset tral version: rm "/Users/$(whoami)/Library/Application Support/Beyond Compare/registry.dat"
     brew install --cask beyond-compare
-    #   cmd: count source lines
+    #   cmd: count source lines(replace cloc)
     brew install tokei
 
     ### C++ dev tools
