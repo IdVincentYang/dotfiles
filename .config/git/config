@@ -13,6 +13,7 @@
 	bmv = branch --move
 	brm = branch --delete
 	bus = branch --set-up-stream-to
+	current = rev-parse --abbrev-ref HEAD
 	cm = commit --all --message
 	cma = commit --amend
 	cf = config
@@ -35,11 +36,11 @@
 	la = log --oneline --decorate --graph --all
 	ll = log --stat
 	pl = pull
-	plo = pull origin $(git_current_branch)
-	plu = pull upstream $(git_current_branch)
+	plo = pull origin
+	plu = pull upstream
 	ps = push
 	pst = push --tags
-	pso = push origin $(git_current_branch)
+	pso = push origin
 	rb = rebase
 	rba = rebase --abort
 	rbc = rebase --continue
