@@ -19,7 +19,7 @@
 	cf = config
 	cfl = config --list
 	cfrm = config --unset
-	co = chekcout
+	co = checkout
 	cot = checkout --track
 	cp = cherry-pick
 	cpa = cherry-pick --abort
@@ -70,6 +70,13 @@
 	t = tag
 	tls = tag --list
 	trm = tag -d
+	w = worktree
+	wa = worktree add
+	wl = worktree list
+	wmv = worktree move
+	wp = worktree prune
+	wrm = worktree remove
+	wrp = worktree repare
 
 [user]
 	name = Vincent
