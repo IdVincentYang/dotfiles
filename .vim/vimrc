@@ -397,6 +397,7 @@ Plug 'NoahTheDuke/vim-just'
 Plug 'nanotee/zoxide.vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
+Plug 'terrastruct/d2-vim'
 Plug 'tpope/vim-surround'
 "  netrw 增强插件: https://github.com/Tao-Quixote/vim/blob/master/plugin/vinegar.md
 Plug 'tpope/vim-vinegar'
