@@ -2,7 +2,7 @@
 
 _XDV_RES=${MY_XDV_RES:-1080}
 
-alias ,xdv="yt-dlp --cookies $HOME/.local/x.txt --paths home:\"$HOME/Downloads/ytdl/x/\" --no-embed-metadata --no-playlist -f \"b[ext=mp4][height<=?${_XDV_RES}]/b[height<=?${_XDV_RES}]\"  -o \"%(id)s.%(ext)s\" "
+alias ,xdv="yt-dlp --cookies-from-browser Firefox --paths home:\"$HOME/Downloads/ytdl/x/\" --no-embed-metadata --no-playlist -o \"%(id)s.%(ext)s\" "
 
 _YDV_RES=${MY_YDV_RES:-1080}
 
