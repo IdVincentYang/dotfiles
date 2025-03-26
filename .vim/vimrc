@@ -495,6 +495,7 @@ if has_key(g:plugs, 'fzf.vim')
     " imap <c-x><c-l> <plug>(fzf-complete-line) " whole line completion
     nmap <C-p> :FzfFiles<CR>
     nmap <C-e> :FzfBuffers<CR>
+    nmap <C-l> :FzfLines<CR>
 
     " list current dir easier
     command! -bang -complete=dir -nargs=? LS

@@ -85,6 +85,9 @@
 [includeIf "gitdir:~/Documents/LittleGame/"]
 	path = ~/.config/git/gitconfig.yangws.github
 
+[includeIf "gitdir:~/Documents/Creator/"]
+	path = ~/.config/git/gitconfig.yangws.github
+
 [core]
     autocrlf = input
 	; excludesfile = ~/.gitignoreglobal
