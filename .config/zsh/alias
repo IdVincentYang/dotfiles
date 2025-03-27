@@ -1,5 +1,10 @@
 # vi: ft=sh
 
+if [ -f `which aichat` ]; then
+    alias ,ai='aichat'
+    alias ,aithink='aichat -m gemini:gemini-2.5-pro-exp-03-25'
+fi
+
 alias help=$(which tldr || which man)
 
 alias l.='ls -a'
