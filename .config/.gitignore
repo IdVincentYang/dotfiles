@@ -7,6 +7,9 @@
 ################################################################################
 # include necessary items
 
+# include aichat config
+!/aichat/
+
 # include aria2 config
 !/aria2/
 
