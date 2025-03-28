@@ -182,6 +182,9 @@ sys-app-install-hammerspoon:
     brew install --cask --no-quarantine hammerspoon
     defaults write org.hammerspoon.Hammerspoon MJConfigFile "${XDG_CONFIG_HOME:-$HOME/.config}"/hammerspoon/init.lua
 
+sys-app-quickrecorder:
+    brew install lihaoyun6/tap/quickrecorder
+
 sys-app-raycast:
     ### spotlight replacement
     brew install --cask raycast
