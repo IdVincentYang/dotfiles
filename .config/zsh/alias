@@ -102,8 +102,8 @@ alias ,netip2='curl ip.network/more'
 
 ################################################################################
 # visual machines
-alias ,vmstartu='vmrun start ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm nogui'
-alias ,vmstopu='vmrun stop ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm'
+alias ,vms='vmrun start ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm nogui'
+alias ,vmc='vmrun stop ~/Virtual\ Machines.localized/u_vm_m1.vmwarevm'
 alias ,vml='vmrun list'
 
 ################################################################################
