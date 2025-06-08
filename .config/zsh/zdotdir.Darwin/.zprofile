@@ -72,8 +72,10 @@ if [ -d "${_LOCAL_BIN}" ]; then
     esac
 fi
 
-export __ZDOTLOADED="$__ZDOTLOADED:$ZDOTDIR/.zprofile"
-
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+if [ -f ${HOME}/.orbstack/shell/init.zsh ]; then
+    source ${HOME}/.orbstack/shell/init.zsh 2>/dev/null || :
+fi
+
+export __ZDOTLOADED="$__ZDOTLOADED:$ZDOTDIR/.zprofile"
