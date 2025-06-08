@@ -1,4 +1,5 @@
 # [index : awesome-macos-command-line](https://git.herrbischoff.com/awesome-macos-command-line/about/)
+# https://catalins.tech/how-i-setup-new-macbooks/
 #
 # .nosync: Any file or directory where the name contains “.nosync” is ignored by iCould synchronisation
 # .noindex: Any file or directory where the name contains “.noindex” is ignored by Spotlight
@@ -27,6 +28,23 @@ defaults delete com.apple.systempreferences AttentionPrefBundleIDs
 defaults write com.apple.finder AppleShowAllFiles -bool true
 #   阻止系统在网络卷和外部驱动器上创建.DS_Store文件
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool TRUE
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+# Show the path bar in the Finder
+defaults write com.apple.finder "ShowPathbar" -bool "true"
+
+# Keep folders on top in Finder
+#defaults write com.apple.finder "_FXSortFoldersFirst" -bool "true"
+
+# Keep folders on top on Desktop
+#defaults write com.apple.finder "_FXSortFoldersFirstOnDesktop" -bool "true"
+
+################################################################################
+## Preferences
+#   Enable tap-to-click for the trackpad and show the correct state in System Preferences
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
+
 
 ################################################################################
 ##  Webview
@@ -40,3 +58,5 @@ defaults write -g WebKitDeveloperExtras -bool YES
 Killall Dock
 KillAll Finder
 
+# Apply the settings
+/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
