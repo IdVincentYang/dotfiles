@@ -1,7 +1,8 @@
 # vi: ft=sh
 
 if [ -f `which aichat` ]; then
-    alias ,ask='aichat'
+    alias ,airoles='aichat --list-roles'
+    alias ,ask='aichat -r %shell%'
     alias ,think='aichat -m gemini:gemini-2.0-flash-thinking-exp-01-21'
 fi
 
