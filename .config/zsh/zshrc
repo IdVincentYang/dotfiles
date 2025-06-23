@@ -6,6 +6,9 @@ export HISTFILE="$HOME/.local/state/zsh_history"
 #     fc -p
 # }
 
+setopt EXTENDED_HISTORY
+setopt inc_append_history_time
+
 ################################################################################
 # oh-my-zsh:
 #   website: https://ohmyz.sh/
