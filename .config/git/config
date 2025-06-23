@@ -19,8 +19,6 @@
 	cf = config
 	cfl = config --list
 	cfrm = config --unset
-	co = checkout
-	cot = checkout --track
 	cp = cherry-pick
 	cpa = cherry-pick --abort
 	cpc = cherry-pick --continue
@@ -52,9 +50,12 @@
 	rmv = remote rename
 	rrm = remote remove
 	rus = remote set-url
-	rs = reset
-	rsh = reset HEAD
+# discard working directory and stated changes, reset to HEAD state
 	rshh = reset --hard HEAD
+# restore workspace from stated
+	rst = restore
+# restore stated from local repo, default --source=HEAD
+	rsts = restore --stated
 	sm = submodule
 	smu = submodule update --init
 	ss = status --show-stash
@@ -67,6 +68,7 @@
 	shpl = stash apply
 	shrm = stash drop
 	shrma = stash clear
+	sw = switch
 	t = tag
 	tls = tag --list
 	trm = tag -d
