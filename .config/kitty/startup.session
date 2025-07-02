@@ -1,0 +1,13 @@
+# https://sw.kovidgoyal.net/kitty/overview/#startup-sessions
+cd ~/archives.noindex
+launch zsh
+new_tab
+cd ~/Documents/Creator/cocos-editor
+launch zsh
+new_tab
+cd ~/Documents/Creator/CocosAIDemo/extensions/creator-ai
+launch zsh
+new_tab
+cd ~/Downloads/
+focus
+launch zsh
