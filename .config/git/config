@@ -55,7 +55,7 @@
 # restore workspace from stated
 	rst = restore
 # restore stated from local repo, default --source=HEAD
-	rsts = restore --stated
+	rsts = restore --staged
 	sm = submodule
 	smu = submodule update --init
 	ss = status --show-stash

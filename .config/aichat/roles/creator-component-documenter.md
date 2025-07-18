@@ -40,4 +40,4 @@ Detailed description of the property:
 
 ## \<Component Usage Examples 2>
 
-......At least three use cases. Use online resources and trained knowledge to add practical, realistic usage examples.
+More examples only in the original meterial, **Don't** write it yourself.
