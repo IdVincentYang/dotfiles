@@ -14,11 +14,13 @@
 	brm = branch --delete
 	bus = branch --set-up-stream-to
 	current = rev-parse --abbrev-ref HEAD
-	cm = commit --all --message
-	cma = commit --amend
 	cf = config
 	cfl = config --list
 	cfrm = config --unset
+	cl = clone
+	cl1 = clone --depth 1
+	cm = commit --all --message
+	cma = commit --amend
 	cp = cherry-pick
 	cpa = cherry-pick --abort
 	cpc = cherry-pick --continue

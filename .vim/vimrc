@@ -386,7 +386,7 @@ Plug 'chr4/nginx.vim'
 Plug 'chrisbra/unicode.vim'
 Plug 'Chiel92/vim-autoformat'
 Plug 'easymotion/vim-easymotion'
-Plug 'honza/vim-snippets'
+" Plug 'honza/vim-snippets'
 Plug 'jayli/vim-easycomplete'
 Plug 'hjson/vim-hjson'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -396,7 +396,7 @@ Plug 'lifepillar/vim-solarized8'
 Plug 'NoahTheDuke/vim-just'
 Plug 'nanotee/zoxide.vim'
 Plug 'scrooloose/nerdcommenter'
-Plug 'SirVer/ultisnips'
+" Plug 'SirVer/ultisnips'
 Plug 'terrastruct/d2-vim'
 Plug 'tpope/vim-surround'
 "  netrw 增强插件: https://github.com/Tao-Quixote/vim/blob/master/plugin/vinegar.md
@@ -453,6 +453,12 @@ if has_key(g:plugs, 'vim-airline')
             let g:airline#extensions#tabline#show_tab_nr = 1
         endif
     endif
+endif
+
+""""""""""""""""""""""""""""""""""""""""
+" Plug: 'https://github.com/SirVer/ultisnips'
+if has_key(g:plugs, 'SirVer/ultisnips')
+    let g:UltiSnipsUsePythonVersion = 3
 endif
 
 """"""""""""""""""""""""""""""""""""""""
