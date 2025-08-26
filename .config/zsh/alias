@@ -5,6 +5,7 @@ if [ -f `which aichat` ]; then
     alias aiexplain='aichat -r %explain-shell%'
     alias aimodels='aichat --list-models'
     alias airoles='aichat --list-roles'
+    alias aisessions='aichat --list-sessions'
     alias aithink='alias -m azure-openai:gpt-5'
 fi
 
