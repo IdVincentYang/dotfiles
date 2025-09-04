@@ -1,12 +1,11 @@
 # https://sw.kovidgoyal.net/kitty/overview/#startup-sessions
 cd ~/archives.noindex
 launch zsh
+
 new_tab
-cd ~/Documents/Creator/cocos-editor
+cd ~/Documents/AIIDE
 launch zsh
-new_tab
-cd ~/Documents/Creator/cocos-editor-ai
-launch zsh
+
 new_tab
 cd ~/Downloads/
 focus
