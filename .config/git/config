@@ -86,7 +86,7 @@
 	name = Vincent
 	email = idvincentyang@gmail.com
 
-[includeIf "gitdir:~/Documents/LittleGame/"]
+[includeIf "gitdir:~/Documents/AIIDE/"]
 	path = ~/.config/git/gitconfig.yangws.github
 
 [includeIf "gitdir:~/Documents/Creator/"]
