@@ -1,0 +1,3 @@
+[submodule "/Users/yangws/.config/aichat/functions"]
+	path = /Users/yangws/.config/aichat/functions
+	url = https://github.com/sigoden/llm-functions.git

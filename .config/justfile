@@ -119,6 +119,15 @@ cmd-common:
     # network client commands
     brew install adwaita-icon-theme grsync rsync wget yt-dlp
 
+cmd-aichat:
+    #!/usr/bin/env bash
+    cd ${HOME}
+    set -euxo pipefail
+    _AICHAT_FUNCTIONS_DIR="$(aichat --info | sed -n 's/^functions_dir *//p')"
+    brew install aichat
+    yadm submodule add -- https://github.com/sigoden/llm-functions.git "${_AICHAT_FUNCTIONS_DIR}"
+    yadm commit -m "[update] setup aichat functions repo to ${_AICHAT_FUNCTIONS_DIR}"
+
 dev-tool-git:
     ### enhance git first
     brew install git git-lfs
