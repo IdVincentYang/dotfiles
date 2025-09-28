@@ -90,6 +90,12 @@ if has("autocmd")
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
+" Use spaces with width four in JSON files
+augroup json_filetype_settings
+    autocmd!
+    autocmd FileType json setlocal softtabstop=4 shiftwidth=4 expandtab
+augroup END
+
 """"""""""""""""""""""""""""""""""""""""
 " General: view
 set nofoldenable                " close fold as default open fold using cmd: fen
