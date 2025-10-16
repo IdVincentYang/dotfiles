@@ -1,0 +1,28 @@
+services:
+  v2raya:
+    image: mzz2017/v2raya
+    container_name: v2raya
+    restart: always
+    privileged: true
+    network_mode: host
+    environment:
+      # 1. 设置 v2ray 内核为 xray (这是 v2raya 的默认和推荐选项)
+      - V2RAYA_V2RAY_BIN=/usr/local/bin/xray
+
+      # 2. 开启 nftables 原生支持
+      # 这是最关键的设置，直接告诉 v2raya 你的宿主机使用 nftables
+      - V2RAYA_NFTABLES_SUPPORT=on
+
+      # 3. 日志文件路径 (可选，但建议保留)
+      - V2RAYA_LOG_FILE=/tmp/v2raya.log
+
+      # 4. IPTABLES_MODE 在此模式下不再需要，因此可以移除
+      # - IPTABLES_MODE=nftables
+
+    volumes:
+      # 挂载内核模块，对于透明代理等功能是必要的
+      - /lib/modules:/lib/modules:ro
+      # 共享宿主机的 DNS 配置
+      - /etc/resolv.conf:/etc/resolv.conf
+      # v2raya 的持久化数据存储目录，请确保宿主机上的 /etc/v2raya 目录存在
+      - /etc/v2raya:/etc/v2raya
