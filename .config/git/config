@@ -81,6 +81,7 @@
 	wp = worktree prune
 	wrm = worktree remove
 	wrp = worktree repare
+	zip = archive --format=zip
 
 [user]
 	name = Vincent
