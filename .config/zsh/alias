@@ -9,6 +9,11 @@ if [ -f `which aichat` ]; then
     alias aithink='alias -m azure-openai:gpt-5'
 fi
 
+if [ -f `which gemini` ]; then
+    alias ,gcm='gemini --prompt "commit the code in stage area, commit message should has detail"
+     --auto-approve'
+fi
+
 alias help=$(which tldr || which man)
 
 alias l.='ls -a'

@@ -1,2 +1,4 @@
-# [config doc](https://docs.npmjs.com/cli/v8/using-npm/config)
-# [config doc](https://docs.npmjs.com/cli/v7/using-npm/config)
+#@cocos-agent:registry=http://creator-npm.cocos.org:7001/
+#registry=https://registry.npmmirror.com
+strict-ssl=false
+
