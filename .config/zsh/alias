@@ -10,8 +10,7 @@ if [ -f `which aichat` ]; then
 fi
 
 if [ -f `which gemini` ]; then
-    alias ,gcm='gemini --prompt "commit the code in stage area, commit message should has detail"
-     --auto-approve'
+    alias ,gcm='gemini --approval-mode yolo --prompt "commit the code in stage area, commit message should has detail" '
 fi
 
 alias help=$(which tldr || which man)
