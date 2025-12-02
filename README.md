@@ -13,6 +13,7 @@
 
 ```bash
 sudo apt-get install yadm
+yadm reset --hard HEAD
 ```
 
 ## Setup brew

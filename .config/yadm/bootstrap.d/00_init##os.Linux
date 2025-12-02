@@ -1,0 +1,39 @@
+#!/bin/bash
+# vi:set ft=sh
+
+# 遇到错误立即停止，处理未定义变量
+set -eu
+
+echo "[BOOTSTRAP] Loading Linux initialization script..."
+
+# --- 1. Termux (Android) 检测 ---
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    echo "[BOOTSTRAP] Platform detected: Android (Termux)"
+
+    # 标记 yadm class
+    if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then
+        echo "[BOOTSTRAP] Adding 'TE_Termux' to yadm local.class"
+        yadm config --add local.class TE_Termux
+    fi
+
+    # 可以在这里添加 termux 特有的 pkg install ...
+fi
+
+# --- 2. Ubuntu/Debian 检测 ---
+if [ -f /etc/os-release ]; then
+    # 加载系统信息
+    . /etc/os-release
+    
+    if [[ "$ID" == "ubuntu" ]]; then
+        echo "[BOOTSTRAP] Platform detected: Ubuntu ${VERSION_ID}"
+
+        # 标记 yadm class
+        if [[ ! $(yadm config --get-all local.class) == *OS_Ubuntu* ]]; then
+            echo "[BOOTSTRAP] Adding 'OS_Ubuntu' to yadm local.class"
+            yadm config --add local.class OS_Ubuntu
+        fi
+
+        # 这里可以放置 Ubuntu 特有的初始化，例如:
+        # sudo apt update && sudo apt install -y build-essential
+    fi
+fi
