@@ -10,21 +10,13 @@ echo "[BOOTSTRAP] Loading Linux initialization script..."
 # ==============================================================================
 if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     echo "[BOOTSTRAP] Platform detected: Android (Termux)"
-
-    # 1. 设置 yadm class
+    
     if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then
         echo "[BOOTSTRAP] Adding 'TE_Termux' to yadm local.class"
         yadm config --add local.class TE_Termux
     fi
 
-    # 2. Termux 原生安装逻辑 (替代 Linuxbrew)
-    # Termux 下不建议使用 Homebrew，直接用 pkg
     echo "[BOOTSTRAP] Termux detected: Using 'pkg' instead of Linuxbrew."
-    
-    # 自动升级并安装基础包 (按需修改列表)
-    # pkg update -y && pkg install -y git curl zsh vim
-    
-    # Termux 逻辑结束，直接退出当前脚本，避免执行后续的 Linuxbrew 安装
     exit 0
 fi
 
@@ -43,44 +35,58 @@ if [ -f /etc/os-release ]; then
             yadm config --add local.class OS_Ubuntu
         fi
         
-        # 预安装 Linuxbrew 依赖 (Ubuntu 需要 build-essential 等)
-        # 注意: 这可能需要 sudo 密码，如果是无人值守模式可能会卡住
+        # 安装 Linuxbrew 必需的依赖
+        # 这里使用 sudo，如果是非交互式且无免密 sudo，可能会暂停等待输入密码
         if command -v apt-get >/dev/null 2>&1; then
-             echo "[BOOTSTRAP] Ensuring Linuxbrew dependencies are installed..."
-             # sudo apt-get update && sudo apt-get install -y build-essential procps curl file git
+             echo "[BOOTSTRAP] Checking Linuxbrew dependencies..."
+             # 检查 git 是否存在，不存在则安装，避免每次都运行 apt update
+             if ! command -v git >/dev/null 2>&1; then
+                 sudo apt-get update && sudo apt-get install -y build-essential procps curl file git
+             fi
         fi
     fi
-else
-    echo "[BOOTSTRAP] Platform detected: Generic Linux"
 fi
 
 # --- Linuxbrew 安装逻辑 ---
 
-# 检查 brew 是否已存在
-# Linuxbrew 通常安装在 /home/linuxbrew/.linuxbrew 或 ~/.linuxbrew
 if command -v brew >/dev/null 2>&1; then
     echo "[BOOTSTRAP] Linuxbrew is already installed."
 else
-    # 检查常见路径，防止 PATH 未加载导致误判
-    POSSIBLE_BREW_BIN="/home/linuxbrew/.linuxbrew/bin/brew"
-    if [ -f "$POSSIBLE_BREW_BIN" ]; then
-        echo "[BOOTSTRAP] Linuxbrew found at $POSSIBLE_BREW_BIN but not in PATH."
-        eval "$($POSSIBLE_BREW_BIN shellenv)"
+    BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+    
+    # 检查是否已安装但未在 PATH 中
+    if [ -f "$BREW_PREFIX/bin/brew" ]; then
+        echo "[BOOTSTRAP] Linuxbrew found at $BREW_PREFIX but not in PATH."
+        eval "$("$BREW_PREFIX/bin/brew" shellenv)"
     else
+        echo "[BOOTSTRAP] Preparing to install Linuxbrew..."
+
+        # [关键修复]：主动解决权限问题
+        # 如果标准目录不存在，尝试创建并修改权限
+        if [ ! -d "/home/linuxbrew" ]; then
+            if command -v sudo >/dev/null 2>&1; then
+                echo "[BOOTSTRAP] Creating /home/linuxbrew (requires sudo)..."
+                # 1. 创建目录
+                sudo mkdir -p /home/linuxbrew/.linuxbrew
+                # 2. 将目录所有权交给当前用户 (防止后续安装脚本因权限报错)
+                sudo chown -R "$USER:$(id -gn)" /home/linuxbrew
+                echo "[BOOTSTRAP] Permissions fixed."
+            else
+                echo "[BOOTSTRAP] WARNING: 'sudo' not found. Installation may fail or fallback to home directory."
+            fi
+        fi
+
         echo "[BOOTSTRAP] Installing Linuxbrew (Non-interactive)..."
-        
-        # NONINTERACTIVE=1 用于跳过确认提示
+        # 此时当前用户已经拥有了 /home/linuxbrew 的写入权限，安装脚本将顺利运行
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         
-        # 安装完成后立即配置环境变量，供本次 bootstrap 后续脚本使用
-        if [ -d "/home/linuxbrew/.linuxbrew" ]; then
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            echo "[BOOTSTRAP] Linuxbrew installed and loaded into environment."
+        # 立即加载环境
+        if [ -d "$BREW_PREFIX" ]; then
+            eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+            echo "[BOOTSTRAP] Linuxbrew installed and loaded."
         elif [ -d "$HOME/.linuxbrew" ]; then
-            eval "$($HOME/.linuxbrew/bin/brew shellenv)"
+            eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
             echo "[BOOTSTRAP] Linuxbrew (User dir) installed and loaded."
-        else
-            echo "[BOOTSTRAP] Warning: Linuxbrew installed but could not locate binary to load shellenv."
         fi
     fi
 fi
