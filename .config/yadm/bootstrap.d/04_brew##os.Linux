@@ -1,0 +1,21 @@
+#!/bin/bash
+# vi:set ft=sh
+set -eu
+
+# [关键] Termux 守卫 (Guard Clause)
+# 如果是 Termux，直接跳过此脚本，不要报错，也不要执行 brew 安装逻辑
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    echo "[BOOTSTRAP] [04_brew] Skipping Homebrew installation on Termux."
+    exit 0
+fi
+
+# 下面是标准的 Linuxbrew 逻辑
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
+
+source "$LIB_HELPER"
+
+BREW_BIN="/home/linuxbrew/.linuxbrew/bin/brew"
+
+echo "[BOOTSTRAP] [04_brew] Setting up Homebrew for Linux..."
+run_brew_install_logic "$BREW_BIN"

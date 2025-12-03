@@ -1,17 +1,33 @@
 #!/bin/bash
 # vi:set ft=sh
-
 set -eu
 
-echo "[BOOTSTRAP] Checking Vim configuration..."
+echo "[BOOTSTRAP] [10_vim] Configuring Vim..."
 
-# 0. 基础环境检查
-if ! command -v vim >/dev/null 2>&1; then
-    echo "[BOOTSTRAP] Vim not found. Skipping Vim setup."
-    exit 0
+# 1. 加载环境变量 (Termux 由 00_init 生成，Ubuntu 由 04_brew 生成)
+LOCAL_ENV="$HOME/.local/.env"
+if [ -f "$LOCAL_ENV" ]; then
+    source "$LOCAL_ENV"
 fi
 
-# --- 1. 动态计算安装路径 (适配 XDG) ---
+# 2. 检查并安装 Vim (如果缺失)
+if ! command -v vim >/dev/null 2>&1; then
+    echo "[BOOTSTRAP] Vim not found. Installing..."
+    
+    if [[ -v TERMUX_APP_PID ]]; then
+        # Termux
+        pkg install -y vim
+    elif [ -n "${HOMEBREW_PREFIX:-}" ]; then
+        # Ubuntu/macOS with Brew
+        brew install vim
+    elif command -v apt-get >/dev/null 2>&1; then
+        # Ubuntu Fallback (no brew)
+        sudo apt-get update && sudo apt-get install -y vim
+    else
+        echo "Error: Cannot install vim. Package manager not found."
+        exit 1
+    fi
+fi
 
 # 定义 XDG_CONFIG_HOME 默认值
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"

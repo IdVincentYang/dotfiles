@@ -1,0 +1,81 @@
+#!/bin/bash
+# vi:set ft=sh
+
+set -eu
+
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/zsh_helper.sh"
+
+echo "[BOOTSTRAP] Configuring Linux Shell environment..."
+
+# 1. 加载环境
+LOCAL_ENV="$HOME/.local/.env"
+if [ -f "$LOCAL_ENV" ]; then
+    source "$LOCAL_ENV"
+fi
+
+# 2. Termux 快速通道 (Termux 通常直接用 ~/.zshrc，或者你可以统一架构)
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    echo "[BOOTSTRAP] Termux detected."
+    if ! command -v zsh >/dev/null 2>&1; then
+        pkg install -y zsh
+    fi
+    if [[ "$SHELL" != *"zsh"* ]]; then
+        chsh -s zsh
+    fi
+    # Termux 结束
+    exit 0
+fi
+
+# 3. 加载 Zsh 公共库
+if [ -f "$LIB_HELPER" ]; then
+    source "$LIB_HELPER"
+else
+    echo "[BOOTSTRAP] Error: Cannot find zsh_helper.sh"
+    exit 1
+fi
+
+# ==============================================================================
+# 步骤 1: 确保安装 Zsh
+# ==============================================================================
+if ! command -v zsh >/dev/null 2>&1; then
+    echo "[BOOTSTRAP] Installing Zsh..."
+    if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y zsh
+    fi
+fi
+
+# ==============================================================================
+# 步骤 2: 生成 ~/.zshenv (调用公共库)
+# ==============================================================================
+# 定义 Linux 下的 ZDOTDIR
+# 如果你没有单独的 zdotdir.Linux，也可以临时指向通用的 .config/zsh
+CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir.Linux"
+
+# 确保目录存在 (避免指向空目录导致 zsh 启动报错)
+if [ ! -d "$CONFIG_ZDOTDIR" ]; then
+    echo "[BOOTSTRAP] Warning: $CONFIG_ZDOTDIR does not exist. Creating it..."
+    mkdir -p "$CONFIG_ZDOTDIR"
+    # 你可能需要在这里 touch .zshrc 或者做些初始化
+fi
+
+setup_zshenv "$CONFIG_ZDOTDIR"
+
+# ==============================================================================
+# 步骤 3: 切换 Shell
+# ==============================================================================
+# 优先查找 Linuxbrew 的 zsh
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -x "${HOMEBREW_PREFIX}/bin/zsh" ]; then
+    TARGET_SHELL="${HOMEBREW_PREFIX}/bin/zsh"
+else
+    TARGET_SHELL=$(command -v zsh)
+fi
+
+if [ -n "$TARGET_SHELL" ] && [ "$SHELL" != "$TARGET_SHELL" ]; then
+    echo "[BOOTSTRAP] Changing default shell to $TARGET_SHELL"
+    if ! grep -Fxq "$TARGET_SHELL" /etc/shells; then
+        echo "$TARGET_SHELL" | sudo tee -a /etc/shells >/dev/null
+    fi
+    sudo chsh -s "$TARGET_SHELL" "$USER"
+    echo "[BOOTSTRAP] Shell changed."
+fi

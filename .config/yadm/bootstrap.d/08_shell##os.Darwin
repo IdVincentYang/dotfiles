@@ -1,0 +1,72 @@
+#!/bin/bash
+# vi:set ft=sh
+
+set -eu
+
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/zsh_helper.sh"
+
+echo "[BOOTSTRAP] Configuring macOS Shell environment..."
+
+# 1. 加载 00_init 生成的环境变量
+LOCAL_ENV="$HOME/.local/.env"
+if [ -f "$LOCAL_ENV" ]; then
+    source "$LOCAL_ENV"
+else
+    echo "[BOOTSTRAP] Error: $LOCAL_ENV not found. Run 00_init first."
+    exit 1
+fi
+
+# 2. 加载 Zsh 公共库
+if [ -f "$LIB_HELPER" ]; then
+    source "$LIB_HELPER"
+else
+    echo "[BOOTSTRAP] Error: Cannot find zsh_helper.sh at $LIB_HELPER"
+    exit 1
+fi
+
+# ==============================================================================
+# 步骤 1: 安装与路径检查
+# ==============================================================================
+echo "[BOOTSTRAP] Installing Zsh via Homebrew..."
+brew install zsh || true
+
+# 自动获取 Brew 安装的 zsh 路径
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+    BREW_ZSH="${HOMEBREW_PREFIX}/bin/zsh"
+else
+    # 兜底探测
+    BREW_ZSH="$(brew --prefix)/bin/zsh"
+fi
+
+if [ ! -x "$BREW_ZSH" ]; then
+    echo "[BOOTSTRAP] Error: Zsh binary not found at $BREW_ZSH"
+    exit 1
+fi
+
+# ==============================================================================
+# 步骤 2: 生成 ~/.zshenv (调用公共库)
+# ==============================================================================
+# 这里传入 macOS 特有的配置目录路径
+CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir.Darwin"
+
+setup_zshenv "$CONFIG_ZDOTDIR"
+
+# ==============================================================================
+# 步骤 3: 切换默认 Shell
+# ==============================================================================
+TARGET_SHELL="$BREW_ZSH"
+
+if [ "$SHELL" != "$TARGET_SHELL" ]; then
+    echo "[BOOTSTRAP] Changing default shell to Homebrew Zsh ($TARGET_SHELL)"
+
+    if ! grep -Fxq "$TARGET_SHELL" /etc/shells; then
+        echo "[BOOTSTRAP] Adding $TARGET_SHELL to /etc/shells (requires sudo)..."
+        echo "$TARGET_SHELL" | sudo tee -a /etc/shells >/dev/null
+    fi
+
+    chsh -s "$TARGET_SHELL"
+    echo "[BOOTSTRAP] Shell changed. Please restart Terminal."
+else
+    echo "[BOOTSTRAP] Default shell is already configured correctly."
+fi

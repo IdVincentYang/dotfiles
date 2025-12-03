@@ -16,12 +16,19 @@ if [[ ! -d "$BOOTSTRAP_D" ]]; then
     exit 1
 fi
 
-find -L "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
+# Use process substitution to iterate through the file list.
+# This preserves STDIN for the loop body, allowing sub-scripts to be interactive.
+while IFS= read -r bootstrap; do
+    # Filter conditions:
+    # 1. Must be executable (-x)
+    # 2. Must not be a yadm template file (containing "##")
+    # 3. Must not be a backup file (ending with "~")
     if [[ -x "$bootstrap" && ! "$bootstrap" =~ "##" && ! "$bootstrap" =~ "~$" ]]; then
+        echo "[BOOTSTRAP] Executing $bootstrap..."
+
         if ! "$bootstrap"; then
             echo "Error: bootstrap '$bootstrap' failed" >&2
             exit 1
         fi
     fi
-done
-
+done < <(find -L "$BOOTSTRAP_D" -type f | sort)
