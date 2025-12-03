@@ -3,90 +3,78 @@
 
 set -eu
 
-echo "[BOOTSTRAP] Loading Linux initialization script..."
+# 获取当前脚本所在目录，以便引用 lib
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
 
-# ==============================================================================
-# 分支 1: Android / Termux 环境
-# ==============================================================================
+# --- 1. Android/Termux 分支 ---
 if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     echo "[BOOTSTRAP] Platform detected: Android (Termux)"
-    
     if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then
-        echo "[BOOTSTRAP] Adding 'TE_Termux' to yadm local.class"
         yadm config --add local.class TE_Termux
     fi
-
-    echo "[BOOTSTRAP] Termux detected: Using 'pkg' instead of Linuxbrew."
+    echo "[BOOTSTRAP] Termux detected: Using 'pkg' instead of Linuxbrew. Exiting."
     exit 0
 fi
 
-# ==============================================================================
-# 分支 2: 标准 Linux 环境 (Ubuntu, Debian, etc.)
-# ==============================================================================
+# --- 2. 加载公共库 ---
+if [ -f "$LIB_HELPER" ]; then
+    source "$LIB_HELPER"
+else
+    echo "Error: Cannot find brew_helper.sh at $LIB_HELPER"
+    exit 1
+fi
 
-# --- OS 识别与 Class 设置 ---
+# --- 3. Linux/Ubuntu 预处理 ---
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     echo "[BOOTSTRAP] Platform detected: Linux ($ID $VERSION_ID)"
 
     if [[ "$ID" == "ubuntu" ]]; then
         if [[ ! $(yadm config --get-all local.class) == *OS_Ubuntu* ]]; then
-            echo "[BOOTSTRAP] Adding 'OS_Ubuntu' to yadm local.class"
             yadm config --add local.class OS_Ubuntu
         fi
         
-        # 安装 Linuxbrew 必需的依赖
-        # 这里使用 sudo，如果是非交互式且无免密 sudo，可能会暂停等待输入密码
+        # 确保依赖安装
         if command -v apt-get >/dev/null 2>&1; then
-             echo "[BOOTSTRAP] Checking Linuxbrew dependencies..."
-             # 检查 git 是否存在，不存在则安装，避免每次都运行 apt update
              if ! command -v git >/dev/null 2>&1; then
+                 echo "[BOOTSTRAP] Installing dependencies..."
                  sudo apt-get update && sudo apt-get install -y build-essential procps curl file git
              fi
         fi
     fi
 fi
 
-# --- Linuxbrew 安装逻辑 ---
+# --- 4. 解决 Linuxbrew 权限问题 (Linux 特有) ---
+BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+BREW_BIN="$BREW_PREFIX/bin/brew"
 
-if command -v brew >/dev/null 2>&1; then
-    echo "[BOOTSTRAP] Linuxbrew is already installed."
-else
-    BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+# 如果需要安装，且目录无权限，先修复
+if [ ! -x "$BREW_BIN" ]; then
+    if [ ! -d "/home/linuxbrew" ]; then
+        if command -v sudo >/dev/null 2>&1; then
+            echo "[BOOTSTRAP] Creating /home/linuxbrew (requires sudo)..."
+            sudo mkdir -p "$BREW_PREFIX"
+            sudo chown -R "$USER:$(id -gn)" /home/linuxbrew
+        else
+             echo "[BOOTSTRAP] WARNING: sudo not found, installation might fail."
+        fi
+    elif [ -d "$BREW_PREFIX" ] && [ ! -w "$BREW_PREFIX" ]; then
+         # 如果目录存在但不可写（例如之前的残留）
+         echo "[BOOTSTRAP] Fixing permissions for existing directory..."
+         sudo chown -R "$USER:$(id -gn)" /home/linuxbrew
+    fi
     
-    # 检查是否已安装但未在 PATH 中
-    if [ -f "$BREW_PREFIX/bin/brew" ]; then
-        echo "[BOOTSTRAP] Linuxbrew found at $BREW_PREFIX but not in PATH."
-        eval "$("$BREW_PREFIX/bin/brew" shellenv)"
-    else
-        echo "[BOOTSTRAP] Preparing to install Linuxbrew..."
-
-        # [关键修复]：主动解决权限问题
-        # 如果标准目录不存在，尝试创建并修改权限
-        if [ ! -d "/home/linuxbrew" ]; then
-            if command -v sudo >/dev/null 2>&1; then
-                echo "[BOOTSTRAP] Creating /home/linuxbrew (requires sudo)..."
-                # 1. 创建目录
-                sudo mkdir -p /home/linuxbrew/.linuxbrew
-                # 2. 将目录所有权交给当前用户 (防止后续安装脚本因权限报错)
-                sudo chown -R "$USER:$(id -gn)" /home/linuxbrew
-                echo "[BOOTSTRAP] Permissions fixed."
-            else
-                echo "[BOOTSTRAP] WARNING: 'sudo' not found. Installation may fail or fallback to home directory."
-            fi
-        fi
-
-        echo "[BOOTSTRAP] Installing Linuxbrew (Non-interactive)..."
-        # 此时当前用户已经拥有了 /home/linuxbrew 的写入权限，安装脚本将顺利运行
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # 立即加载环境
-        if [ -d "$BREW_PREFIX" ]; then
-            eval "$("$BREW_PREFIX/bin/brew" shellenv)"
-            echo "[BOOTSTRAP] Linuxbrew installed and loaded."
-        elif [ -d "$HOME/.linuxbrew" ]; then
-            eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
-            echo "[BOOTSTRAP] Linuxbrew (User dir) installed and loaded."
-        fi
+    # 如果发现坏掉的安装，清理它 (调用 rm -rf)
+    if [ -d "$BREW_PREFIX" ] && [ ! -x "$BREW_BIN" ]; then
+        echo "[BOOTSTRAP] Cleaning up broken installation..."
+        sudo rm -rf /home/linuxbrew/.linuxbrew
     fi
 fi
+
+# --- 5. 调用公共安装逻辑 ---
+run_brew_install_logic "$BREW_BIN"
+
+# --- 6. 后置处理 ---
+echo "[BOOTSTRAP] Ensuring gcc is installed..."
+brew install gcc || true

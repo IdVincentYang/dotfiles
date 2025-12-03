@@ -3,20 +3,30 @@
 
 set -eu
 
-# 因为文件名已经限定了系统，能运行到这里说明肯定是 macOS
-echo "[BOOTSTRAP] Platform detected: macOS (Darwin)"
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
 
-# --- 标记 yadm class ---
+echo "[BOOTSTRAP] Platform detected: macOS"
+
+# 1. 标记 Class
 if [[ ! $(yadm config --get-all local.class) == *OS_Mac* ]]; then
-    echo "[BOOTSTRAP] Adding 'OS_Mac' to yadm local.class"
-    # yadm config --add local.class OS_Mac
+    yadm config --add local.class OS_Mac
 fi
 
-# --- 检查 Homebrew ---
-if command -v brew >/dev/null 2>&1; then
-    echo "[BOOTSTRAP] Homebrew is already installed."
+# 2. 加载公共库
+if [ -f "$LIB_HELPER" ]; then
+    source "$LIB_HELPER"
 else
-    echo "[BOOTSTRAP] Warning: Homebrew not found. You might want to install it."
-    # 可以在这里取消注释自动安装 Homebrew:
-    # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "Error: Cannot find brew_helper.sh at $LIB_HELPER"
+    exit 1
 fi
+
+# 3. 确定 macOS 下 brew 的位置 (Apple Silicon vs Intel)
+if [[ "$(uname -m)" == "arm64" ]]; then
+    TARGET_BREW_BIN="/opt/homebrew/bin/brew"
+else
+    TARGET_BREW_BIN="/usr/local/bin/brew"
+fi
+
+# 4. 调用公共安装逻辑
+run_brew_install_logic "$TARGET_BREW_BIN"
