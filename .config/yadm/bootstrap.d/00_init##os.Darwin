@@ -1,32 +1,74 @@
 #!/bin/bash
 # vi:set ft=sh
-
 set -eu
 
 BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
-LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
+LIB_ENV="$BOOTSTRAP_DIR/lib/env_helper.sh"
 
-echo "[BOOTSTRAP] Platform detected: macOS"
+echo "[BOOTSTRAP] [00_init] macOS System Initialization..."
 
-# 1. 标记 Class
+# 1. 加载环境库
+if [ -f "$LIB_ENV" ]; then
+    source "$LIB_ENV"
+else
+    echo "Error: env_helper.sh not found."
+    exit 1
+fi
+
+# 2. 标记 Yadm Class
 if [[ ! $(yadm config --get-all local.class) == *OS_Mac* ]]; then
     yadm config --add local.class OS_Mac
 fi
 
-# 2. 加载公共库
-if [ -f "$LIB_HELPER" ]; then
-    source "$LIB_HELPER"
-else
-    echo "Error: Cannot find brew_helper.sh at $LIB_HELPER"
-    exit 1
-fi
+# 3. 初始化 .env 文件 (Overwrite)
+reset_env_file
 
-# 3. 确定 macOS 下 brew 的位置 (Apple Silicon vs Intel)
-if [[ "$(uname -m)" == "arm64" ]]; then
-    TARGET_BREW_BIN="/opt/homebrew/bin/brew"
-else
-    TARGET_BREW_BIN="/usr/local/bin/brew"
-fi
+# 4. 定义 macOS XDG 配置 (保留了你的原始注释)
+# 注意：这里使用 EOF (不带引号) 让 $HOME 在生成时展开为绝对路径，避免歧义
+# 如果你希望保留 $HOME 字面量，可以使用 << 'XDG_EOF'
+read -r -d '' XDG_CONFIG <<EOF
+# https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+# Specify XDG Base Directories for macOS
 
-# 4. 调用公共安装逻辑
-run_brew_install_logic "$TARGET_BREW_BIN"
+# \$XDG_DATA_HOME: Directory containing user-specific data files. Default value is \$HOME/.local/share.
+export XDG_DATA_HOME="${HOME}/.local/share"
+
+# \$XDG_CONFIG_HOME: Directory containing user-specific configuration files. Default value is \$HOME/.config.
+export XDG_CONFIG_HOME="${HOME}/.config"
+
+# \$XDG_STATE_HOME defines the base directory relative to which user-specific state files should be stored. Default value is \$HOME/.local/state.
+export XDG_STATE_HOME="${HOME}/.local/state"
+
+# \$XDG_CACHE_HOME: Directory containing user-specific non-essential data files. Default value is \$HOME/.cache.
+#   In MacOS, \$HOME/Library/Caches: This directory contains caches used by applications installed by the user, such as browser caches, app caches, and system caches.
+export XDG_CACHE_HOME="${HOME}/Library/Caches"
+
+# \$XDG_RUNTIME_DIR: Directory containing runtime files that should be deleted when the user logs out. Default value is /run/user/\$UID, where \$UID is the user ID.
+export XDG_RUNTIME_DIR="${HOME}/Library/Caches/XDG_Runtime"
+
+# \$XDG_DOCUMENTS_DIR: Directory containing the user's documents. Default value is \$HOME/Documents.
+export XDG_DOCUMENTS_DIR="${HOME}/Documents"
+
+# \$XDG_DOWNLOAD_DIR: Directory containing the user's downloads. Default value is \$HOME/Downloads.
+export XDG_DOWNLOAD_DIR="${HOME}/Downloads"
+
+# \$XDG_MUSIC_DIR: Directory containing the user's music. Default value is \$HOME/Music.
+export XDG_MUSIC_DIR="${HOME}/Music"
+
+# \$XDG_PICTURES_DIR: Directory containing the user's pictures. Default value is \$HOME/Pictures.
+export XDG_PICTURES_DIR="${HOME}/Pictures"
+
+# \$XDG_PUBLICSHARE_DIR: Directory containing public files. Default value is \$HOME/Public.
+export XDG_PUBLICSHARE_DIR="${HOME}/Public"
+
+# \$XDG_TEMPLATES_DIR: Directory containing templates. Default value is \$HOME/Templates.
+export XDG_TEMPLATES_DIR="${HOME}/Documents/XDG_Templates"
+
+# \$XDG_VIDEOS_DIR: Directory containing the user's videos. Default value is \$HOME/Videos.
+export XDG_VIDEOS_DIR="${HOME}/Movies"
+EOF
+
+# 5. 写入配置并自动创建目录
+write_xdg_config "$XDG_CONFIG"
+
+echo "[BOOTSTRAP] [00_init] macOS initialization complete."
