@@ -16,9 +16,12 @@ if [[ ! -d "$BOOTSTRAP_D" ]]; then
     exit 1
 fi
 
-# Use process substitution to iterate through the file list.
-# This preserves STDIN for the loop body, allowing sub-scripts to be interactive.
-while IFS= read -r bootstrap; do
+# 核心修改说明:
+# 使用 '3< <(...)' 将 find 的输出重定向到文件描述符 3
+# 使用 'read -u 3' 专门从描述符 3 读取文件名
+# 这样，循环体内部的标准输入 (FD 0) 依然连接着键盘，子脚本就可以正常交互了。
+
+while IFS= read -r -u 3 bootstrap; do
     # Filter conditions:
     # 1. Must be executable (-x)
     # 2. Must not be a yadm template file (containing "##")
@@ -31,4 +34,4 @@ while IFS= read -r bootstrap; do
             exit 1
         fi
     fi
-done < <(find -L "$BOOTSTRAP_D" -type f | sort)
+done 3< <(find -L "$BOOTSTRAP_D" -type f | sort)
