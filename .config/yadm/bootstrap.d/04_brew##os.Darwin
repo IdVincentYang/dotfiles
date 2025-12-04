@@ -1,0 +1,31 @@
+#!/bin/bash
+# vi:set ft=sh
+
+set -eu
+
+# 获取当前脚本所在目录
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
+
+# 加载 Brew 公共库
+if [ -f "$LIB_HELPER" ]; then
+    source "$LIB_HELPER"
+else
+    echo "[BOOTSTRAP] Error: Cannot find brew_helper.sh at $LIB_HELPER"
+    exit 1
+fi
+
+echo "[BOOTSTRAP] [04_brew] Setting up Homebrew for macOS..."
+
+# 1. 确定 Homebrew 的预期安装路径
+# Apple Silicon (M1/M2/M3...) 使用 /opt/homebrew
+# Intel Mac 使用 /usr/local
+ARCH=$(uname -m)
+if [[ "$ARCH" == "arm64" ]]; then
+    BREW_BIN="/opt/homebrew/bin/brew"
+else
+    BREW_BIN="/usr/local/bin/brew"
+fi
+
+# 2. 调用公共逻辑执行安装、镜像配置和环境变量追加
+run_brew_install_logic "$BREW_BIN"

@@ -1,0 +1,8 @@
+# 忽略由 yadm alt 模板机制生成的目标脚本
+# 这些文件不应该被提交，应该只提交带有 ## 后缀的模板
+00_init
+04_brew
+08_shell
+
+# 如果有 lib 目录下的生成文件，也在这里添加
+# lib/some_generated_file

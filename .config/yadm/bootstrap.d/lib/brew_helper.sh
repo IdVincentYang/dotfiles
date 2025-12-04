@@ -114,7 +114,7 @@ run_brew_install_logic() {
         
         # 构造要追加的内容
         # 使用 read -d '' 将多行文本读入变量
-        read -r -d '' BREW_ENV_CONTENT <<EOF
+        read -r -d '' BREW_ENV_CONTENT <<EOF || true
 # Homebrew Mirror Settings
 $(env | grep "^HOMEBREW_" | sed 's/^/export /')
 

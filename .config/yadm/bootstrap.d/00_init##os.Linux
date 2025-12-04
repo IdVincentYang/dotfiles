@@ -21,7 +21,7 @@ reset_env_file
 
 # 3. 定义 Linux XDG 配置
 # 针对 Linux 调整了 RUNTIME_DIR 的逻辑
-read -r -d '' XDG_CONFIG <<EOF
+read -r -d '' XDG_CONFIG <<EOF || true
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 # Specify XDG Base Directories for Linux
 

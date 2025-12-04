@@ -26,7 +26,7 @@ reset_env_file
 # 4. 定义 macOS XDG 配置 (保留了你的原始注释)
 # 注意：这里使用 EOF (不带引号) 让 $HOME 在生成时展开为绝对路径，避免歧义
 # 如果你希望保留 $HOME 字面量，可以使用 << 'XDG_EOF'
-read -r -d '' XDG_CONFIG <<EOF
+read -r -d '' XDG_CONFIG <<EOF || true
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 # Specify XDG Base Directories for macOS
 
