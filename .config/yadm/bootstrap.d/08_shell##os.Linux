@@ -36,13 +36,18 @@ else
 fi
 
 # ==============================================================================
-# 步骤 1: 确保安装 Zsh
+# 步骤 1: 校验 Brew 版 Zsh
 # ==============================================================================
-if ! command -v zsh >/dev/null 2>&1; then
-    echo "[BOOTSTRAP] Installing Zsh..."
-    if command -v apt-get >/dev/null 2>&1; then
-        sudo apt-get update && sudo apt-get install -y zsh
-    fi
+BREW_ZSH=""
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -x "${HOMEBREW_PREFIX}/bin/zsh" ]; then
+    BREW_ZSH="${HOMEBREW_PREFIX}/bin/zsh"
+elif command -v brew >/dev/null 2>&1; then
+    BREW_ZSH="$(brew --prefix)/bin/zsh"
+fi
+
+if [ -z "$BREW_ZSH" ] || [ ! -x "$BREW_ZSH" ]; then
+    echo "[BOOTSTRAP] Error: Brew Zsh not found. Run 05_coretools first."
+    exit 1
 fi
 
 # ==============================================================================
@@ -64,12 +69,7 @@ setup_zshenv "$CONFIG_ZDOTDIR"
 # ==============================================================================
 # 步骤 3: 切换 Shell
 # ==============================================================================
-# 优先查找 Linuxbrew 的 zsh
-if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -x "${HOMEBREW_PREFIX}/bin/zsh" ]; then
-    TARGET_SHELL="${HOMEBREW_PREFIX}/bin/zsh"
-else
-    TARGET_SHELL=$(command -v zsh)
-fi
+TARGET_SHELL="$BREW_ZSH"
 
 if [ -n "$TARGET_SHELL" ] && [ "$SHELL" != "$TARGET_SHELL" ]; then
     echo "[BOOTSTRAP] Changing default shell to $TARGET_SHELL"

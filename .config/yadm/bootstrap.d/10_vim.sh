@@ -10,21 +10,18 @@ if [ -f "$LOCAL_ENV" ]; then
     source "$LOCAL_ENV"
 fi
 
-# 2. 检查并安装 Vim (如果缺失)
+# 2. 检查 Vim 是否存在
+IS_TERMUX=false
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    IS_TERMUX=true
+fi
+
 if ! command -v vim >/dev/null 2>&1; then
-    echo "[BOOTSTRAP] Vim not found. Installing..."
-    
-    if [[ -v TERMUX_APP_PID ]]; then
-        # Termux
+    if [ "$IS_TERMUX" = true ]; then
+        echo "[BOOTSTRAP] Vim not found on Termux. Installing via pkg..."
         pkg install -y vim
-    elif [ -n "${HOMEBREW_PREFIX:-}" ]; then
-        # Ubuntu/macOS with Brew
-        brew install vim
-    elif command -v apt-get >/dev/null 2>&1; then
-        # Ubuntu Fallback (no brew)
-        sudo apt-get update && sudo apt-get install -y vim
     else
-        echo "Error: Cannot install vim. Package manager not found."
+        echo "[BOOTSTRAP] Error: Vim not found. Run 05_coretools to install core tools."
         exit 1
     fi
 fi

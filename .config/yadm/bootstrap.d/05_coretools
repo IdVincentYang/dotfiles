@@ -1,0 +1,44 @@
+#!/bin/bash
+# vi:set ft=sh
+
+set -eu
+
+# Termux 环境不支持 Homebrew，直接跳过
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    echo "[BOOTSTRAP] [05_coretools] Skipping core tools installation on Termux."
+    exit 0
+fi
+
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+BREWFILE_CORE="$BOOTSTRAP_DIR/Brewfile.core"
+LOCAL_ENV="$HOME/.local/.env"
+
+if [ ! -f "$LOCAL_ENV" ]; then
+    echo "[BOOTSTRAP] [05_coretools] Missing $LOCAL_ENV. Run 00_init and 04_brew first."
+    exit 1
+fi
+
+# 加载前置阶段写入的环境变量，以便当前 shell 获得 Homebrew PATH
+source "$LOCAL_ENV"
+
+if [ ! -f "$BREWFILE_CORE" ]; then
+    echo "[BOOTSTRAP] [05_coretools] Brewfile not found: $BREWFILE_CORE"
+    exit 1
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "[BOOTSTRAP] [05_coretools] Homebrew not found in PATH. Ensure 04_brew succeeded."
+    exit 1
+fi
+
+echo "[BOOTSTRAP] [05_coretools] Installing core toolchain via Brewfile.core..."
+NONINTERACTIVE=1 brew bundle install --file="$BREWFILE_CORE" --no-lock
+
+echo "[BOOTSTRAP] [05_coretools] Running git lfs install..."
+if command -v git-lfs >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
+    git lfs install
+else
+    echo "[BOOTSTRAP] [05_coretools] Warning: git or git-lfs not available after bundle."
+fi
+
+echo "[BOOTSTRAP] [05_coretools] Core tool installation complete."

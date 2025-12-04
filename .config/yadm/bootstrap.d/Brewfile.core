@@ -1,0 +1,8 @@
+# Core binaries required for bootstrap process and basic operations
+brew "git"      # Latest Git
+brew "git-lfs"  # Large File Storage
+brew "just"     # Task Runner
+brew "yadm"     # Dotfiles Manager
+brew "vim"      # Editor
+brew "zsh"      # Shell
+# brew "tmux"   # (Optional: Add if needed immediately)

@@ -26,21 +26,17 @@ else
 fi
 
 # ==============================================================================
-# 步骤 1: 安装与路径检查
+# 步骤 1: 校验 Brew 版 Zsh
 # ==============================================================================
-echo "[BOOTSTRAP] Installing Zsh via Homebrew..."
-brew install zsh || true
-
-# 自动获取 Brew 安装的 zsh 路径
+BREW_ZSH=""
 if [ -n "${HOMEBREW_PREFIX:-}" ]; then
     BREW_ZSH="${HOMEBREW_PREFIX}/bin/zsh"
-else
-    # 兜底探测
+elif command -v brew >/dev/null 2>&1; then
     BREW_ZSH="$(brew --prefix)/bin/zsh"
 fi
 
-if [ ! -x "$BREW_ZSH" ]; then
-    echo "[BOOTSTRAP] Error: Zsh binary not found at $BREW_ZSH"
+if [ -z "$BREW_ZSH" ] || [ ! -x "$BREW_ZSH" ]; then
+    echo "[BOOTSTRAP] Error: Brew Zsh not found. Run 05_coretools first."
     exit 1
 fi
 

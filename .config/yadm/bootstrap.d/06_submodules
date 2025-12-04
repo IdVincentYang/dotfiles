@@ -1,0 +1,25 @@
+#!/bin/bash
+# vi:set ft=sh
+
+set -eu
+
+if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+    echo "[BOOTSTRAP] [06_submodules] Skipping submodule sync on Termux."
+    exit 0
+fi
+
+LOCAL_ENV="$HOME/.local/.env"
+if [ -f "$LOCAL_ENV" ]; then
+    source "$LOCAL_ENV"
+fi
+
+echo "[BOOTSTRAP] [06_submodules] Syncing yadm submodules..."
+
+if ! command -v yadm >/dev/null 2>&1; then
+    echo "[BOOTSTRAP] [06_submodules] Error: yadm command not found. Ensure core tools are installed."
+    exit 1
+fi
+
+yadm submodule update --init --recursive
+
+echo "[BOOTSTRAP] [06_submodules] Submodules are up to date."
