@@ -32,7 +32,10 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 echo "[BOOTSTRAP] [05_coretools] Installing core toolchain via Brewfile.core..."
-NONINTERACTIVE=1 brew bundle install --file="$BREWFILE_CORE" --no-lock
+if ! NONINTERACTIVE=1 brew bundle install --file="$BREWFILE_CORE"; then
+    echo "[BOOTSTRAP] [05_coretools] Error: brew bundle failed."
+    exit 1
+fi
 
 echo "[BOOTSTRAP] [05_coretools] Running git lfs install..."
 if command -v git-lfs >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
