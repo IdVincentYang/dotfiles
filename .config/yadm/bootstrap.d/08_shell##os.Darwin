@@ -43,8 +43,8 @@ fi
 # ==============================================================================
 # 步骤 2: 生成 ~/.zshenv (调用公共库)
 # ==============================================================================
-# 这里传入 macOS 特有的配置目录路径
-CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir.Darwin"
+# 这里传入跨平台共享的配置目录路径
+CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir"
 
 setup_zshenv "$CONFIG_ZDOTDIR"
 

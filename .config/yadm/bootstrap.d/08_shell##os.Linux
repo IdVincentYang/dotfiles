@@ -53,9 +53,8 @@ fi
 # ==============================================================================
 # 步骤 2: 生成 ~/.zshenv (调用公共库)
 # ==============================================================================
-# 定义 Linux 下的 ZDOTDIR
-# 如果你没有单独的 zdotdir.Linux，也可以临时指向通用的 .config/zsh
-CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir.Linux"
+# 定义跨平台共享的 ZDOTDIR
+CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir"
 
 # 确保目录存在 (避免指向空目录导致 zsh 启动报错)
 if [ ! -d "$CONFIG_ZDOTDIR" ]; then
