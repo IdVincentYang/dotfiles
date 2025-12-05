@@ -13,7 +13,10 @@
 
 ```bash
 sudo apt-get install yadm
-yadm reset --hard HEAD
+# if what push commits use git protocol to pull repo with correct ssh key
+# yadm pull git@github.com:IdVincentYang/dotfiles.git
+yadm pull https://github.com/IdVincentYang/dotfiles.git
+yadm bootstrap
 ```
 
 ## Setup brew

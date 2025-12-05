@@ -1,3 +1,24 @@
 [submodule "/Users/yangws/.config/aichat/functions"]
 	path = .config/aichat/functions
 	url = https://github.com/sigoden/llm-functions.git
+[submodule ".local/share/oh-my-zsh"]
+	path = .local/share/oh-my-zsh
+	url = https://github.com/ohmyzsh/ohmyzsh.git
+[submodule ".local/share/oh-my-zsh-custom/plugins/zsh-autosuggestions"]
+	path = .local/share/oh-my-zsh-custom/plugins/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule ".local/share/oh-my-zsh-custom/plugins/zsh-history-substring-search"]
+	path = .local/share/oh-my-zsh-custom/plugins/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git
+[submodule ".local/share/oh-my-zsh-custom/plugins/zsh-syntax-highlighting"]
+	path = .local/share/oh-my-zsh-custom/plugins/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule ".local/share/oh-my-zsh-custom/themes/agnoster-zsh-theme"]
+	path = .local/share/oh-my-zsh-custom/themes/agnoster-zsh-theme
+	url = https://github.com/agnoster/agnoster-zsh-theme.git
+[submodule ".local/share/oh-my-zsh-custom/themes/powerlevel10k"]
+	path = .local/share/oh-my-zsh-custom/themes/powerlevel10k
+	url = https://github.com/romkatv/powerlevel10k.git
+[submodule ".local/share/yadb"]
+	path = .local/share/yadb
+	url = https://github.com/ysbing/YADB.git
