@@ -54,14 +54,12 @@ if command -v npm >/dev/null 2>&1; then
   export NPM_CONFIG_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/npm"
 fi
 
-# pm2 configuration
+# pm2 configuration (silent when missing to keep instant prompt clean)
 if command -v pm2 >/dev/null 2>&1; then
   export PM2_HOME="${XDG_STATE_HOME:-$HOME/.local/state}/pm2"
   if command -v authbind >/dev/null 2>&1; then
     alias pm2='authbind --deep pm2'
   fi
-else
-  echo "[WARN] pm2 not installed, via 'npm install -g pm2' to install."
 fi
 
 # rustup toolchain

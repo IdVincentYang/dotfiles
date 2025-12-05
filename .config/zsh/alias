@@ -39,19 +39,21 @@ alias ,.p=',. push'
 _ADB_SCREEN_CAPTURE_USAGE="Usage: <cmd> [path, default='/tmp/screenshot.png']"
 function _adb_screen_capture() {
     echo $_ADB_SCREEN_CAPTURE_USAGE
-    if [ ! -f `which adb` ] ; then
-        echo "Can't find adb command in BASH envirement variable!"
-    else
-        SAVE_PATH=$1
-        if [ -z "$SAVE_PATH" ] ; then
-           SAVE_PATH="/tmp/screenshot.png"
-        fi
+    if ! command -v adb >/dev/null 2>&1; then
+        echo "Can't find adb command in PATH!"
+        return 1
+    fi
 
-        echo "Capturing..."
-        adb shell screencap -p > $SAVE_PATH
-        #adb $2 $3 shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $SAVE_PATH
-        sleep 1
-        open $SAVE_PATH
+    local save_path="${1:-/tmp/screenshot.png}"
+
+    echo "Capturing..."
+    adb shell screencap -p > "$save_path"
+    #adb $2 $3 shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $SAVE_PATH
+    sleep 1
+    if command -v open >/dev/null 2>&1; then
+        open "$save_path"
+    elif command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$save_path" >/dev/null 2>&1 &
     fi
 }
 
