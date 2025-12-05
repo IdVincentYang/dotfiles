@@ -1,3 +1,4 @@
-source "$HOME/.config/bash/xdg_dirs"
-source "$HOME/.config/zsh/zshrc"
-source "$HOME/.config/bash/alias.linux"
+# Legacy Linux-specific bootstrap (now mostly handled by zdotdir)
+if [[ -f "$MYSH/alias.linux" ]]; then
+    source "$MYSH/alias.linux"
+fi

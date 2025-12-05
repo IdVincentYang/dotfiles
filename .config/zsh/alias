@@ -1,6 +1,6 @@
 # vi: ft=sh
 
-if [ -f `which aichat` ]; then
+if command -v aichat >/dev/null 2>&1; then
     alias ai='aichat'
     alias aiexplain='aichat -r %explain-shell%'
     alias aimodels='aichat --list-models'
@@ -9,11 +9,15 @@ if [ -f `which aichat` ]; then
     alias aithink='alias -m azure-openai:gpt-5'
 fi
 
-if [ -f `which gemini` ]; then
+if command -v gemini >/dev/null 2>&1; then
     alias ,gcm='gemini --approval-mode yolo --prompt "commit the code in stage area, commit message should has detail" '
 fi
 
-alias help=$(which tldr || which man)
+if command -v tldr >/dev/null 2>&1; then
+    alias help='tldr'
+elif command -v man >/dev/null 2>&1; then
+    alias help='man'
+fi
 
 alias l.='ls -a'
 alias l1='ls -1'

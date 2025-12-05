@@ -7,9 +7,6 @@ if [[ -z "${__ZDOTLOADED:-}" ]]; then
 fi
 
 export MYSH="${MYSH:-$HOME/.config/zsh}"
-if [[ -f "$MYSH/xdg_dirs" ]]; then
-  source "$MYSH/xdg_dirs"
-fi
 
 case "$(uname -s)" in
   Darwin*) export MY_PLATFORM=Darwin ;;
