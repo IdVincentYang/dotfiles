@@ -2,8 +2,20 @@
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then
-    echo "Usage: just install <name> [name ...]" >&2
-    exit 1
+    if [[ -t 0 ]]; then
+        echo "Usage: just install <name> [name ...]" >&2
+        exit 1
+    fi
+fi
+
+packages=("$@")
+if [[ ${#packages[@]} -eq 0 ]]; then
+    stdin_data="$(cat)"
+    if [[ -z "$stdin_data" ]]; then
+        echo "No packages specified." >&2
+        exit 0
+    fi
+    read -r -a packages <<<"$stdin_data"
 fi
 
 if [[ -z "${TARGET_PLATFORM:-}" ]]; then
@@ -28,7 +40,7 @@ select_recipe() {
     local pkg="$1"
     local -a matches=()
     for recipe in "${recipes[@]}"; do
-        IFS='-' read -r _main _domain r_name r_os <<<"$recipe"
+        IFS='|' read -r _main _domain r_name r_os <<<"$(split_recipe "$recipe")"
         [[ "${r_name:-}" != "$pkg" ]] && continue
         if [[ -n "${r_os:-}" ]]; then
             [[ "$r_os" != "$TARGET_PLATFORM" ]] && continue
@@ -70,7 +82,7 @@ select_recipe() {
     done
 }
 
-for pkg in "$@"; do
+for pkg in "${packages[@]}"; do
     target=""
     if target=$(select_recipe "$pkg"); then
         echo "Installing ${target}..."

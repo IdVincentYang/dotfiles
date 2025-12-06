@@ -2,6 +2,12 @@
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
+# 命名约定
+#   <主分类>-<功能领域>-<name>[-<os>]
+#   - 主分类(primary): core/system/cli/gui/extra
+#   - 功能领域(domain): develop/media/productivity/db/vm/util/other
+#   - 可选 OS 后缀：darwin/linux/termux（缺省表示通用）
+# 新增 recipe 必须遵守上述命名，方可被 `list`/`install` 等命令识别。
 primary_categories := "core system cli gui extra"
 domain_categories := "develop media productivity db vm util other"
 
@@ -25,11 +31,86 @@ help:
 platform-info:
 	@just/platform.sh
 
-list main="" domain="" os="" name="" raw="0":
-	@JUSTFILE_PATH="{{justfile()}}" just/list.sh "{{main}}" "{{domain}}" "{{os}}" "{{name}}" "{{raw}}"
+list *filters:
+	@JUSTFILE_PATH="{{justfile()}}" just/list.sh {{filters}}
 
-install +packages:
+install *packages:
 	@JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install.sh {{packages}}
 
-install-menu main="" domain="" os="":
-	@JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh "{{main}}" "{{domain}}" "{{os}}"
+install-menu *filters:
+	@JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh {{filters}}
+
+# --- core: base toolchain & CLI essentials ---
+
+# 基础构建依赖
+core-develop-autoconf:
+	brew install autoconf
+
+core-develop-automake:
+	brew install automake
+
+core-util-p7zip:
+	brew install p7zip
+
+core-util-tree:
+	brew install tree
+
+core-productivity-zoxide:
+	brew install zoxide
+
+### fonts
+#   nerd fonts(https://github.com/ryanoasis/nerd-fonts/blob/master/readme_cn.md)
+#       config terminal: menu->setting...->text->font->change font
+core-media-jetbrains-mono-nerd-font:
+	brew install font-jetbrains-mono-nerd-font
+
+# asdf 安装流程
+core-develop-asdf:
+	brew install asdf
+
+core-develop-asdf-tool-versions:
+	ln -s "./asdf/tool-versions" "${HOME}/.tool-versions"
+
+core-develop-asdf-install:
+	asdf install
+
+# 通用 CLI 套件
+core-cli-bat:
+	# bat -> cat: Clone of cat(1) with syntax highlighting and Git integration.
+	brew install bat
+
+core-cli-btop:
+	# btop -> top: Resource monitor. Enhanced top command.
+	brew install btop
+
+core-cli-fd:
+	# fd -> find: Simple, fast and user-friendly alternative to find.
+	brew install fd
+
+core-cli-fzf:
+	# fzf: Command-line fuzzy finder.
+	brew install fzf
+
+core-cli-ripgrep:
+	# ripgrep -> find: Search tool like grep.
+	brew install ripgrep
+
+core-cli-tealdeer:
+	# tealdeer -> man: short TLDR client.
+	brew install tealdeer
+
+# 网络/同步工具
+core-util-adwaita-icon-theme:
+	brew install adwaita-icon-theme
+
+core-cli-grsync:
+	brew install grsync
+
+core-cli-rsync:
+	brew install rsync
+
+core-cli-wget:
+	brew install wget
+
+core-media-yt-dlp:
+	brew install yt-dlp

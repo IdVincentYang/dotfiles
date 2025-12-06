@@ -4,11 +4,34 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
-main_filter="${1:-}"
-domain_filter="${2:-}"
-os_filter="${3:-}"
-name_filter="${4:-}"
-raw_output="${5:-0}"
+main_filter=""
+domain_filter=""
+os_filter=""
+name_filter=""
+raw_output="0"
+
+for arg in "$@"; do
+    case "$arg" in
+        main=*) main_filter="${arg#*=}" ;;
+        domain=*) domain_filter="${arg#*=}" ;;
+        os=*) os_filter="${arg#*=}" ;;
+        name=*) name_filter="${arg#*=}" ;;
+        raw=*) raw_output="${arg#*=}" ;;
+        *)
+            if [[ -z "$main_filter" ]]; then
+                main_filter="$arg"
+            elif [[ -z "$domain_filter" ]]; then
+                domain_filter="$arg"
+            elif [[ -z "$os_filter" ]]; then
+                os_filter="$arg"
+            elif [[ -z "$name_filter" ]]; then
+                name_filter="$arg"
+            else
+                echo "[list] Ignoring extra argument: $arg" >&2
+            fi
+            ;;
+    esac
+done
 
 recipes=()
 while IFS= read -r line; do
@@ -19,7 +42,7 @@ done < <(collect_recipes || true)
 filtered=()
 if [[ "${#recipes[@]}" -gt 0 ]]; then
     for recipe in "${recipes[@]}"; do
-        IFS='-' read -r r_main r_domain r_name r_os <<<"$recipe"
+        IFS='|' read -r r_main r_domain r_name r_os <<<"$(split_recipe "$recipe")"
         [[ -n "$main_filter" && "${r_main:-}" != "$main_filter" ]] && continue
         [[ -n "$domain_filter" && "${r_domain:-}" != "$domain_filter" ]] && continue
         [[ -n "$name_filter" && "${r_name:-}" != "$name_filter" ]] && continue
@@ -33,7 +56,7 @@ fi
 
 if [[ "$raw_output" == "1" ]]; then
     if [[ "${#filtered[@]}" -gt 0 ]]; then
-        printf '%s\n' "${filtered[@]}"
+        printf '%s\n' "${filtered[*]}"
     fi
     exit 0
 fi

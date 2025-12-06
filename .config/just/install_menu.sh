@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-main_filter="${1:-}"
-domain_filter="${2:-}"
-os_filter="${3:-}"
-
 for var in JUSTFILE_PATH TARGET_PLATFORM; do
     if [[ -z "${!var:-}" ]]; then
         echo "$var 未设置" >&2
@@ -14,11 +10,15 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+filters=("$@")
+list_args=("${filters[@]}")
+list_args+=("raw=1")
+
 candidates=()
 while IFS= read -r line; do
     [[ -z "$line" ]] && continue
     candidates+=("$line")
-done < <(JUSTFILE_PATH="$JUSTFILE_PATH" "$SCRIPT_DIR/list.sh" "$main_filter" "$domain_filter" "$os_filter" "" "1")
+done < <(JUSTFILE_PATH="$JUSTFILE_PATH" "$SCRIPT_DIR/list.sh" "${list_args[@]}" )
 
 if [[ "${#candidates[@]}" -eq 0 ]]; then
     echo "No recipes available for the given filters."
