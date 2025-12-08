@@ -113,4 +113,76 @@ core-cli-wget:
     brew install wget
 
 core-media-yt-dlp:
-    brew install yt-dlp
+	brew install yt-dlp
+
+# --- system: desktop integration & utilities ---
+
+### hammerspoon & tray helpers
+system-util-hammerspoon-darwin:
+	brew install --cask --no-quarantine hammerspoon
+	defaults write org.hammerspoon.Hammerspoon MJConfigFile "${XDG_CONFIG_HOME:-$HOME/.config}"/hammerspoon/init.lua
+
+system-util-caffeine-darwin:
+	# tray: easily block OS from sleeping
+	brew install --cask caffeine
+
+system-productivity-easydict-darwin:
+	# tray: easydict translator
+	brew install --cask easydict
+
+system-productivity-dropshelf-darwin:
+	# tray: drag & drop shelf
+	brew install --cask dropshelf
+
+system-productivity-neardrop-darwin:
+	# tray: nearby Android sharing
+	brew install --cask grishka/grishka/neardrop
+
+system-util-stats-darwin:
+	# tray: system monitor utility
+	brew install --cask stats
+
+### system applications
+system-media-quickrecorder-darwin:
+	brew install lihaoyun6/tap/quickrecorder
+
+system-productivity-raycast-darwin:
+	# spotlight replacement
+	brew install --cask raycast
+
+system-util-mediainfo-darwin:
+	# Finder contextual media info
+	brew install --cask mediainfo
+
+system-productivity-openvanilla-darwin:
+	brew install openvanilla
+	mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+	ln -snf "./backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+
+system-media-aerial-darwin:
+	brew install --cask aerial
+
+### Quick Look enhancements
+system-media-quicklook-suite-darwin:
+	brew install --cask apparency suspicious-package
+	brew install --cask --no-quarantine qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
+	xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
+	xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
+	qlmanage -r cache
+	open /Applications/QuickLook\ Video.app
+
+### system tweaks
+system-util-karabiner-elements-darwin:
+	brew install --cask karabiner-elements
+
+system-productivity-keepassxc-darwin:
+	brew install --cask keepassxc
+
+system-util-macvim-darwin:
+	brew install --cask macvim
+
+system-util-kitty-darwin:
+	brew install --cask kitty
+
+system-other-scrcpy:
+	brew install scrcpy
