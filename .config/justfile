@@ -209,7 +209,7 @@ cli-develop-aichat:
 	config_file="$config_dir/config.yaml"
 	template_file="$config_dir/config.yaml.bak"
 	if [[ ! -f "$config_file" && -f "$template_file" ]]; then
-		cp "$template_file" "$config_file"
+	    cp "$template_file" "$config_file"
 	fi
 
 ### Git utilities
