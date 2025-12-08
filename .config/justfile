@@ -185,190 +185,198 @@ system-util-kitty-darwin:
     brew install --cask kitty
 
 system-util-icefloor-darwin:
-	# Firewall / pf 可视化管理
-	brew install --cask icefloor
+    # Firewall / pf 可视化管理
+    brew install --cask icefloor
 
 system-other-scrcpy:
-	brew install scrcpy
+    brew install scrcpy
 
 ### system database services
 system-db-postgresql16:
-	# sql server and client app
-	# - default db named `postgresql` created under     /opt/homebrew/var/postgresql@16
-	brew install postgresql@16
-	brew services start postgresql@16
+    # sql server and client app
+    # - default db named `postgresql` created under     /opt/homebrew/var/postgresql@16
+    brew install postgresql@16
+    brew services start postgresql@16
 
 # --- cli: developer tooling & productivity ---
 
 ### AI / command line helpers
 cli-develop-aichat:
-	# aichat CLI; functions repo可后续通过 yadm submodule 管理。
-	brew install aichat
-	yadm submodule update --init
-	config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/aichat"
-	config_file="$config_dir/config.yaml"
-	template_file="$config_dir/config.yaml.bak"
-	if [[ ! -f "$config_file" && -f "$template_file" ]]; then
-	    cp "$template_file" "$config_file"
-	fi
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # aichat CLI; functions repo可后续通过 yadm submodule 管理。
+    brew install aichat
+    # submodule init in yadm bootstrap stage: yadm submodule update --init
+    config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/aichat"
+    config_file="$config_dir/config.yaml"
+    template_file="$config_dir/config.yaml.bak"
+    if [[ ! -f "$config_file" && -f "$template_file" ]]; then
+        cp "$template_file" "$config_file"
+    fi
 
 ### Git utilities
 cli-develop-git-archive-all:
-	# Archive repository including submodules.
-	brew install git-archive-all
+    # Archive repository including submodules.
+    brew install git-archive-all
 
 cli-develop-onefetch:
-	# Git repo summary in terminal.
-	brew install onefetch
+    # Git repo summary in terminal.
+    brew install onefetch
 
 gui-develop-fork-darwin:
-	# Git GUI client (Fork)。
-	brew install --cask fork
+    # Git GUI client (Fork)。
+    brew install --cask fork
 
 ### Languages & build tools
 cli-develop-rustup:
-	brew install rustup
-	rustup default stable
+    brew install rustup
+    rustup default stable
 
 cli-develop-tokei:
-	# Count source lines of code.
-	brew install tokei
+    # Count source lines of code.
+    brew install tokei
 
 cli-develop-cmake:
-	brew install cmake
+    brew install cmake
 
 gui-develop-beyond-compare-darwin:
-	# File diff/merge tool。若需重置试用：删除 ~/Library/Application Support/Beyond Compare/registry.dat
-	brew install --cask beyond-compare
+    # File diff/merge tool。若需重置试用：删除 ~/Library/Application Support/Beyond Compare/registry.dat
+    brew install --cask beyond-compare
 
 gui-develop-visual-studio-code:
-	brew install --cask visual-studio-code
+    brew install --cask visual-studio-code
 
 ### Network / debugging suite
 cli-develop-iperf3:
-	brew install iperf3
+    brew install iperf3
 
 cli-develop-iproute2mac-darwin:
-	brew install iproute2mac
+    brew install iproute2mac
 
 gui-develop-sloth-darwin:
-	brew install --cask sloth
+    brew install --cask sloth
 
 gui-develop-charles-darwin:
-	brew install --cask charles
+    brew install --cask charles
 
 gui-develop-wireshark:
-	brew install --cask wireshark
+    brew install --cask wireshark
 
 gui-develop-postman:
-	brew install --cask postman
+    brew install --cask postman
 
 # --- gui: desktop applications ---
 
 ## 下载/网络工具
 gui-productivity-cyberduck-darwin:
-	brew install --cask cyberduck
+    brew install --cask cyberduck
 
 gui-other-aria2gui-darwin:
-	# aria2 GUI front-end
-	brew install --cask aria2gui
+    # aria2 GUI front-end
+    brew install --cask aria2gui
 
 ## 浏览器
 gui-productivity-google-chrome:
-	brew install --cask google-chrome
+    brew install --cask google-chrome
 
 ## 多媒体
 gui-media-gimp:
-	brew install --cask gimp
+    brew install --cask gimp
 
 gui-media-inkscape:
-	brew install --cask inkscape
+    brew install --cask inkscape
 
 gui-media-losslesscut:
-	brew install --cask losslesscut
+    brew install --cask losslesscut
 
 gui-media-invisor-lite-darwin:
-	brew install --cask invisor-lite
+    brew install --cask invisor-lite
 
 gui-media-iina-darwin:
-	brew install --cask iina
-	mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
-	ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
+    brew install --cask iina
+    mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
+    ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
 
 ## 字体/外设
 # (intentionally left blank for future groupings)
 
 ## 游戏/虚拟化
 gui-vm-xemu-darwin:
-	brew install --cask xemu
+    brew install --cask xemu
 
 gui-vm-vmware-fusion-darwin:
-	# vm ware, replacing older solutions
-	# brew install --cask rdm virtualbox virtualbox-extension-pac
-	# brew install wine-stable
-	brew install --cask vmware-fusion
+    # vm ware, replacing older solutions
+    # brew install --cask rdm virtualbox virtualbox-extension-pac
+    # brew install wine-stable
+    brew install --cask vmware-fusion
 
 ## 数据库客户端
 gui-db-db-browser-for-sqlite-darwin:
-	# sqlite client app
-	brew install --cask --no-quarantine db-browser-for-sqlite
+    # sqlite client app
+    brew install --cask --no-quarantine db-browser-for-sqlite
 
 gui-db-pgadmin4-darwin:
-	# PostgreSQL GUI 管理工具
-	brew install --cask --no-quarantine pgadmin4
+    # PostgreSQL GUI 管理工具
+    brew install --cask --no-quarantine pgadmin4
 
 ## 开发辅助
 extra-productivity-applite-darwin:
-	# app: homebrew GUI
-	# brew install cakebrew
-	# app: homebrew GUI for cask apps
-	brew install --cask --no-quarantine applite
+    # app: homebrew GUI
+    # brew install cakebrew
+    # app: homebrew GUI for cask apps
+    brew install --cask --no-quarantine applite
 
 # --- build: source-based installs ---
 
 build-util-colorized-logs:
-	repo="https://github.com/kilobyte/colorized-logs.git"
-	workdir="share/colorized-logs"
-	prefix="${HOME}/.local"
-	bin="${prefix}/bin/ansi2txt"
-	if [[ ! -e "$bin" ]]; then
-		if [[ ! -d "$workdir" ]]; then
-			git clone --depth 1 "$repo" "$workdir"
-		fi
-		cd "$workdir"
-		[[ -d build ]] && rm -rf build
-		mkdir build
-		pushd build >/dev/null
-		cmake -DCMAKE_INSTALL_PREFIX:PATH="$prefix" ..
-		make
-		make install
-		popd >/dev/null
-		rm -rf build
-	fi
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    repo="https://github.com/kilobyte/colorized-logs.git"
+    workdir="share/colorized-logs"
+    prefix="${HOME}/.local"
+    bin="${prefix}/bin/ansi2txt"
+    if [[ ! -e "$bin" ]]; then
+        if [[ ! -d "$workdir" ]]; then
+            git clone --depth 1 "$repo" "$workdir"
+        fi
+        cd "$workdir"
+        [[ -d build ]] && rm -rf build
+        mkdir build
+        pushd build >/dev/null
+        cmake -DCMAKE_INSTALL_PREFIX:PATH="$prefix" ..
+        make
+        make install
+        popd >/dev/null
+        rm -rf build
+    fi
 
 build-util-authbind-darwin:
-	repo="https://github.com/Castaglia/MacOSX-authbind.git"
-	workdir="share/authbind"
-	rm -rf "$workdir"
-	git clone --depth 1 "$repo" "$workdir"
-	pushd "$workdir" >/dev/null
-	if [[ "$(uname -m)" == "arm64" ]]; then
-		sed -i '' 's/^ARCH=-arch.*$/ARCH=-arch arm64/g' Makefile
-	fi
-	make
-	sudo make install
-	popd >/dev/null
-	rm -rf "$workdir"
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    repo="https://github.com/Castaglia/MacOSX-authbind.git"
+    workdir="share/authbind"
+    rm -rf "$workdir"
+    git clone --depth 1 "$repo" "$workdir"
+    pushd "$workdir" >/dev/null
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        sed -i '' 's/^ARCH=-arch.*$/ARCH=-arch arm64/g' Makefile
+    fi
+    make
+    sudo make install
+    popd >/dev/null
+    rm -rf "$workdir"
 
 build-develop-autoadb:
-	repo="https://github.com/rom1v/autoadb.git"
-	workdir="share/autoadb"
-	bin="${HOME}/.local/bin/autoadb"
-	if [[ ! -d "$workdir" ]]; then
-		git clone --depth 1 "$repo" "$workdir"
-	fi
-	if [[ ! -e "$bin" ]]; then
-		cd "$workdir"
-		cargo build --release
-		install -m 755 target/release/autoadb "$bin"
-	fi
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    repo="https://github.com/rom1v/autoadb.git"
+    workdir="share/autoadb"
+    bin="${HOME}/.local/bin/autoadb"
+    if [[ ! -d "$workdir" ]]; then
+        git clone --depth 1 "$repo" "$workdir"
+    fi
+    if [[ ! -e "$bin" ]]; then
+        cd "$workdir"
+        cargo build --release
+        install -m 755 target/release/autoadb "$bin"
+    fi
