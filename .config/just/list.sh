@@ -47,8 +47,9 @@ if [[ "${#recipes[@]}" -gt 0 ]]; then
         [[ -n "$domain_filter" && "${r_domain:-}" != "$domain_filter" ]] && continue
         [[ -n "$name_filter" && "${r_name:-}" != "$name_filter" ]] && continue
         if [[ -n "$os_filter" ]]; then
-            [[ -z "${r_os:-}" ]] && continue
-            [[ "$r_os" != "$os_filter" ]] && continue
+            if [[ -n "${r_os:-}" ]]; then
+                [[ "$r_os" != "$os_filter" ]] && continue
+            fi
         fi
         filtered+=("$recipe")
     done
