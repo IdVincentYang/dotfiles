@@ -202,17 +202,9 @@ system-db-postgresql16:
 
 ### AI / command line helpers
 cli-develop-aichat:
-    #!/usr/bin/env bash
-    set -euxo pipefail
     # aichat CLI; functions repo可后续通过 yadm submodule 管理。
-    brew install aichat
     # submodule init in yadm bootstrap stage: yadm submodule update --init
-    config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/aichat"
-    config_file="$config_dir/config.yaml"
-    template_file="$config_dir/config.yaml.bak"
-    if [[ ! -f "$config_file" && -f "$template_file" ]]; then
-        cp "$template_file" "$config_file"
-    fi
+    brew install aichat
 
 ### Git utilities
 cli-develop-git-archive-all:

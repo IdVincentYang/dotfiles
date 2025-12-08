@@ -1,0 +1,102 @@
+# see https://github.com/sigoden/aichat/blob/main/config.example.yaml
+
+#model: gemini:gemini-2.5-flash
+model: azure_openai:gpt-5-mini
+# api_key: Define GEMINI_API_KEY variable in shell
+clients:
+  - type: gemini
+    api_base: https://generativelanguage.googleapis.com/v1beta
+    patch:
+      chat_completions:
+        '.*':
+          body:
+            safetySettings:
+              - category: HARM_CATEGORY_HARASSMENT
+                threshold: BLOCK_NONE
+              - category: HARM_CATEGORY_HATE_SPEECH
+                threshold: BLOCK_NONE
+              - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
+                threshold: BLOCK_NONE
+              - category: HARM_CATEGORY_DANGEROUS_CONTENT
+                threshold: BLOCK_NONE
+# https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions
+# api_key: Define AZURE_OPENAI_API_KEY variable in shell
+  - type: azure-openai
+    name: azure_openai
+    api_base: https://cocos-test-gpt35-5.openai.azure.com
+    models:
+      - name: model-router
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-5
+        max_input_tokens: 272000
+        max_output_tokens: 128000
+        reasoning_effort: low
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-5-mini
+        max_input_tokens: 272000
+        max_output_tokens: 128000
+        reasoning_effort: low
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-35-turbo
+        max_input_tokens: 16385
+        max_output_tokens: 4096
+        supports_function_calling: true
+      - name: gpt-4o
+        max_input_tokens: 128000
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-4.1
+        max_input_tokens: 1047576
+        max_output_tokens: 32768
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-4o
+        max_input_tokens: 128000
+        supports_vision: true
+        supports_function_calling: true
+      - name: gpt-4o-mini
+        max_input_tokens: 128000
+        supports_vision: true
+        supports_function_calling: true
+      - name: o3-pro
+        max_input_tokens: 200000
+        supports_vision: true
+        supports_function_calling: true
+        system_prompt_prefix: Formatting re-enabled
+        patch:
+          body:
+            max_tokens: null
+            temperature: null
+            top_p: null
+      - name: o3
+        max_input_tokens: 200000
+        supports_vision: true
+        supports_function_calling: true
+        system_prompt_prefix: Formatting re-enabled
+        patch:
+          body:
+            max_tokens: null
+            temperature: null
+            top_p: null
+      - name: o3-mini
+        max_input_tokens: 200000
+        supports_vision: true
+        supports_function_calling: true
+        system_prompt_prefix: Formatting re-enabled
+        patch:
+          body:
+            temperature: null
+            top_p: null
+      - name: text-embedding-3-large
+        type: embedding
+        max_tokens_per_chunk: 8191
+        default_chunk_size: 2000
+        max_batch_size: 100
+      - name: text-embedding-3-small
+        type: embedding
+        max_tokens_per_chunk: 8191
+        default_chunk_size: 2000
+        max_batch_size: 100
