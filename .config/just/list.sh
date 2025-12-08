@@ -45,7 +45,12 @@ if [[ "${#recipes[@]}" -gt 0 ]]; then
         IFS='|' read -r r_main r_domain r_name r_os <<<"$(split_recipe "$recipe")"
         [[ -n "$main_filter" && "${r_main:-}" != "$main_filter" ]] && continue
         [[ -n "$domain_filter" && "${r_domain:-}" != "$domain_filter" ]] && continue
-        [[ -n "$name_filter" && "${r_name:-}" != "$name_filter" ]] && continue
+        if [[ -n "$name_filter" ]]; then
+            case "$r_name" in
+                *"$name_filter"*) ;;
+                *) continue ;;
+            esac
+        fi
         if [[ -n "$os_filter" ]]; then
             if [[ -n "${r_os:-}" ]]; then
                 [[ "$r_os" != "$os_filter" ]] && continue
