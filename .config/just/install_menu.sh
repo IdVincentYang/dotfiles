@@ -22,10 +22,17 @@ fi
 list_args+=("raw=lines")
 
 declare -a candidates=()
-while IFS= read -r line; do
-    [[ -z "$line" ]] && continue
-    candidates+=("$line")
-done < <(JUSTFILE_PATH="$JUSTFILE_PATH" "$SCRIPT_DIR/list.sh" "${list_args[@]}" )
+if [[ -t 0 ]]; then
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        candidates+=("$line")
+    done < <(JUSTFILE_PATH="$JUSTFILE_PATH" "$SCRIPT_DIR/list.sh" "${list_args[@]}" )
+else
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        candidates+=("$line")
+    done
+fi
 
 if [[ "${#candidates[@]}" -eq 0 ]]; then
     echo "No recipes available for the given filters."
