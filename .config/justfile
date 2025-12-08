@@ -4,11 +4,11 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
 # 命名约定
 #   <主分类>-<功能领域>-<name>[-<os>]
-#   - 主分类(primary): core/system/cli/gui/extra
+#   - 主分类(primary): core/system/cli/gui/extra/build
 #   - 功能领域(domain): develop/media/productivity/db/vm/util/other
 #   - 可选 OS 后缀：darwin/linux/termux（缺省表示通用）
 # 新增 recipe 必须遵守上述命名，方可被 `list`/`install` 等命令识别。
-primary_categories := "core system cli gui extra"
+primary_categories := "core system cli gui extra build"
 domain_categories := "develop media productivity db vm util other"
 
 default:
@@ -205,6 +205,12 @@ cli-develop-aichat:
 	# aichat CLI; functions repo可后续通过 yadm submodule 管理。
 	brew install aichat
 	yadm submodule update --init
+	config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/aichat"
+	config_file="$config_dir/config.yaml"
+	template_file="$config_dir/config.yaml.bak"
+	if [[ ! -f "$config_file" && -f "$template_file" ]]; then
+		cp "$template_file" "$config_file"
+	fi
 
 ### Git utilities
 cli-develop-git-archive-all:
@@ -317,3 +323,52 @@ extra-productivity-applite-darwin:
 	# brew install cakebrew
 	# app: homebrew GUI for cask apps
 	brew install --cask --no-quarantine applite
+
+# --- build: source-based installs ---
+
+build-util-colorized-logs:
+	repo="https://github.com/kilobyte/colorized-logs.git"
+	workdir="share/colorized-logs"
+	prefix="${HOME}/.local"
+	bin="${prefix}/bin/ansi2txt"
+	if [[ ! -e "$bin" ]]; then
+		if [[ ! -d "$workdir" ]]; then
+			git clone --depth 1 "$repo" "$workdir"
+		fi
+		cd "$workdir"
+		[[ -d build ]] && rm -rf build
+		mkdir build
+		pushd build >/dev/null
+		cmake -DCMAKE_INSTALL_PREFIX:PATH="$prefix" ..
+		make
+		make install
+		popd >/dev/null
+		rm -rf build
+	fi
+
+build-util-authbind-darwin:
+	repo="https://github.com/Castaglia/MacOSX-authbind.git"
+	workdir="share/authbind"
+	rm -rf "$workdir"
+	git clone --depth 1 "$repo" "$workdir"
+	pushd "$workdir" >/dev/null
+	if [[ "$(uname -m)" == "arm64" ]]; then
+		sed -i '' 's/^ARCH=-arch.*$/ARCH=-arch arm64/g' Makefile
+	fi
+	make
+	sudo make install
+	popd >/dev/null
+	rm -rf "$workdir"
+
+build-develop-autoadb:
+	repo="https://github.com/rom1v/autoadb.git"
+	workdir="share/autoadb"
+	bin="${HOME}/.local/bin/autoadb"
+	if [[ ! -d "$workdir" ]]; then
+		git clone --depth 1 "$repo" "$workdir"
+	fi
+	if [[ ! -e "$bin" ]]; then
+		cd "$workdir"
+		cargo build --release
+		install -m 755 target/release/autoadb "$bin"
+	fi

@@ -5,12 +5,6 @@
 
 kPWD := justfile_directory()
 
-default:
-    @just --justfile '{{justfile()}}' --list
-
-var:
-    @just --justfile '{{justfile()}}' --evaluate
-
 local-setup:
     #!/usr/bin/env bash
     set -euxo pipefail
