@@ -15,4 +15,7 @@
 - `install_menu.sh`
   - 基于 `list.sh` 的结果提供交互式多选安装：检测到 `fzf` 时使用多选界面，否则回退为手动输入。最终调用 `install.sh` 统一执行。
 
+- `asdf_install_menu.sh`
+  - 交互式管理 asdf 插件版本：针对预设插件（可用 `ASDF_TARGET_PLUGINS` 覆盖）通过 `fzf` 选择需安装的版本，并可选择要写入 `asdf global` 的默认版本，确认后批量执行安装与 global 配置。
+
 后续如需扩展命名规范或新增交互方式，可在这些脚本基础上迭代；`justfile` 只负责定义入口，所有复杂逻辑集中在本目录，便于复用与测试。

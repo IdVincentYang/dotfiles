@@ -10,6 +10,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 # 新增 recipe 必须遵守上述命名，方可被 `list`/`install` 等命令识别。
 primary_categories := "core system cli gui extra build"
 domain_categories := "develop media productivity db vm util other"
+asdf_plugins := "nodejs java direnv"
 
 default:
     @just --list
@@ -73,6 +74,23 @@ core-develop-asdf-tool-versions:
 
 core-develop-asdf-install:
     asdf install
+
+core-develop-asdf-plugins:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Ensure common language/tool plugins exist for asdf.
+    plugins=({{asdf_plugins}})
+    existing="$(asdf plugin list 2>/dev/null || true)"
+    for plugin in "${plugins[@]}"; do
+        if printf '%s\n' "${existing}" | grep -qx "${plugin}"; then
+            printf 'asdf plugin already present: %s\n' "${plugin}"
+        else
+            asdf plugin add "${plugin}"
+        fi
+    done
+
+core-develop-asdf-install-menu:
+    ASDF_TARGET_PLUGINS="{{asdf_plugins}}" just/asdf_install_menu.sh
 
 # 通用 CLI 套件
 core-cli-bat:
