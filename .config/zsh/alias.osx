@@ -2,16 +2,6 @@ which gls > /dev/null && alias ls='gls -G --color=auto --hyperlink=auto'
 
 alias vi='mvim --servername shell --remote-silent'
 
-alias ,a='brew'
-alias ,aic='brew install --cask'
-alias ,aif='brew info'
-alias ,ai='brew install'
-alias ,as='brew search'
-alias ,aud='brew update'
-alias ,aug='brew upgrade'
-alias ,augc='brew upgrade --cask'
-alias ,aui='brew uninstall'
-
 # Beyond Compare Trial Date Reset
 alias ,bcreset="rm \"/Users/$(whoami)/Library/Application Support/Beyond Compare/registry.dat\""
 

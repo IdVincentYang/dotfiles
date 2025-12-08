@@ -75,6 +75,18 @@ alias ,adbtopactivity='adb shell dumpsys activity top | grep ACTIVITY' # get top
 alias ,adbwifisignal='adb shell settings put global captive_portal_detection_enabled' # 0, 1
 
 ################################################################################
+# BB: Brew
+alias ,a='brew'
+alias ,aic='brew install --cask'
+alias ,aif='brew info'
+alias ,ai='brew install'
+alias ,as='brew search'
+alias ,aud='brew update'
+alias ,aug='brew upgrade'
+alias ,augc='brew upgrade --cask'
+alias ,aui='brew uninstall'
+
+################################################################################
 # DD: Docker
 alias ,d='docker'
 alias ,dci='docker rmi $(docker images -q -f dangling=true)'
