@@ -11,64 +11,6 @@ default:
 var:
     @just --justfile '{{justfile()}}' --evaluate
 
-app-media-install-iina:
-    brew install --cask iina
-    mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
-    ln -s "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
-
-extra-app-applite:
-    #   app: homebrew GUI
-    # brew install cakebrew
-    #   app: homebrew GUI for cask apps
-    brew install --cask --no-quarantine applite
-
-net-app:
-    brew install --cask cyberduck
-
-app-common:
-    brew install --cask aria2gui gimp google-chrome icefloor
-
-    ### devices apps
-    #   cmd: connect android device via usb for device control
-    brew install scrcpy
-    #   app: (most case scrcpy instead)connect android device via wifi and usb for device control
-    # brew install soduto
-    #   tray: disable intel cpu's boost feature for save power
-    #       usage: sudo /Applications/Turbo\ Boost\ Switcher.app/Contents/MacOS/Turbo\ Boost\ Switcher
-    # (unsupport apple silicon)brew install turbo-boost-switcher
-
-    ### graphic apps
-    # app: vector graphics editor
-    brew install --cask inkscape
-
-    ### media apps
-    brew install --cask losslesscut invisor-lite
-    brew install --cask iina
-    # brew install --cask 5kplayer
-    # brew install --cask macx-youtube-downloader
-
-    ### game tools
-    # (unsupport apple silicon) brew install --cask openemu
-    brew install --cask xemu
-    # (have not used)brew install --cask aethersx2
-    # (have not used, Nintendo 3DS emulator) brew install --cask citra
-
-    ### VM ware
-    #   app: vm ware, replaced by VMWare
-    # brew install --cask rdm virtualbox virtualbox-extension-pac
-    # brew install wine-stable
-    brew install --cask vmware-fusion
-
-app-db:
-    # sqlite client app
-    brew install --cask --no-quarantine db-browser-for-sqlite
-
-    # sql server and client app
-    # - default db named `postgresql` created under     /opt/homebrew/var/postgresql@16
-    brew install postgresql@16
-    brew install --cask --no-quarantine pgadmin4
-    brew services start postgresql@16
-
 local-setup:
     #!/usr/bin/env bash
     set -euxo pipefail

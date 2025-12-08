@@ -184,8 +184,19 @@ system-util-macvim-darwin:
 system-util-kitty-darwin:
     brew install --cask kitty
 
+system-util-icefloor-darwin:
+	# Firewall / pf 可视化管理
+	brew install --cask icefloor
+
 system-other-scrcpy:
 	brew install scrcpy
+
+### system database services
+system-db-postgresql16:
+	# sql server and client app
+	# - default db named `postgresql` created under     /opt/homebrew/var/postgresql@16
+	brew install postgresql@16
+	brew services start postgresql@16
 
 # --- cli: developer tooling & productivity ---
 
@@ -245,3 +256,64 @@ gui-develop-wireshark:
 
 gui-develop-postman:
 	brew install --cask postman
+
+# --- gui: desktop applications ---
+
+## 下载/网络工具
+gui-productivity-cyberduck-darwin:
+	brew install --cask cyberduck
+
+gui-other-aria2gui-darwin:
+	# aria2 GUI front-end
+	brew install --cask aria2gui
+
+## 浏览器
+gui-productivity-google-chrome:
+	brew install --cask google-chrome
+
+## 多媒体
+gui-media-gimp:
+	brew install --cask gimp
+
+gui-media-inkscape:
+	brew install --cask inkscape
+
+gui-media-losslesscut:
+	brew install --cask losslesscut
+
+gui-media-invisor-lite-darwin:
+	brew install --cask invisor-lite
+
+gui-media-iina-darwin:
+	brew install --cask iina
+	mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
+	ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
+
+## 字体/外设
+# (intentionally left blank for future groupings)
+
+## 游戏/虚拟化
+gui-vm-xemu-darwin:
+	brew install --cask xemu
+
+gui-vm-vmware-fusion-darwin:
+	# vm ware, replacing older solutions
+	# brew install --cask rdm virtualbox virtualbox-extension-pac
+	# brew install wine-stable
+	brew install --cask vmware-fusion
+
+## 数据库客户端
+gui-db-db-browser-for-sqlite-darwin:
+	# sqlite client app
+	brew install --cask --no-quarantine db-browser-for-sqlite
+
+gui-db-pgadmin4-darwin:
+	# PostgreSQL GUI 管理工具
+	brew install --cask --no-quarantine pgadmin4
+
+## 开发辅助
+extra-productivity-applite-darwin:
+	# app: homebrew GUI
+	# brew install cakebrew
+	# app: homebrew GUI for cask apps
+	brew install --cask --no-quarantine applite
