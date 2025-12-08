@@ -100,11 +100,11 @@ core-cli-tealdeer:
     brew install tealdeer
 
 # 网络/同步工具
-core-util-adwaita-icon-theme:
-    brew install adwaita-icon-theme
+# core-util-adwaita-icon-theme:
+# 	# 仅用于 macOS 上的 GTK 应用（例如 grsync）补齐主题；等待 grsync 迁移时再一起处理。
 
 core-cli-grsync:
-    brew install grsync
+	brew install grsync
 
 core-cli-rsync:
     brew install rsync
