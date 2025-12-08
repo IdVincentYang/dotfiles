@@ -16,61 +16,6 @@ app-media-install-iina:
     mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
     ln -s "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
 
-cmd-aichat:
-    #!/usr/bin/env bash
-    cd ${HOME}
-    set -euxo pipefail
-    brew install aichat
-    yadm submodule update --init
-    # _AICHAT_FUNCTIONS_DIR="$(aichat --info | sed -n 's/^functions_dir *//p')"
-    # _AICHAT_FUNCTIONS_DIR=".config/aichat/functions"
-    # yadm submodule add -- https://github.com/sigoden/llm-functions.git "${_AICHAT_FUNCTIONS_DIR}"
-    # yadm commit -m "[update] setup aichat functions repo to ${_AICHAT_FUNCTIONS_DIR}"
-
-dev-tool-git:
-    ### enhance git first
-    #   cmd: Archive a repository with all its submodules.
-    brew install git-archive-all onefetch
-    #   app: git GUI
-    # brew install --cask smartgit
-    brew install --cask fork
-
-dev-tool-rust:
-    brew install rustup
-    rustup default stable
-
-dev-app:
-    ### design tools
-    #brew install --cask drawio freeplane
-
-    ### coding tools
-    #   cmd: code searching tool, usage: ag
-    #       doc: https://github.com/ggreer/the_silver_searcher/wiki/Advanced-Usage
-    # brew install the_silver_searcher
-    #   app: for file compare
-    #       reset tral version: rm "/Users/$(whoami)/Library/Application Support/Beyond Compare/registry.dat"
-    brew install --cask beyond-compare
-    #   cmd: count source lines(replace cloc)
-    brew install tokei
-
-    ### C++ dev tools
-    brew install cmake
-
-    ### java dev tools
-    # install java via android studio
-
-    ### java/android crack tools
-    # brew install apktool dex2jar jd-gui
-
-    ### javascript dev tools
-    brew install --cask visual-studio-code
-
-dev-net:
-    brew install iperf3 iproute2mac
-    brew install --cask sloth
-    brew install --cask charles wireshark
-    brew install --cask postman
-
 extra-app-applite:
     #   app: homebrew GUI
     # brew install cakebrew

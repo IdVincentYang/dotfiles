@@ -59,6 +59,11 @@ if [[ "$raw_output" == "1" ]]; then
         printf '%s\n' "${filtered[*]}"
     fi
     exit 0
+elif [[ "$raw_output" == "lines" ]]; then
+    if [[ "${#filtered[@]}" -gt 0 ]]; then
+        printf '%s\n' "${filtered[@]}"
+    fi
+    exit 0
 fi
 
 if [[ "${#filtered[@]}" -eq 0 ]]; then

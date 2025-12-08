@@ -1,4 +1,4 @@
-# vi: ft=just
+# vi: ft=just tabstop=4 shiftwidth=4 expandtab
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
@@ -101,10 +101,10 @@ core-cli-tealdeer:
 
 # 网络/同步工具
 # core-util-adwaita-icon-theme:
-# 	# 仅用于 macOS 上的 GTK 应用（例如 grsync）补齐主题；等待 grsync 迁移时再一起处理。
+#     # 仅用于 macOS 上的 GTK 应用（例如 grsync）补齐主题；等待 grsync 迁移时再一起处理。
 
 core-cli-grsync:
-	brew install grsync
+    brew install grsync
 
 core-cli-rsync:
     brew install rsync
@@ -113,76 +113,135 @@ core-cli-wget:
     brew install wget
 
 core-media-yt-dlp:
-	brew install yt-dlp
+    brew install yt-dlp
 
 # --- system: desktop integration & utilities ---
 
 ### hammerspoon & tray helpers
 system-util-hammerspoon-darwin:
-	brew install --cask --no-quarantine hammerspoon
-	defaults write org.hammerspoon.Hammerspoon MJConfigFile "${XDG_CONFIG_HOME:-$HOME/.config}"/hammerspoon/init.lua
+    brew install --cask --no-quarantine hammerspoon
+    defaults write org.hammerspoon.Hammerspoon MJConfigFile "${XDG_CONFIG_HOME:-$HOME/.config}"/hammerspoon/init.lua
 
 system-util-caffeine-darwin:
-	# tray: easily block OS from sleeping
-	brew install --cask caffeine
+    # tray: easily block OS from sleeping
+    brew install --cask caffeine
 
 system-productivity-easydict-darwin:
-	# tray: easydict translator
-	brew install --cask easydict
+    # tray: easydict translator
+    brew install --cask easydict
 
 system-productivity-dropshelf-darwin:
-	# tray: drag & drop shelf
-	brew install --cask dropshelf
+    # tray: drag & drop shelf
+    brew install --cask dropshelf
 
 system-productivity-neardrop-darwin:
-	# tray: nearby Android sharing
-	brew install --cask grishka/grishka/neardrop
+    # tray: nearby Android sharing
+    brew install --cask grishka/grishka/neardrop
 
 system-util-stats-darwin:
-	# tray: system monitor utility
-	brew install --cask stats
+    # tray: system monitor utility
+    brew install --cask stats
 
 ### system applications
 system-media-quickrecorder-darwin:
-	brew install lihaoyun6/tap/quickrecorder
+    brew install lihaoyun6/tap/quickrecorder
 
 system-productivity-raycast-darwin:
-	# spotlight replacement
-	brew install --cask raycast
+    # spotlight replacement
+    brew install --cask raycast
 
 system-util-mediainfo-darwin:
-	# Finder contextual media info
-	brew install --cask mediainfo
+    # Finder contextual media info
+    brew install --cask mediainfo
 
 system-productivity-openvanilla-darwin:
-	brew install openvanilla
-	mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
-	ln -snf "./backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+    brew install openvanilla
+    mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+    ln -snf "./backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
 
 system-media-aerial-darwin:
-	brew install --cask aerial
+    brew install --cask aerial
 
 ### Quick Look enhancements
 system-media-quicklook-suite-darwin:
-	brew install --cask apparency suspicious-package
-	brew install --cask --no-quarantine qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
-	xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
-	xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
-	qlmanage -r cache
-	open /Applications/QuickLook\ Video.app
+    brew install --cask apparency suspicious-package
+    brew install --cask --no-quarantine qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
+    xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
+    xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
+    qlmanage -r cache
+    open /Applications/QuickLook\ Video.app
 
 ### system tweaks
 system-util-karabiner-elements-darwin:
-	brew install --cask karabiner-elements
+    brew install --cask karabiner-elements
 
 system-productivity-keepassxc-darwin:
-	brew install --cask keepassxc
+    brew install --cask keepassxc
 
 system-util-macvim-darwin:
-	brew install --cask macvim
+    brew install --cask macvim
 
 system-util-kitty-darwin:
-	brew install --cask kitty
+    brew install --cask kitty
 
 system-other-scrcpy:
 	brew install scrcpy
+
+# --- cli: developer tooling & productivity ---
+
+### AI / command line helpers
+cli-develop-aichat:
+	# aichat CLI; functions repo可后续通过 yadm submodule 管理。
+	brew install aichat
+	yadm submodule update --init
+
+### Git utilities
+cli-develop-git-archive-all:
+	# Archive repository including submodules.
+	brew install git-archive-all
+
+cli-develop-onefetch:
+	# Git repo summary in terminal.
+	brew install onefetch
+
+gui-develop-fork-darwin:
+	# Git GUI client (Fork)。
+	brew install --cask fork
+
+### Languages & build tools
+cli-develop-rustup:
+	brew install rustup
+	rustup default stable
+
+cli-develop-tokei:
+	# Count source lines of code.
+	brew install tokei
+
+cli-develop-cmake:
+	brew install cmake
+
+gui-develop-beyond-compare-darwin:
+	# File diff/merge tool。若需重置试用：删除 ~/Library/Application Support/Beyond Compare/registry.dat
+	brew install --cask beyond-compare
+
+gui-develop-visual-studio-code:
+	brew install --cask visual-studio-code
+
+### Network / debugging suite
+cli-develop-iperf3:
+	brew install iperf3
+
+cli-develop-iproute2mac-darwin:
+	brew install iproute2mac
+
+gui-develop-sloth-darwin:
+	brew install --cask sloth
+
+gui-develop-charles-darwin:
+	brew install --cask charles
+
+gui-develop-wireshark:
+	brew install --cask wireshark
+
+gui-develop-postman:
+	brew install --cask postman

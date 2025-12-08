@@ -10,11 +10,18 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-filters=("$@")
-list_args=("${filters[@]}")
-list_args+=("raw=1")
+declare -a filters=()
+if [[ $# -gt 0 ]]; then
+    filters=("$@")
+fi
 
-candidates=()
+list_args=()
+if [[ ${#filters[@]} -gt 0 ]]; then
+    list_args=("${filters[@]}")
+fi
+list_args+=("raw=lines")
+
+declare -a candidates=()
 while IFS= read -r line; do
     [[ -z "$line" ]] && continue
     candidates+=("$line")
