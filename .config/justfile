@@ -1,4 +1,4 @@
-# vi: ft=sh
+# vi: ft=just
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
@@ -15,102 +15,102 @@ default:
     @just --list
 
 help:
-	@printf '%s\n' \
-	    '命令概览:' \
-	    '  just list [main=core] [domain=develop] [os=darwin] [name=git] [raw=1]' \
-	    '      - 根据命名规范(<主类>-<领域>-<名称>[-<平台>])筛选可用 recipe。' \
-	    '  just install <name> [name...]' \
-	    '      - 根据名称匹配当前平台的 recipe，直接执行安装。' \
-	    '  just install-menu [main=core] [domain=develop] [os=linux]' \
-	    '      - 交互式多选安装，支持 fzf (若已安装)。' \
-	    '  just platform-info' \
-	    '      - 显示平台判定结果，便于调试。' \
-	    '' \
-	    '命名规范: <主分类>-<领域>-<name>[-<os>]，例如 core-develop-git-darwin。'
+    @printf '%s\n' \
+    '命令概览:' \
+    '  just list [main=core] [domain=develop] [os=darwin] [name=git] [raw=1]' \
+    '      - 根据命名规范(<主类>-<领域>-<名称>[-<平台>])筛选可用 recipe。' \
+    '  just install <name> [name...]' \
+    '      - 根据名称匹配当前平台的 recipe，直接执行安装。' \
+    '  just install-menu [main=core] [domain=develop] [os=linux]' \
+    '      - 交互式多选安装，支持 fzf (若已安装)。' \
+    '  just platform-info' \
+    '      - 显示平台判定结果，便于调试。' \
+    '' \
+    '命名规范: <主分类>-<领域>-<name>[-<os>]，例如 core-develop-git-darwin。'
 
 platform-info:
-	@just/platform.sh
+    @just/platform.sh
 
 list *filters:
-	@JUSTFILE_PATH="{{justfile()}}" just/list.sh {{filters}}
+    @JUSTFILE_PATH="{{justfile()}}" just/list.sh {{filters}}
 
 install *packages:
-	@JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install.sh {{packages}}
+    @JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install.sh {{packages}}
 
 install-menu *filters:
-	@JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh {{filters}}
+    @JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh {{filters}}
 
 # --- core: base toolchain & CLI essentials ---
 
 # 基础构建依赖
 core-develop-autoconf:
-	brew install autoconf
+    brew install autoconf
 
 core-develop-automake:
-	brew install automake
+    brew install automake
 
 core-util-p7zip:
-	brew install p7zip
+    brew install p7zip
 
 core-util-tree:
-	brew install tree
+    brew install tree
 
 core-productivity-zoxide:
-	brew install zoxide
+    brew install zoxide
 
 ### fonts
 #   nerd fonts(https://github.com/ryanoasis/nerd-fonts/blob/master/readme_cn.md)
 #       config terminal: menu->setting...->text->font->change font
 core-media-jetbrains-mono-nerd-font:
-	brew install font-jetbrains-mono-nerd-font
+    brew install font-jetbrains-mono-nerd-font
 
 # asdf 安装流程
 core-develop-asdf:
-	brew install asdf
+    brew install asdf
 
 core-develop-asdf-tool-versions:
-	ln -s "./asdf/tool-versions" "${HOME}/.tool-versions"
+    ln -snf "./asdf/tool-versions" "${HOME}/.tool-versions"
 
 core-develop-asdf-install:
-	asdf install
+    asdf install
 
 # 通用 CLI 套件
 core-cli-bat:
-	# bat -> cat: Clone of cat(1) with syntax highlighting and Git integration.
-	brew install bat
+    # bat -> cat: Clone of cat(1) with syntax highlighting and Git integration.
+    brew install bat
 
 core-cli-btop:
-	# btop -> top: Resource monitor. Enhanced top command.
-	brew install btop
+    # btop -> top: Resource monitor. Enhanced top command.
+    brew install btop
 
 core-cli-fd:
-	# fd -> find: Simple, fast and user-friendly alternative to find.
-	brew install fd
+    # fd -> find: Simple, fast and user-friendly alternative to find.
+    brew install fd
 
 core-cli-fzf:
-	# fzf: Command-line fuzzy finder.
-	brew install fzf
+    # fzf: Command-line fuzzy finder.
+    brew install fzf
 
 core-cli-ripgrep:
-	# ripgrep -> find: Search tool like grep.
-	brew install ripgrep
+    # ripgrep -> find: Search tool like grep.
+    brew install ripgrep
 
 core-cli-tealdeer:
-	# tealdeer -> man: short TLDR client.
-	brew install tealdeer
+    # tealdeer -> man: short TLDR client.
+    brew install tealdeer
 
 # 网络/同步工具
 core-util-adwaita-icon-theme:
-	brew install adwaita-icon-theme
+    brew install adwaita-icon-theme
 
 core-cli-grsync:
-	brew install grsync
+    brew install grsync
 
 core-cli-rsync:
-	brew install rsync
+    brew install rsync
 
 core-cli-wget:
-	brew install wget
+    brew install wget
 
 core-media-yt-dlp:
-	brew install yt-dlp
+    brew install yt-dlp

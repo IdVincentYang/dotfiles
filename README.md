@@ -17,6 +17,9 @@ sudo apt-get install yadm
 # yadm pull git@github.com:IdVincentYang/dotfiles.git
 yadm pull https://github.com/IdVincentYang/dotfiles.git
 yadm bootstrap
+
+# Install core packages
+just list main=core raw=1 | just install
 ```
 
 ## Setup brew

@@ -26,6 +26,33 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
+normalize_spec() {
+    local spec="$1"
+    local base="$spec"
+    local hint_os=""
+
+    for candidate in darwin linux termux; do
+        if [[ "$base" == *"-$candidate" ]]; then
+            hint_os="$candidate"
+            base="${base%-${candidate}}"
+            break
+        fi
+    done
+
+    case "$base" in
+        core-*|system-*|cli-*|gui-*|extra-*)
+            local trimmed="${base#*-}"
+            if [[ "$trimmed" == *"-"* ]]; then
+                base="${trimmed#*-}"
+            else
+                base="$spec"
+            fi
+            ;;
+    esac
+
+    printf '%s|%s' "$base" "$hint_os"
+}
+
 recipes=()
 while IFS= read -r line; do
     [[ -z "$line" ]] && continue
@@ -38,53 +65,43 @@ fi
 
 select_recipe() {
     local pkg="$1"
-    local -a matches=()
+    local hint_os="$2"
+    local fallback=""
+
     for recipe in "${recipes[@]}"; do
         IFS='|' read -r _main _domain r_name r_os <<<"$(split_recipe "$recipe")"
         [[ "${r_name:-}" != "$pkg" ]] && continue
-        if [[ -n "${r_os:-}" ]]; then
-            [[ "$r_os" != "$TARGET_PLATFORM" ]] && continue
+
+        if [[ -n "$hint_os" ]]; then
+            [[ -n "$r_os" && "$r_os" != "$hint_os" ]] && continue
         fi
-        matches+=("$recipe")
+
+        if [[ -n "${r_os:-}" ]]; then
+            if [[ -n "$hint_os" ]]; then
+                [[ "$r_os" == "$hint_os" ]] || continue
+            else
+                [[ "$r_os" == "$TARGET_PLATFORM" ]] || continue
+            fi
+            printf '%s' "$recipe"
+            return 0
+        fi
+
+        [[ -z "$fallback" ]] && fallback="$recipe"
     done
 
-    if [[ "${#matches[@]}" -eq 0 ]]; then
-        printf 'No recipe matches "%s" for platform "%s".\n' "$pkg" "$TARGET_PLATFORM" >&2
-        return 1
-    fi
-
-    if [[ "${#matches[@]}" -eq 1 ]]; then
-        printf '%s' "${matches[0]}"
+    if [[ -n "$fallback" ]]; then
+        printf '%s' "$fallback"
         return 0
     fi
 
-    echo "Multiple recipes found for '$pkg'."
-    local idx=1
-    for candidate in "${matches[@]}"; do
-        printf '  %d) %s\n' "$idx" "$candidate"
-        idx=$((idx + 1))
-    done
-    printf '  %d) Skip %s\n' "$idx" "$pkg"
-
-    local choice
-    while true; do
-        read -r -p "Select recipe [1-$idx]: " choice
-        [[ -z "$choice" ]] && continue
-        if [[ "$choice" -eq "$idx" ]]; then
-            return 1
-        elif [[ "$choice" -ge 1 && "$choice" -lt "$idx" ]]; then
-            local selected_index=$((choice - 1))
-            printf '%s' "${matches[selected_index]}"
-            return 0
-        else
-            echo "Invalid selection"
-        fi
-    done
+    printf 'No recipe matches "%s" for platform "%s".\n' "$pkg" "${hint_os:-$TARGET_PLATFORM}" >&2
+    return 1
 }
 
 for pkg in "${packages[@]}"; do
+    IFS='|' read -r pkg_name pkg_os_hint <<<"$(normalize_spec "$pkg")"
     target=""
-    if target=$(select_recipe "$pkg"); then
+    if target=$(select_recipe "$pkg_name" "$pkg_os_hint"); then
         echo "Installing ${target}..."
         just --justfile "$JUSTFILE_PATH" "$target"
     else
