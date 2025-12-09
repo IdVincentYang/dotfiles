@@ -129,6 +129,7 @@ select_versions() {
 
     local selection
     selection=$(printf '%s\n' "${available[@]}" \
+        | awk '{line[NR]=$0} END {for (i=NR; i>=1; i--) print line[i]}' \
         | fzf --multi --prompt="$plugin versions> " --height=70% --border --exit-0 || true)
 
     if [[ -z "$selection" ]]; then
@@ -149,6 +150,7 @@ select_versions() {
         global_selection="${chosen[0]}"
     else
         global_selection=$(printf '%s\n' "${chosen[@]}" \
+            | awk '{line[NR]=$0} END {for (i=NR; i>=1; i--) print line[i]}' \
             | fzf --prompt="$plugin global> " --height=40% --border --exit-0 || true)
     fi
 

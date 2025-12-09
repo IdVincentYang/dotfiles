@@ -11,6 +11,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 primary_categories := "core system cli gui extra build"
 domain_categories := "develop media productivity db vm util other"
 asdf_plugins := "nodejs java direnv"
+npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp repomix"
 
 default:
     @just --list
@@ -116,6 +117,19 @@ core-cli-ripgrep:
 core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
     brew install tealdeer
+
+core-cli-npm-globals:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v npm >/dev/null 2>&1; then
+        echo "[npm-globals] npm 未安装，请先运行 core-develop-asdf 或相关 node 安装流程" >&2
+        exit 1
+    fi
+    packages=({{npm_global_packages}})
+    for pkg in "${packages[@]}"; do
+        echo "[npm-globals] 安装/更新 ${pkg}"
+        npm install -g "$pkg"
+    done
 
 # 网络/同步工具
 # core-util-adwaita-icon-theme:
