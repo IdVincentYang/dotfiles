@@ -14,6 +14,12 @@ require_cmd() {
 require_cmd asdf
 require_cmd fzf
 
+if asdf help global >/dev/null 2>&1; then
+    asdf_global_cmd=(asdf global)
+else
+    asdf_global_cmd=(asdf set --global)
+fi
+
 has_builtin() {
     type -t "$1" >/dev/null 2>&1
 }
@@ -203,7 +209,7 @@ for plugin in "${plugins_in_order[@]}"; do
     global_value="$(get_global_plan "$plugin")"
     if [[ -n "$global_value" ]]; then
         echo "[asdf-menu] 设置 global ${plugin} ${global_value}"
-        asdf global "$plugin" "$global_value"
+        "${asdf_global_cmd[@]}" "$plugin" "$global_value"
     fi
 done
 
