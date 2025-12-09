@@ -14,11 +14,7 @@ require_cmd() {
 require_cmd asdf
 require_cmd fzf
 
-if asdf help global >/dev/null 2>&1; then
-    asdf_global_cmd=(asdf global)
-else
-    asdf_global_cmd=(asdf set --global)
-fi
+asdf_global_cmd=(asdf set --home)
 
 has_builtin() {
     type -t "$1" >/dev/null 2>&1
