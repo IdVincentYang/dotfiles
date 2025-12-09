@@ -29,8 +29,14 @@ fi
 if command -v asdf >/dev/null 2>&1; then
   export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
   export ASDF_DATA_DIR="${XDG_STATE_HOME}/asdf"
-elif [[ -n "${HOMEBREW_PREFIX:-}" && -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]]; then
-  source "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
+else
+  _brew_asdf_prefix=""
+  if command -v brew >/dev/null 2>&1; then
+    _brew_asdf_prefix="$(brew --prefix asdf 2>/dev/null || true)"
+  fi
+  if [[ -n "$_brew_asdf_prefix" && -f "$_brew_asdf_prefix/libexec/asdf.sh" ]]; then
+    source "$_brew_asdf_prefix/libexec/asdf.sh"
+  fi
 fi
 
 if command -v asdf >/dev/null 2>&1; then
