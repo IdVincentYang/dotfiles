@@ -16,6 +16,12 @@ require_cmd fzf
 
 asdf_global_cmd=(asdf set --home)
 
+tool_versions_file="${HOME}/.tool-versions"
+if [[ ! -e "${tool_versions_file}" ]]; then
+    echo "[asdf-menu] 创建 ${tool_versions_file}"
+    : >"${tool_versions_file}"
+fi
+
 has_builtin() {
     type -t "$1" >/dev/null 2>&1
 }
