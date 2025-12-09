@@ -19,6 +19,7 @@ asdf_global_cmd=(asdf set --home)
 tool_versions_file="${HOME}/.tool-versions"
 if [[ ! -e "${tool_versions_file}" ]]; then
     echo "[asdf-menu] 创建 ${tool_versions_file}"
+    mkdir -p "$(dirname "${tool_versions_file}")"
     : >"${tool_versions_file}"
 fi
 
