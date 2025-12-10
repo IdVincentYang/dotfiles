@@ -27,19 +27,15 @@ fi
 
 # asdf configuration
 if command -v asdf >/dev/null 2>&1; then
-  printf '[zprofile][asdf] detected existing asdf: %s\n' "$(command -v asdf)" >&2
   export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
   export ASDF_DATA_DIR="${XDG_STATE_HOME}/asdf"
-else
+
   _BREW_ASDF_PREFIX=""
   if command -v brew >/dev/null 2>&1; then
     _BREW_ASDF_PREFIX="$(brew --prefix asdf 2>/dev/null || true)"
   fi
   if [[ -n "$_BREW_ASDF_PREFIX" && -f "$_BREW_ASDF_PREFIX/libexec/asdf.sh" ]]; then
-    printf '[zprofile][asdf] sourcing %s\n' "$_BREW_ASDF_PREFIX/libexec/asdf.sh" >&2
     source "$_BREW_ASDF_PREFIX/libexec/asdf.sh"
-  else
-    printf '[zprofile][asdf] no asdf found via brew\n' >&2
   fi
 fi
 
