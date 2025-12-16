@@ -70,9 +70,6 @@ core-media-jetbrains-mono-nerd-font:
 core-develop-asdf:
     brew install asdf
 
-core-develop-asdf-tool-versions:
-    ln -snf "./asdf/tool-versions" "${HOME}/.tool-versions"
-
 core-develop-asdf-install:
     asdf install
 

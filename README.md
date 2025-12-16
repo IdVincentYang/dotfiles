@@ -20,6 +20,15 @@ yadm bootstrap
 
 # Install core packages
 just list main=core raw=1 | just install
+
+# Install asdf plugins
+just develop-asdf-plugins
+
+# Install asdf plugins versions
+just develop-asdf-install-menu
+
+# Install npm global packages
+just core-cli-npm-globals
 ```
 
 ## Setup brew
