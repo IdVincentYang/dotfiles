@@ -114,6 +114,7 @@ alias ,gexp='git archive --format=zip'
 
 ################################################################################
 # KK: kitten
+alias ,kc='kitten clipboard'
 alias ,kh='kitten hyperlinked-grep'
 alias ,ki='kitten icat'
 alias ,ks='kitten ssh'
