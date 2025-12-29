@@ -18,6 +18,15 @@ if [[ -f "$MYSH/utils" ]]; then
   source "$MYSH/utils"
 fi
 
+# Ensure asdf-direnv hook is available even in non-login shells.
+if [[ -z "${__ASDF_DIRENV_SOURCED:-}" ]]; then
+  asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+  if [[ -f "$asdf_direnv_rc" ]]; then
+    source "$asdf_direnv_rc"
+    export __ASDF_DIRENV_SOURCED=1
+  fi
+fi
+
 case "$MY_PLATFORM" in
   Darwin)
     [[ -f "$MYSH/alias.osx" ]] && source "$MYSH/alias.osx"

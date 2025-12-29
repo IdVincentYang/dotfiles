@@ -39,15 +39,6 @@ if command -v asdf >/dev/null 2>&1; then
   fi
 fi
 
-if command -v asdf >/dev/null 2>&1; then
-  if command -v direnv >/dev/null 2>&1; then
-    asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-    if [[ -f "$asdf_direnv_rc" ]]; then
-      source "$asdf_direnv_rc"
-    fi
-  fi
-fi
-
 # Go environment variables
 if command -v go >/dev/null 2>&1; then
   export GOBIN="$HOME/.local/bin"
