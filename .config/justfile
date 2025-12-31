@@ -141,6 +141,9 @@ core-cli-rsync:
 core-cli-wget:
     brew install wget
 
+core-cli-yank:
+    brew install yank
+
 core-media-yt-dlp:
     brew install yt-dlp
 

@@ -1,9 +1,11 @@
 # vi: ft=sh
 
 if command -v aichat >/dev/null 2>&1; then
+    edit_role(){ dir=$(aichat --info | sed -n 's/^roles_dir[[:space:]]*//p'); f=$(find "$dir" -maxdepth 1 -type f -print | fzf); [ -n "$f" ] && vi "$f"; }
     alias ai='aichat'
     alias aiexplain='aichat -r %explain-shell%'
     alias aimodels='aichat --list-models'
+    alias airoleedit='edit_role'
     alias airoles='aichat --list-roles'
     alias aisessions='aichat --list-sessions'
     alias aithink='alias -m azure-openai:gpt-5'
