@@ -23,7 +23,7 @@ if [[ -z "${__ASDF_DIRENV_SOURCED:-}" ]]; then
   asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
   if [[ -f "$asdf_direnv_rc" ]]; then
     source "$asdf_direnv_rc"
-    export __ASDF_DIRENV_SOURCED=1
+    __ASDF_DIRENV_SOURCED=1
   fi
 fi
 
