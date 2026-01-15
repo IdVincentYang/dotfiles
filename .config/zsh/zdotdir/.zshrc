@@ -19,11 +19,11 @@ if [[ -f "$MYSH/utils" ]]; then
 fi
 
 # Ensure asdf-direnv hook is available even in non-login shells.
-if [[ -z "${__ASDF_DIRENV_SOURCED:-}" ]]; then
+if [[ "${__ASDF_DIRENV_SOURCED_PID:-}" != "$$" ]]; then
   asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
   if [[ -f "$asdf_direnv_rc" ]]; then
     source "$asdf_direnv_rc"
-    __ASDF_DIRENV_SOURCED=1
+    __ASDF_DIRENV_SOURCED_PID="$$"
   fi
 fi
 

@@ -1,7 +1,24 @@
 # vi: ft=sh
 
 if command -v aichat >/dev/null 2>&1; then
-    edit_role(){ dir=$(aichat --info | sed -n 's/^roles_dir[[:space:]]*//p'); f=$(find "$dir" -maxdepth 1 -type f -print | fzf); [ -n "$f" ] && vi "$f"; }
+    edit_role() {
+        local roles_dir selected_file
+
+        # 1. 获取 roles 目录路径
+        roles_dir=$(aichat --info | sed -n 's/^roles_dir[[:space:]]*//p')
+
+        # 2. 使用 find 和 fzf 查找文件
+        # --select-1 (-1): 如果只有一个匹配项，直接选中不显示列表
+        # --query "$*": 将函数传入的所有参数($*)作为 fzf 的初始搜索词
+        selected_file=$(find "$roles_dir" -maxdepth 1 -type f -print | \
+            fzf --select-1 --query "$*")
+
+        # 3. 如果选中了文件（变量不为空），则输出路径
+        if [ -n "$selected_file" ]; then
+            ${EDITOR:-vim} "$selected_file"
+        fi
+    }
+
     alias ai='aichat'
     alias aiexplain='aichat -r %explain-shell%'
     alias aimodels='aichat --list-models'

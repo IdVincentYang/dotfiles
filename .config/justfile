@@ -11,7 +11,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 primary_categories := "core system cli gui extra build"
 domain_categories := "develop media productivity db vm util other"
 asdf_plugins := "nodejs java direnv"
-npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp repomix"
+npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp http-server repomix"
 
 default:
     @just --list
