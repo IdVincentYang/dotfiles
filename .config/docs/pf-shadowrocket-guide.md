@@ -1,141 +1,112 @@
-# 在 macOS 上用 pf 转发 Shadowrocket 代理给局域网
+### 第一部分：简历诊断报告
 
-本文档记录了如何在 macOS 上使用 `pf`（Packet Filter）将 Shadowrocket 打开的本地代理端口分享给同一个局域网中的其他设备。每个阶段都包含**目的、操作步骤、预期结果、验证方法**以及**常见错误与修复办法**，方便排查。
+**1. 总体匹配度：中偏高 (匹配度约 80%)**
+*   **候选人画像：** 约4.5年经验的Java后端开发，正处于从中级向高级过渡的阶段。技术栈（Spring Cloud, Redis, MySQL, Kafka）与JD高度重合。
+*   **亮点：** 简历中体现了明显的**AI转型意向与实践**（RAG架构、Text-to-SQL、向量数据库），这非常符合JD中“AI方向”的要求。同时，具备较强的**运维/监控系统开发经验**（ClickHouse, Ansible），符合JD中对“处理网络通信、基础配置”及“高可用”的需求。
+*   **定位建议：** 候选人经验年限卡在“中级”与“高级”之间。如果是招聘“中级”，此人是高配；如果是“高级”，需重点考察架构设计深度及AI项目的真实落地程度。
 
-## 前置条件
-- **目的**：确保系统满足执行步骤的基本要求。
-- **操作**：
-  - 使用具有管理员权限的账户登录，终端中确认 `sudo` 可用：`sudo -v`。
-  - Shadowrocket 已安装并能在本机访问被墙站点，且启用了「Settings → Proxy → Proxy Share」，设置 `Proxy Type` 为支持 HTTPS CONNECT（推荐 Mixed/SOCKS5），端口示例为 `1082`。
-  - 确认 Shadowrocket 绑定的监听地址为 `127.0.0.1` 或 `198.18.0.3`，这决定了我们必须依赖 `pf` 做转发。
-- **预期结果**：本机通过 `curl -x http://127.0.0.1:1082 https://www.google.com -v` 可以成功访问 Google。
-- **验证**：同上命令返回 200/302，即表示代理本身可用。
-- **常见错误/修复**：
-  - Curl 卡住：Shadowrocket 规则把站点走了 DIRECT → 将模式切到 Proxy 或 Global。
-  - 返回 407：检查 Shadowrocket 是否设置了身份验证，必要时在客户端提供账号密码。
+**2. 优势/亮点**
+*   **AI 落地经验：** 简历中明确提到了“AI魔方”项目，涉及RAG、向量数据库（Milvus）、Text-to-SQL，与JD中要求的LangChain、Agent业务高度匹配。
+*   **大数据处理能力：** 提到的“10TB日均吞吐量”和 ClickHouse/Kafka 经验，若属实，证明其具备处理高并发、大数据量的能力，优于普通CRUD工程师。
+*   **全栈/DevOps意识：** 熟悉Ansible、Docker及Shell脚本，能弥补纯开发在部署和运维上的短板。
 
-## 步骤 0：按照 Shadowrocket 界面设置共享参数
-- **目的**：确保 Shadowrocket 的共享端口配置完整，让 `pf` 转发的流量能被其监听并走代理节点。
-- **操作**：
-  1. 打开 Shadowrocket → `Settings → Proxy → Proxy Share`。
-  2. 在 `Proxy Share` 页面将 `Enable Share` 切换为 `On`。
-  3. `Proxy Address` 按界面提供的两个选项选择：
-     - `127.0.0.1`：仅绑定回环地址；需要结合本文的 `pf` 方案把局域网请求转到本地。
-     - `198.18.0.3`：Shadowrocket 虚拟网卡地址，可被局域网直接访问；若计划直接公布此地址，可不依赖 `pf`。
-  4. `Proxy Port` 设置为准备共享的端口（示例 `1082`，需与 `pf` 规则保持一致）。
-  5. `Proxy Type` 按需选择（界面可见 `HTTP` / `SOCKS5` / 其它类型）。若希望处理 HTTPS，建议选 `HTTP` 搭配 `Compatibility Mode On`，或直接选择 `Mixed/SOCKS5`。
-  6. `Compatibility Mode` 保持 `On`。
-  7. `Proxy Chain`（界面显示为 `Enable Chain`）保持 `Off`，除非确实要做级联。
-  8. 返回 `Settings → Proxy`，在 `Proxy Share` 部分确认 `IP` 字段已显示可被局域网访问的地址（如 `192.168.61.207`）。
-- **预期结果**：Shadowrocket 在所选 `Proxy Address`/`Proxy Port` 上监听，并接受 HTTP/HTTPS 请求。
-- **验证**：
-  - 本机执行 `curl -x http://127.0.0.1:1082 https://www.google.com -v`（或对应的 `Proxy Address`），应能访问。
-  - `lsof -iTCP:1082 -sTCP:LISTEN` 可看到 `PacketTunnel` 进程处于监听状态。
-  - Shadowrocket → `Logs` 会记录来自共享端口的请求。
-- **常见错误/修复**：
-  - `Enable Share` 忘记打开：局域网设备连接会直接被拒绝。
-  - `Proxy Type` 仅为 `HTTP` 且 `Compatibility Mode Off`：HTTPS CONNECT 会失败 → 打开 `Compatibility Mode` 或换成支持 CONNECT 的类型。
-  - `Proxy Address` 选 `127.0.0.1` 却让局域网直连：需要结合 `pf` 按本文配置 `en6` 转发；若想绕过 `pf`，应改选 `198.18.0.3` 并直接发布该地址。
+**3. 水分/疑点预警 (重点考察区)**
+*   **数据量级存疑：** “日均吞吐量 10TB”是一个非常庞大的数字（相当于全天平均120MB/s写入，峰值可能更高）。需要核实集群规模、硬件配置及数据真实性（是生产环境还是压测数据？）。
+*   **AI 项目周期短：** “AI魔方”项目时间是 2024.11 至今（仅2-3个月）。在如此短的时间内完成从RAG架构到“智能低代码平台”的开发，极有可能只是集成了现成框架或API，而非底层开发。需要通过追问确认其核心贡献。
+*   **性能优化指标：** “Full GC 频率降低 60%+”、“QPS 提升至 3000+”这类精确数字，面试中需让其复盘具体的排查过程和计算方式，防止是编造的KPI。
 
-## 步骤 1：确认局域网接口和 IP
-- **目的**：找到 Shadowrocket 虚拟网卡对应的接口（示例为 `en6`，IP `192.168.60.253`），以便在 `pf` 中使用正确的网卡名称和地址。
-- **操作**：
-  - `networksetup -listallhardwareports` 或 `ifconfig en0`, `ifconfig en6` 等命令查看接口与 IP 的对应关系。
-  - 记录局域网客户端所在网段（示例 `192.168.60.0/24`）。
-- **预期结果**：知道“局域网机器访问哪个 IP 才能找到这台 Mac”。
-- **验证**：`ifconfig en6` 输出中包含 `inet 192.168.60.253 netmask 0xffffff00` 且 `status: active`。
-- **常见错误/修复**：
-  - 找错接口：抓包 `sudo tcpdump -i <interface> port 1082`，无流量则说明接口不对。
-  - 接口 inactive：确保 Shadowrocket/VPN 已启动，否则 `en6` 不会出现。
+### 第三部分：核心面试题集 (Probing Protocol)
 
-## 步骤 2：编辑 `/etc/pf.conf`
-- **目的**：把端口转发及允许规则直接写入系统主配置，避免依赖额外文件。
-- **操作**：
- 1. 备份：`sudo cp /etc/pf.conf /etc/pf.conf.backup.$(date +%Y%m%d%H%M%S)`。
- 2. 在 `rdr-anchor "com.apple/*"` 后、`anchor "com.apple/*"` 之前插入：
-    ```
-    rdr pass on en6 inet proto tcp from 192.168.60.0/24 to 192.168.60.253 port 1082 -> 127.0.0.1 port 1082
-    ```
- 3. 在文件末尾或其它过滤段添加：
-    ```
-    pass in on en6 proto tcp from 192.168.60.0/24 to 192.168.60.253 port 1082 keep state
-    pass out all keep state
-    ```
-- **预期结果**：`/etc/pf.conf` 内联包含了局域网转发所需的 `rdr` 与 `pass` 规则。
-- **验证**：`sudo pfctl -nf /etc/pf.conf` 显示无错误。
-- **常见错误/修复**：
-  - “Rules must be in order ...” → 确保 `rdr` 行位于 `anchor "com.apple/*"` 之前。
-  - “syntax error” → 重新检查是否遗漏 `proto tcp` 或端口写法。
+#### 模块一：高并发与大数据处理 (建议时长: 12分钟)
 
-## 步骤 3：加载并启用 `pf`
-- **目的**：让新规则立即生效并在当前会话中启用 `pf`。
-- **操作**：
-  - `sudo pfctl -f /etc/pf.conf`
-  - `sudo pfctl -e`（若已启用会提示 `pf already enabled`）
-- **预期结果**：`pfctl` 成功加载配置，状态为 Enabled。
-- **验证**：
-  - `sudo pfctl -s nat` 能看到 `rdr pass on en6 ...` 条目。
-  - `sudo pfctl -s info | grep Status` 显示 `Enabled`。
-- **常见错误/修复**：
-  - `pfctl: pf already enabled` → 只是提示，无需处理。
-  - `No ALTQ support in kernel` → macOS 默认无 ALTQ，可忽略。
+**Q1: 关于“统一监控平台”项目，你提到了日均 10TB 的日志吞吐量。请描述一下这个数据管道的架构是如何设计的？使用了多少节点来支撑这个量级？**
+*   **简历锚点:** “基于 Kafka+ClickHouse 构建实时日志分析系统（日均吞吐量 10TB...）”
+*   **考察目标:** [真实性] 验证超大数据量项目的真实性及架构合理性。
+*   **参考答案:** 应该提到 Filebeat -> Kafka (多分区) -> Flink/Java Consumer -> ClickHouse (分片/副本) 的完整链路。关键在于 Kafka 的 Partition 数量规划、ClickHouse 的集群规模（10TB 通常需要较多节点或极高性能磁盘）。
+*   **评价标准:**
+    *   *好:* 能清晰说出机器数量（例如：Kafka 5节点，CH 10节点等）、磁盘类型（SSD/HDD），以及数据流转的瓶颈点。
+    *   *差:* 支支吾吾说不清集群配置，或者用单机/小集群声称处理了 10TB 数据。
 
-## 步骤 4：局域网测试
-- **目的**：确保其他设备可以通过 Mac 的共享端口访问互联网。
-- **操作**：
-  - 在客户端设置 `http_proxy`、`https_proxy` 或浏览器代理为 `http://192.168.60.253:1082`。
-  - 运行 `curl -x http://192.168.60.253:1082 https://www.google.com -v`。
-- **预期结果**：客户端能访问 Google 等被墙站点，说明流量经由 Shadowrocket。
-- **验证**：
-  - 命令返回 HTML 或 200/302。
-  - 在 Mac 上 `sudo tcpdump -i en6 port 1082` 可看到 `CONNECT` 请求，Shadowrocket 日志也会出现对应 IP。
-- **常见错误/修复**：
-  - `curl` 超时：客户端和 Mac 不在同一网段或代理地址写成 `192.168.61.xxx` → 改用 `192.168.60.253`。
-  - 仍访问不了：Shadowrocket “Proxy Type” 未支持 CONNECT → 改成 Mixed/SOCKS5 或 HTTP(CONNECT)。
+> **[追问1: 原理与细节深挖]**
+> *   **提问:** 在这么大的写入量下，ClickHouse 的写入性能是如何保证的？你是如何处理 Kafka 到 ClickHouse 的消费积压问题的？
+> *   **考察目标:** [技术深度] 考察对 ClickHouse 批量写入机制、Kafka 消费者组及背压（Backpressure）的处理。
+> *   **参考答案:** 必须提到 **批量写入** (Batch Insert)，不能单条插；ClickHouse 的 MergeTree 引擎特性；Kafka 多线程消费或增加 Partition；写入前的聚合策略。
+> *   **评价标准:**
+>     *   *好:* 提到具体的批次大小（如 10万条或 5秒一批），提到 ClickHouse 的 `Buffer` 表或异步写入机制。
+>     *   *差:* 认为可以实时单条写入，不知道 ClickHouse 的高频写入会导致 merge 压力过大。
 
-## 步骤 5：配置自启动（可选）
-- **目的**：系统重启后自动加载 `pf` 规则，并启用防火墙。
-- **操作**：
-  1. 在 `~/com.shadowrocket.pfctl.plist` 写入：
-     ```xml
-     <?xml version="1.0" encoding="UTF-8"?>
-     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-     <plist version="1.0">
-     <dict>
-       <key>Label</key>
-       <string>com.shadowrocket.pfctl</string>
-       <key>ProgramArguments</key>
-       <array>
-         <string>/bin/sh</string>
-         <string>-c</string>
-         <string>pfctl -f /etc/pf.conf && pfctl -e</string>
-       </array>
-       <key>RunAtLoad</key>
-       <true/>
-       <key>StandardErrorPath</key>
-       <string>/var/log/pfctl-launchd.err</string>
-       <key>StandardOutPath</key>
-       <string>/var/log/pfctl-launchd.out</string>
-     </dict>
-     </plist>
-     ```
-  2. 移动到 `/Library/LaunchDaemons/` 并设置权限：
-     ```
-     sudo mv ~/com.shadowrocket.pfctl.plist /Library/LaunchDaemons/
-     sudo chown root:wheel /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     sudo chmod 644 /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     sudo launchctl load /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     ```
-- **预期结果**：开机后自动运行 `pfctl -f` 和 `pfctl -e`。
-- **验证**：重启后执行 `sudo pfctl -s info`，应显示 `Status: Enabled`；`log show --predicate 'process == "pfctl"' --last 5m` 可查看启动日志。
-- **常见错误/修复**：
-  - `launchctl: Permission denied` → 确保 plist 放在 `/Library/LaunchDaemons` 并归属 `root:wheel`。
-  - 日志提示找不到 `/etc/pf.conf` → 文件路径写错或权限不足，修复后 `launchctl unload` 再 `load`。
+> **[追问2: 极端场景设计]**
+> *   **提问:** 如果 ClickHouse 集群因为 Merge 任务过重导致写入拒绝，或者 Kafka 某个分区发生严重的数据倾斜，你会如何设计降级或恢复方案？
+> *   **考察目标:** [系统设计/稳定性] 考察高可用保障及线上故障处理能力。
+> *   **参考答案:** 降级方案（如写入本地文件/S3 稍后回放）、Kafka 重新分区（Rebalance）、削峰填谷策略、ClickHouse 扩容或调整 TTL 策略。
+> *   **评价标准:**
+>     *   *好:* 有具体的熔断机制，知道数据倾斜的原理（Key 选择不当）并能提出重新 Hash 的方案。
+>     *   *差:* 只有重启服务这一种方案，或者不知道什么是数据倾斜。
 
-## 维护与回滚
-- **修改端口或网段**：直接编辑 `/etc/pf.conf` 中的 `rdr/pass` 行，调整端口/子网后运行 `sudo pfctl -f /etc/pf.conf`。
-- **临时停用**：`sudo pfctl -d` 会禁用 `pf`（直到下次 `pfctl -e` 或重启由 launchd 重新加载）。
-- **回滚到原始配置**：`sudo cp /etc/pf.conf.backup.<timestamp> /etc/pf.conf && sudo pfctl -f /etc/pf.conf && sudo pfctl -d`。
-- **常见日志位置**：`/var/log/pfctl-launchd.out`、`/var/log/pfctl-launchd.err`、`log show --predicate 'process == "pfctl"' --last 5m`。
+#### 模块二：AI 工程化与 RAG 实战 (建议时长: 13分钟)
 
-通过以上步骤即可稳定地把 Shadowrocket 的本地代理端口分享给局域网电脑，同时保证配置在系统重启后可自动恢复。
+**Q2: 在“AI魔方”项目中，你实现了自然语言转 SQL (Text-to-SQL) 和 RAG 架构。请详细讲讲你是如何处理 数据库 Schema 的上下文注入的？如何保证生成的 SQL 是可执行且准确的？**
+*   **简历锚点:** “实现自然语言到 SQL 的智能转换... 动态 Schema 管理... 多轮语义校准”
+*   **考察目标:** [AI落地能力] 区分是简单的 Prompt 拼接还是有工程化处理。
+*   **参考答案:** 涉及到 Prompt Engineering (System Prompt 包含 Schema 定义)、Context Window 限制（不能把几千张表都塞进去，需要先检索相关表）、Few-shot Learning (提供示例)、以及执行前的校验（Syntax Check 或 `EXPLAIN`）。
+*   **评价标准:**
+    *   *好:* 提到**Schema 检索/过滤**（先用向量搜出相关表，再注入 Prompt），提到使用了 Rerank 模型优化检索，或者有后置的 SQL 校验修正机制。
+    *   *差:* 仅回答“把表结构发给 GPT”，不考虑 Token 限制，没有防幻觉机制。
+
+> **[追问1: 向量检索细节]**
+> *   **提问:** 你提到了使用 Milvus 和 `bge-reranker`。请问在构建向量库时，文本切片（Chunking）的策略是什么？Rerank 在你的链路中起到了什么具体作用？
+> *   **考察目标:** [技术细节] 考察对 RAG 核心组件的理解。
+> *   **参考答案:** Chunk size 的选择（如 512/1024 tokens），重叠（Overlap）设置。Rerank 是为了对初步检索回来的 Top-K 进行精排，提高准确率，解决向量相似度主要基于语义而非精确匹配的问题。
+> *   **评价标准:**
+>     *   *好:* 能解释为什么要 Rerank（向量召回有时不准），能根据业务场景（如SQL生成）调整切片策略（如按表定义切片）。
+>     *   *差:* 不知道为什么切片，不知道 Rerank 解决了什么问题。
+
+> **[追问2: 安全与边界]**
+> *   **提问:** 如果用户通过自然语言输入了恶意的指令（比如“删除所有数据”或 Prompt Injection），你的系统在工程层面是如何防御的？
+> *   **考察目标:** [安全性/架构观] 考察 AI 系统在生产环境的安全意识。
+> *   **参考答案:** 数据库权限控制（只给 Read 权限）、Prompt 防御（System Prompt 强指令）、SQL 解析器白名单（禁止 DROP/DELETE/UPDATE）、人工审核环节。
+> *   **评价标准:**
+>     *   *好:* **必须提到数据库层面的权限隔离**（最底层的保障），其次是应用层的解析拦截。
+>     *   *差:* 认为完全靠大模型自己判断是否执行，没有硬性的安全兜底。
+
+#### 模块三：Java 核心与性能调优 (建议时长: 10分钟)
+
+**Q3: 简历中提到通过 Redisson 分布式锁解决了秒杀超卖问题，QPS 提升至 3000+。请问在这个场景下，你是如何设置锁的超时时间的？如果业务执行时间超过了锁过期时间，Redisson 是怎么处理的？**
+*   **简历锚点:** “Redis 分布式锁（Redisson）解决秒杀场景超卖... QPS 3000+”
+*   **考察目标:** [原理掌握] 考察对 Redisson "Watchdog" 机制的理解。
+*   **参考答案:** 默认 30s，Watchdog（看门狗）机制会自动续期（每 10s 检查一次，如果线程还持有锁就续期）。
+*   **评价标准:**
+    *   *好:* 清晰解释 Watchdog 自动续期原理，以及显式设置 leaseTime 会导致 Watchdog 失效的区别。
+    *   *差:* 不知道看门狗机制，认为只能手动估算一个很长的过期时间。
+
+> **[追问1: 极端并发场景]**
+> *   **提问:** 秒杀场景下 QPS 3000+，如果大量请求在抢同一把锁（Hot Key），Redis 会成为瓶颈吗？你会怎么进一步优化？
+> *   **考察目标:** [性能优化] 考察从“分布式锁”到“分段锁”或“库存扣减策略”的思维跃迁。
+> *   **参考答案:** 会成为瓶颈。优化方案：**分段锁**（将库存拆分为 10 份，Key_0 到 Key_9，随机路由或哈希路由），或者将库存扣减下沉到 Redis Lua 脚本中原子执行，减少网络 IO。
+> *   **评价标准:**
+>     *   *好:* 提出分段锁（ConcurrentHashMap 思想）或 Redis Lua 方案。
+>     *   *差:* 认为 Redis 单机能无限抗压，没有拆分热点的意识。
+
+> **[追问2: 数据库与缓存一致性]**
+> *   **提问:** 扣减完 Redis 缓存中的库存后，如何保证 MySQL 中的库存数据最终一致？如果更新数据库失败了怎么办？
+> *   **考察目标:** [架构设计] 考察分布式事务/最终一致性方案。
+> *   **参考答案:** 延时双删（不推荐）、MQ 异步消息队列（可靠性投递）实现最终一致性、TCC 或 Seata（视复杂度而定）。推荐 MQ 方案：Redis 扣减成功 -> 发 MQ -> 消费者慢慢扣减 DB。
+> *   **评价标准:**
+>     *   *好:* 推荐使用 MQ 进行削峰和异步同步，考虑到消息丢失或重复消费的问题（幂等性）。
+>     *   *差:* 同步更新 DB，无法应对高并发；忽略了更新失败后的回滚或重试。
+
+#### 模块四：JVM 调优 (若有时间，快速考察)
+
+**Q4: 你提到通过 Arthas 诊断并优化了 Full GC，频率降低 60%。请还原一下当时的场景：是什么原因导致了频繁 Full GC？你调整了哪些具体参数？**
+*   **简历锚点:** “通过 Arthas 诊断 GC 问题（CMS/G1），实现 Full GC 频率降低 60%+”
+*   **考察目标:** [真实性] 避免“背诵式”调优，要求具体案例。
+*   **参考答案:** 常见原因：Metaspace 不足、大对象直接进老年代、Young 区过小导致对象过早晋升（Premature Promotion）。调整参数如 `-Xmn` (增大年轻代), `-XX:MaxGCPauseMillis` (G1), `-XX:PretenureSizeThreshold`。
+*   **评价标准:**
+    *   *好:* 能说出具体的内存泄露点（如某个导出功能加载了全量数据）或参数配置失误（如年轻代太小）。
+    *   *差:* 只会说“调整了堆大小”，说不出具体的内存区域变化，或者混淆了 CMS 和 G1 的参数。
+
+### 面试官评分辅助建议：
+
+*   **S (Strong Hire):** 对 10TB 数据处理有清晰的物理架构认知，能深入解释 RAG 中 Schema 注入与 Token 限制的工程细节，Redis/MySQL 优化有具体的抗压策略。
+*   **H (Hire):** 核心业务逻辑清晰，AI 部分能说出基本原理但工程深度一般，Java 基础扎实，能够胜任中级开发并有培养潜力。
+*   **N (No Hire):** 10TB 数据量无法自圆其说（如单机处理），AI 项目仅限于调用 API 且不懂原理，对高并发下的锁竞争和数据库一致性缺乏方案。

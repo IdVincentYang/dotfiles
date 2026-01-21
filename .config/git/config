@@ -147,3 +147,5 @@
 	defaultBranch = main
 [commit]
 	gpgSign = false
+[credential]
+	helper = store
