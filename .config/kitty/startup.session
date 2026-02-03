@@ -3,7 +3,7 @@ cd ~/archives.noindex
 launch zsh
 
 new_tab
-cd ~/Documents/AIIDE
+cd ~/Documents/Runtime/
 launch zsh
 
 new_tab
