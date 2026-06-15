@@ -87,11 +87,11 @@
 	name = Vincent
 	email = idvincentyang@gmail.com
 
-[includeIf "gitdir:~/Documents/AIIDE/"]
-	path = ~/.config/git/gitconfig.yangws.github
+[includeIf "gitdir:~/Documents/Runtime/"]
+	path = ~/.config/git/gitconfig.sud
 
-[includeIf "gitdir:~/Documents/Creator/"]
-	path = ~/.config/git/gitconfig.yangws.github
+[includeIf "gitdir:~/Documents/SUD/"]
+	path = ~/.config/git/gitconfig.sud
 
 [core]
     autocrlf = input
