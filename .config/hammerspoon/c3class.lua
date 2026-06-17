@@ -25,8 +25,7 @@ end
 local dummy_func = function()
     print("----- dummy func called at", debug.traceback())
 end
-local abstruct_func = function(self)
-end
+local abstruct_func = function(self) end
 
 local function make_message(...)
     local strs = table.pack(...)
@@ -173,9 +172,7 @@ local function super_make(class, mro)
         end
 
         local super_instance = {}
-        return setmetatable(
-        super_instance,
-        {
+        return setmetatable(super_instance, {
             __index = function(_, k)
                 -- print("---- super find:", k, class)
                 for i = idx, #mro do
@@ -200,9 +197,8 @@ local function super_make(class, mro)
                 end
                 return nil
             end,
-            __newindex = super_newindex
-        }
-        )
+            __newindex = super_newindex,
+        })
     end
 end
 
@@ -339,12 +335,12 @@ local function class_make(name, extends, members)
         tail_mros[i] = {
             idx = 1,
             num = #base_mro,
-            arr = base_mro
+            arr = base_mro,
         }
         tail_mros[base_num + i] = {
             idx = i,
             num = 1,
-            arr = extends
+            arr = extends,
         }
     end
     local mro = merge_mro({ class }, tail_mros)
@@ -354,7 +350,7 @@ local function class_make(name, extends, members)
             base_names[i] = get_class_name(extends[i])
         end
         error(
-        make_message("can't create a consistent method resolution order (MRO) for bases", table.unpack(base_names))
+            make_message("can't create a consistent method resolution order (MRO) for bases", table.unpack(base_names))
         )
     end
     local find_member = function(k)
@@ -376,7 +372,7 @@ local function class_make(name, extends, members)
             end
             return v
         end,
-        __tostring = instance_tostring
+        __tostring = instance_tostring,
     }
     --  init class_meta
     class_meta.address = string.sub(tostring(class), 8)
@@ -439,9 +435,7 @@ function M.debug()
     end
 end
 
-return setmetatable(
-M,
-{
+return setmetatable(M, {
     __call = function(_, ...)
         local args, extends, members = table.pack(...), {}, {}
         local arg, arg_type, name
@@ -485,6 +479,5 @@ M,
         local class, super = class_make(name, extends, members)
         class_register(class, name)
         return class, super
-    end
-}
-)
+    end,
+})
