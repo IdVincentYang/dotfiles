@@ -1,6 +1,7 @@
 # vi: ft=just tabstop=4 shiftwidth=4 expandtab
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+export HOMEBREW_NO_ASK := "1"
 
 # 命名约定
 #   <主分类>-<功能领域>-<name>[-<os>]
@@ -21,6 +22,7 @@ help:
     '用途:' \
     '  这个 justfile 是 dotfiles 的按需安装和配置入口。' \
     '  用它安装 CLI/GUI 应用、恢复 macOS defaults、配置开发运行时。' \
+    '  Homebrew 安装默认不再询问确认。' \
     '' \
     '推荐流程:' \
     '  1. 新机器首次恢复先完整安装 core essentials:' \
