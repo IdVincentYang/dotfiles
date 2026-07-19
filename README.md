@@ -212,7 +212,7 @@ Karabiner-Elements 会读取 yadm 已恢复的 `~/.config/karabiner`。打开后
 Input Monitoring、Accessibility 等权限。Hammerspoon 的安装任务会把配置入口指向
 `~/.config/hammerspoon/init.lua`；打开后也需要按系统提示授予 Accessibility 权限。
 
-7. 安装按需工具
+7. 安装 core 工具
 
 `justfile` 位于 `~/.config/justfile`，在 `$HOME` 下执行时需要显式指定。
 
@@ -222,7 +222,28 @@ just --justfile ~/.config/justfile list main=core
 
 # Install core packages interactively
 just --justfile ~/.config/justfile install-menu main=core
+```
 
+8. 恢复 macOS defaults
+
+在安装其他应用前，先按需恢复 Finder、Dock、Global、Safari 相关系统偏好：
+
+```bash
+just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin
+```
+
+也可以单独执行：
+
+```bash
+just --justfile ~/.config/justfile system-config-finder-defaults-darwin
+just --justfile ~/.config/justfile system-config-dock-defaults-darwin
+just --justfile ~/.config/justfile system-config-global-defaults-darwin
+just --justfile ~/.config/justfile system-config-safari-defaults-darwin
+```
+
+9. 安装按需工具
+
+```bash
 # Install asdf plugins
 just --justfile ~/.config/justfile core-develop-asdf-plugins
 
@@ -230,7 +251,7 @@ just --justfile ~/.config/justfile core-develop-asdf-plugins
 just --justfile ~/.config/justfile core-develop-asdf-install-menu
 
 # Install npm global packages
-just --justfile ~/.config/justfile core-cli-npm-globals
+just --justfile ~/.config/justfile cli-develop-npm-globals
 ```
 
 `.config/backups/Brewfile` 和 `.config/backups/mas/*.list` 是旧机器应用清单兜底。
@@ -256,7 +277,7 @@ just develop-asdf-plugins
 just develop-asdf-install-menu
 
 # Install npm global packages
-just core-cli-npm-globals
+just cli-develop-npm-globals
 ```
 
 ## Setup brew

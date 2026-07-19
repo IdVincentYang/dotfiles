@@ -14,17 +14,32 @@ asdf_plugins := "nodejs java direnv"
 npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp clawhub http-server repomix"
 
 default:
-    @just --list
+    @just --justfile "{{justfile()}}" help
 
 help:
     @printf '%s\n' \
-    '命令概览:' \
+    '用途:' \
+    '  这个 justfile 是 dotfiles 的按需安装和配置入口。' \
+    '  用它安装 CLI/GUI 应用、恢复 macOS defaults、配置开发运行时。' \
+    '' \
+    '推荐流程:' \
+    '  1. 选择性安装 core 工具:' \
+    '       just --justfile ~/.config/justfile install-menu main=core' \
+    '  2. 选择性恢复 macOS 系统偏好:' \
+    '       just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin' \
+    '  3. 查看并按需安装其他应用:' \
+    '       just --justfile ~/.config/justfile list' \
+    '       just --justfile ~/.config/justfile install-menu main=gui' \
+    '' \
+    '常用命令:' \
     '  just list [main=core] [domain=develop] [os=darwin] [name=git] [raw=1]' \
     '      - 根据命名规范(<主类>-<领域>-<名称>[-<平台>])筛选可用 recipe。' \
     '  just install <name> [name...]' \
     '      - 根据名称匹配当前平台的 recipe，直接执行安装。' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
     '      - 交互式多选安装，支持 fzf (若已安装)。' \
+    '  just --list' \
+    '      - 显示所有 recipe。' \
     '  just platform-info' \
     '      - 显示平台判定结果，便于调试。' \
     '' \
@@ -114,19 +129,6 @@ core-cli-ripgrep:
 core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
     brew install tealdeer
-
-core-cli-npm-globals:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    if ! command -v npm >/dev/null 2>&1; then
-        echo "[npm-globals] npm 未安装，请先运行 core-develop-asdf 或相关 node 安装流程" >&2
-        exit 1
-    fi
-    packages=({{npm_global_packages}})
-    for pkg in "${packages[@]}"; do
-        echo "[npm-globals] 安装/更新 ${pkg}"
-        npm install -g "$pkg"
-    done
 
 # 网络/同步工具
 # core-util-adwaita-icon-theme:
@@ -298,6 +300,19 @@ cli-develop-aichat:
     # aichat CLI; functions repo可后续通过 yadm submodule 管理。
     # submodule init in yadm bootstrap stage: yadm submodule update --init
     brew install aichat
+
+cli-develop-npm-globals:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v npm >/dev/null 2>&1; then
+        echo "[npm-globals] npm 未安装，请先运行 core-develop-asdf 或相关 node 安装流程" >&2
+        exit 1
+    fi
+    packages=({{npm_global_packages}})
+    for pkg in "${packages[@]}"; do
+        echo "[npm-globals] 安装/更新 ${pkg}"
+        npm install -g "$pkg"
+    done
 
 ### Git utilities
 cli-develop-git-archive-all:
