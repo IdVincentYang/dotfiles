@@ -292,6 +292,23 @@ system-config-timemachine-exclusions-darwin:
     #!/usr/bin/env bash
     set -euo pipefail
     exclusions_file="${HOME}/.config/backups/timemachine/exclusions.txt"
+
+    skip_path_exists() {
+        local wanted="$1"
+        defaults read /Library/Preferences/com.apple.TimeMachine SkipPaths 2>/dev/null \
+            | grep -Fq "\"${wanted}\""
+    }
+
+    add_skip_path() {
+        local path="$1"
+        if skip_path_exists "$path"; then
+            echo "[timemachine] SkipPaths already contains: $path"
+            return 0
+        fi
+        echo "[timemachine] Adding SkipPaths entry: $path"
+        sudo defaults write /Library/Preferences/com.apple.TimeMachine SkipPaths -array-add "$path"
+    }
+
     if [[ ! -f "$exclusions_file" ]]; then
         echo "[timemachine] Missing exclusions file: $exclusions_file" >&2
         exit 1
@@ -303,15 +320,26 @@ system-config-timemachine-exclusions-darwin:
             \~/*) path="${HOME}/${path#\~/}" ;;
             "\$HOME/"*) path="${HOME}/${path#\$HOME/}" ;;
         esac
-        echo "[timemachine] Excluding: $path"
-        if [[ ! -e "$path" ]]; then
-            echo "[timemachine] Creating missing directory: $path"
-            mkdir -p "$path"
-        fi
-        if ! tmutil addexclusion "$path"; then
-            echo "[timemachine] Failed to add exclusion: $path" >&2
-            exit 1
-        fi
+        case "$path" in
+            "$HOME"|"$HOME"/*)
+                echo "[timemachine] Excluding user path: $path"
+                if [[ ! -e "$path" ]]; then
+                    echo "[timemachine] Creating missing directory: $path"
+                    mkdir -p "$path"
+                fi
+                if ! tmutil addexclusion "$path"; then
+                    echo "[timemachine] Failed to add user exclusion: $path" >&2
+                    exit 1
+                fi
+                ;;
+            /*)
+                add_skip_path "$path"
+                ;;
+            *)
+                echo "[timemachine] Unsupported path. Use ~/ or an absolute path: $raw_path" >&2
+                exit 1
+                ;;
+        esac
     done < "$exclusions_file"
 
 system-config-macos-defaults-menu-darwin:
