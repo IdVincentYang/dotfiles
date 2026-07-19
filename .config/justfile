@@ -288,6 +288,25 @@ system-config-safari-defaults-darwin:
     # Safari bookmarks, history, passwords, and extensions should be restored via iCloud.
     killall Safari 2>/dev/null || true
 
+system-config-timemachine-exclusions-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exclusions_file="${HOME}/.config/backups/timemachine/exclusions.txt"
+    if [[ ! -f "$exclusions_file" ]]; then
+        echo "[timemachine] Missing exclusions file: $exclusions_file" >&2
+        exit 1
+    fi
+    while IFS= read -r raw_path || [[ -n "$raw_path" ]]; do
+        [[ -z "$raw_path" || "$raw_path" == \#* ]] && continue
+        path="$raw_path"
+        case "$path" in
+            "~/"*) path="${HOME}/${path#~/}" ;;
+            "\$HOME/"*) path="${HOME}/${path#\$HOME/}" ;;
+        esac
+        echo "[timemachine] Excluding: $path"
+        sudo tmutil addexclusion -p "$path"
+    done < "$exclusions_file"
+
 system-config-macos-defaults-menu-darwin:
     @printf '%s\n' \
         system-config-finder-defaults-darwin \
