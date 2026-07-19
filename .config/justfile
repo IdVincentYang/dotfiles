@@ -151,7 +151,8 @@ core-media-yt-dlp:
 
 ### hammerspoon & tray helpers
 system-util-hammerspoon-darwin:
-    brew install --cask --no-quarantine hammerspoon
+    brew install --cask hammerspoon
+    xattr -dr com.apple.quarantine /Applications/Hammerspoon.app 2>/dev/null || true
     defaults write org.hammerspoon.Hammerspoon MJConfigFile "${XDG_CONFIG_HOME:-$HOME/.config}"/hammerspoon/init.lua
 
 system-util-caffeine-darwin:
@@ -197,9 +198,12 @@ system-media-aerial-darwin:
 ### Quick Look enhancements
 system-media-quicklook-suite-darwin:
     brew install --cask apparency suspicious-package
-    brew install --cask --no-quarantine qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
+    brew install --cask qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
     xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
+    xattr -cr ~/Library/QuickLook/QLColorCode.qlgenerator
     xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
+    xattr -cr ~/Library/QuickLook/QLVideo.qlgenerator
+    xattr -cr ~/Library/QuickLook/QuickLookJSON.qlgenerator
     qlmanage -r cache
     open /Applications/QuickLook\ Video.app
 
@@ -337,18 +341,21 @@ gui-vm-vmware-fusion-darwin:
 ## 数据库客户端
 gui-db-db-browser-for-sqlite-darwin:
     # sqlite client app
-    brew install --cask --no-quarantine db-browser-for-sqlite
+    brew install --cask db-browser-for-sqlite
+    xattr -dr com.apple.quarantine "/Applications/DB Browser for SQLite.app" 2>/dev/null || true
 
 gui-db-pgadmin4-darwin:
     # PostgreSQL GUI 管理工具
-    brew install --cask --no-quarantine pgadmin4
+    brew install --cask pgadmin4
+    xattr -dr com.apple.quarantine /Applications/pgAdmin\ 4.app 2>/dev/null || true
 
 ## 开发辅助
 extra-productivity-applite-darwin:
     # app: homebrew GUI
     # brew install cakebrew
     # app: homebrew GUI for cask apps
-    brew install --cask --no-quarantine applite
+    brew install --cask applite
+    xattr -dr com.apple.quarantine /Applications/Applite.app 2>/dev/null || true
 
 # --- build: source-based installs ---
 
