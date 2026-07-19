@@ -30,6 +30,12 @@ if command -v asdf >/dev/null 2>&1; then
   export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
   export ASDF_DATA_DIR="${XDG_STATE_HOME}/asdf"
 
+  asdf_shims="${ASDF_DATA_DIR}/shims"
+  case ":$PATH:" in
+    *:"$asdf_shims":*) ;;
+    *) export PATH="$asdf_shims:$PATH" ;;
+  esac
+
   _BREW_ASDF_PREFIX=""
   if command -v brew >/dev/null 2>&1; then
     _BREW_ASDF_PREFIX="$(brew --prefix asdf 2>/dev/null || true)"

@@ -254,6 +254,11 @@ just --justfile ~/.config/justfile core-develop-asdf-plugins
 # Install asdf plugin versions
 just --justfile ~/.config/justfile core-develop-asdf-install-menu
 
+which node
+which npm
+which java
+which direnv
+
 # Install npm global packages
 just --justfile ~/.config/justfile cli-develop-npm-globals
 ```
