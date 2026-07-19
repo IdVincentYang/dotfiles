@@ -236,15 +236,6 @@ just --justfile ~/.config/justfile install-menu main=core
 just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin
 ```
 
-也可以单独执行：
-
-```bash
-just --justfile ~/.config/justfile system-config-finder-defaults-darwin
-just --justfile ~/.config/justfile system-config-dock-defaults-darwin
-just --justfile ~/.config/justfile system-config-global-defaults-darwin
-just --justfile ~/.config/justfile system-config-safari-defaults-darwin
-```
-
 如果需要恢复 Time Machine 排除目录：
 
 ```bash

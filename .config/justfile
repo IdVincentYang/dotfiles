@@ -300,11 +300,14 @@ system-config-timemachine-exclusions-darwin:
         [[ -z "$raw_path" || "$raw_path" == \#* ]] && continue
         path="$raw_path"
         case "$path" in
-            "~/"*) path="${HOME}/${path#~/}" ;;
+            \~/*) path="${HOME}/${path#\~/}" ;;
             "\$HOME/"*) path="${HOME}/${path#\$HOME/}" ;;
         esac
         echo "[timemachine] Excluding: $path"
-        sudo tmutil addexclusion -p "$path"
+        if ! sudo tmutil addexclusion -p "$path"; then
+            echo "[timemachine] Failed to add exclusion. Grant Full Disk Access to your terminal app, then rerun this recipe." >&2
+            exit 1
+        fi
     done < "$exclusions_file"
 
 system-config-macos-defaults-menu-darwin:
