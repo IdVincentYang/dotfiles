@@ -17,20 +17,45 @@ bootstrap，然后优先恢复 Raycast、kitty、Karabiner-Elements 和 Hammersp
 
 0. 旧机器迁移前刷新备份
 
+先备份旧机器应用清单。`Brewfile` 和 `mas/<account>.list` 只作为旧机器应用信息兜底；
+新机器安装应用优先走 `~/.config/justfile` 中已有的按需安装流程。
+
+```bash
+mkdir -p ~/.config/backups/mas
+
+brew update
+brew upgrade
+brew bundle dump --file ~/.config/backups/Brewfile --force
+
+brew upgrade mas || brew install mas
+mas version
+```
+
+在 App Store GUI 登录第一个 Apple ID 后执行：
+
+```bash
+mas list | tee ~/.config/backups/mas/<account-name>.list
+```
+
+切换到第二个 Apple ID 后再次执行：
+
+```bash
+mas list | tee ~/.config/backups/mas/<account-name>.list
+```
+
 先刷新 Raycast、kitty、Karabiner-Elements 和 Hammerspoon 相关备份。Raycast 的
 `.rayconfig` 需要在 Raycast 应用内执行 Export Settings，并保存到
 `~/.config/backups/raycast/`。如果要重置导入密码，先在 Raycast Settings →
 Advanced → Export 中清除或更新 Export passphrase，再重新导出 `.rayconfig`。旧的
 `.rayconfig` 仍然使用导出时的 passphrase；重置后只对新导出的文件生效。
 
-Homebrew Bundle 和 Mac App Store 应用恢复清单后续再整理；不要为了迁移这些常用入口
-工具阻塞在 brew/mas 清单上。
-
 ```bash
 mkdir -p ~/.config/backups/raycast
 
 find ~/.config/backups/raycast -maxdepth 1 -name '*.rayconfig' -type f | sort
 
+yadm add ~/.config/backups/Brewfile \
+         ~/.config/backups/mas
 yadm add ~/.config/kitty \
          ~/.config/karabiner/karabiner.json \
          ~/.config/karabiner/assets/complex_modifications \
@@ -177,28 +202,15 @@ just --justfile ~/.config/justfile system-util-karabiner-elements-darwin
 just --justfile ~/.config/justfile system-util-hammerspoon-darwin
 ```
 
-kitty 会读取 yadm 已恢复的 `~/.config/kitty`。打开 kitty 后继续执行后续命令：
-
-```bash
-open -a kitty
-```
+kitty 会读取 yadm 已恢复的 `~/.config/kitty`。
 
 Raycast 安装后，打开 Raycast，并从 `~/.config/backups/raycast/` 导入最近的
 `.rayconfig`。如果导入后没有恢复自定义 Script Commands 目录，再在 Raycast 中添加
 `~/.config/backups/raycast/scirpt-commands`。
 
-```bash
-open /Applications/Raycast.app
-```
-
 Karabiner-Elements 会读取 yadm 已恢复的 `~/.config/karabiner`。打开后按系统提示授予
 Input Monitoring、Accessibility 等权限。Hammerspoon 的安装任务会把配置入口指向
 `~/.config/hammerspoon/init.lua`；打开后也需要按系统提示授予 Accessibility 权限。
-
-```bash
-open /Applications/Karabiner-Elements.app
-open /Applications/Hammerspoon.app
-```
 
 7. 安装按需工具
 
@@ -221,33 +233,9 @@ just --justfile ~/.config/justfile core-develop-asdf-install-menu
 just --justfile ~/.config/justfile core-cli-npm-globals
 ```
 
-`.config/backups/Brewfile` 和 `.config/backups/mas.list` 是应用恢复清单。Raycast 和
-kitty 已在前面优先恢复；需要批量恢复其他 GUI 应用时再按需执行：
-
-```bash
-mkdir -p ~/tmp/migrate
-cp ~/.config/backups/Brewfile ~/tmp/migrate/Brewfile.restore
-
-# Review and comment out apps you do not want on this machine.
-vim ~/tmp/migrate/Brewfile.restore
-
-brew bundle check --file ~/tmp/migrate/Brewfile.restore
-brew bundle install --file ~/tmp/migrate/Brewfile.restore
-```
-
-恢复 Mac App Store 应用时，先在 App Store GUI 登录对应 Apple ID，再安装该账号的
-清单。多个 Apple ID 分开执行。`mas` 在新 macOS 上可能无法正确识别已安装应用；
-安装失败时，按 `.list` 中的 App ID 在 App Store 手动安装。
-
-```bash
-cp ~/.config/backups/mas/personal.list ~/tmp/migrate/mas.personal.restore
-
-# Review and remove apps you do not want on this machine.
-vim ~/tmp/migrate/mas.personal.restore
-
-awk '$1 ~ /^[0-9]+$/ {print $1}' ~/tmp/migrate/mas.personal.restore | \
-    xargs -n 1 mas install
-```
+`.config/backups/Brewfile` 和 `.config/backups/mas/*.list` 是旧机器应用清单兜底。
+新机器恢复应用时先用 `just --justfile ~/.config/justfile list` 查看已有 recipe，
+再按需执行对应任务。
 
 #### Ubuntu/Debian
 

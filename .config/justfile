@@ -5,11 +5,11 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 # 命名约定
 #   <主分类>-<功能领域>-<name>[-<os>]
 #   - 主分类(primary): core/system/cli/gui/extra/build
-#   - 功能领域(domain): develop/media/productivity/db/vm/util/other
+#   - 功能领域(domain): config/develop/media/productivity/db/vm/util/other
 #   - 可选 OS 后缀：darwin/linux/termux（缺省表示通用）
 # 新增 recipe 必须遵守上述命名，方可被 `list`/`install` 等命令识别。
 primary_categories := "core system cli gui extra build"
-domain_categories := "develop media productivity db vm util other"
+domain_categories := "config develop media productivity db vm util other"
 asdf_plugins := "nodejs java direnv"
 npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp clawhub http-server repomix"
 
@@ -208,6 +208,63 @@ system-media-quicklook-suite-darwin:
     open /Applications/QuickLook\ Video.app
 
 ### system tweaks
+system-config-finder-defaults-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    defaults write com.apple.finder AppleShowAllFiles -bool true
+    defaults write com.apple.finder ShowPathbar -bool true
+    defaults write com.apple.finder ShowStatusBar -bool true
+    defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+    defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+    defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+    defaults write com.apple.finder NewWindowTarget -string "PfLo"
+    defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/Downloads/"
+    defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+    defaults write com.apple.finder WarnOnEmptyTrash -bool false
+    defaults write com.apple.finder FK_SidebarWidth -int 134
+    killall Finder 2>/dev/null || true
+
+system-config-dock-defaults-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    defaults write com.apple.dock autohide -bool true
+    defaults write com.apple.dock magnification -bool true
+    defaults write com.apple.dock largesize -int 30
+    defaults write com.apple.dock tilesize -int 47
+    defaults write com.apple.dock mineffect -string "scale"
+    defaults write com.apple.dock show-recents -bool true
+    defaults write com.apple.dock wvous-br-corner -int 14
+    killall Dock 2>/dev/null || true
+
+system-config-global-defaults-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+    defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+    # Language and locale are machine-specific; configure them manually per machine.
+    # defaults write NSGlobalDomain AppleLanguages -array "en-US" "zh-Hant-SG"
+    # defaults write NSGlobalDomain AppleLocale -string "en_SG"
+    killall Finder 2>/dev/null || true
+    killall Dock 2>/dev/null || true
+    killall SystemUIServer 2>/dev/null || true
+
+system-config-safari-defaults-darwin:
+    # Current Safari defaults are intentionally left at system defaults.
+    # Safari bookmarks, history, passwords, and extensions should be restored via iCloud.
+    killall Safari 2>/dev/null || true
+
+system-config-macos-defaults-menu-darwin:
+    @printf '%s\n' \
+        system-config-finder-defaults-darwin \
+        system-config-dock-defaults-darwin \
+        system-config-global-defaults-darwin \
+        system-config-safari-defaults-darwin \
+        | JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh
+
 system-util-karabiner-elements-darwin:
     brew install --cask karabiner-elements
 

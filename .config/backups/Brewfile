@@ -1,137 +1,336 @@
+tap "farion1231/ccswitch"
 tap "grishka/grishka"
 tap "homebrew/bundle"
 tap "homebrew/services"
+tap "lihaoyun6/tap"
 tap "openresty/brew"
 tap "wader/tap"
-brew "openssl@3"
-brew "python@3.12"
+# Core application library for C
+brew "glib"
+# OpenType text shaping engine
+brew "harfbuzz"
+# Library to render SVG files using Cairo
+brew "librsvg"
+# Icons for the GNOME project
 brew "adwaita-icon-theme"
+# All-in-one AI-Powered CLI Chat & Copilot
+brew "aichat"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.12"
+# Java build tool
 brew "ant"
+# New file format for still image compression
 brew "jpeg-xl"
+# Codec library for encoding and decoding AV1 video streams
 brew "aom"
+# Tool for reverse engineering 3rd party, closed, binary Android apps
 brew "apktool"
-brew "autoconf"
-brew "automake"
-brew "asdf"
-brew "at-spi2-core"
-brew "bat"
-brew "broot"
-brew "btop"
-brew "cloc"
-brew "cmake"
-brew "cocoapods"
-brew "cpufetch"
-brew "curl"
-brew "dex2jar"
-brew "fd"
-brew "unbound"
-brew "gnutls"
-brew "libmicrohttpd"
-brew "ffmpeg"
-brew "fossil"
-brew "fzf"
-brew "gawk"
+# Easily create and use cli based on bash script
+brew "argc"
+# Distributed revision control system
 brew "git"
+# Extendable version manager with support for Ruby, Node.js, Erlang & more
+brew "asdf"
+# Protocol definitions and daemon for D-Bus at-spi
+brew "at-spi2-core"
+# Automatic configure script builder
+brew "autoconf"
+# Tool for generating GNU Standards-compliant Makefiles
+brew "automake"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# New way to see and navigate directory trees
+brew "broot"
+# Resource monitor. C++ version and continuation of bashtop and bpytop
+brew "btop"
+# Statistics utility to count lines of code
+brew "cloc"
+# Cross-platform make
+brew "cmake"
+# Dependency manager for Cocoa projects
+brew "cocoapods"
+# GNU File, Shell, and Text utilities
+brew "coreutils"
+# CPU architecture fetching tool
+brew "cpufetch"
+# Get a file from an HTTP, HTTPS or FTP server
+brew "curl"
+# Modern diagram scripting language that turns text to diagrams
+brew "d2"
+# Secure runtime for JavaScript and TypeScript
+brew "deno"
+# Tools to work with Android .dex and Java .class files
+brew "dex2jar"
+# Disk Usage/Free Utility - a better 'df' alternative
+brew "duf"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Validating, recursive, caching DNS resolver
+brew "unbound"
+# GNU Transport Layer Security (TLS) Library
+brew "gnutls"
+# Light HTTP/1.1 server library
+brew "libmicrohttpd"
+# Play, record, convert, and stream select audio and video codecs
+brew "ffmpeg"
+# Distributed software configuration management
+brew "fossil"
+# Monitor a directory for changes and run a shell command
+brew "fswatch"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GNU awk utility
+brew "gawk"
+# Disk usage analyzer with console interface written in Go
+brew "gdu"
+# Archive a project and its submodules
 brew "git-archive-all"
+# Git extension for versioning large files
 brew "git-lfs"
+# Open source programming language to build simple/reliable/efficient software
 brew "go"
+# Graph visualization software from AT&T and Bell Labs
+brew "graphviz"
+# Toolkit for creating graphical user interfaces
 brew "gtk+3"
+# GUI for rsync
 brew "grsync"
+# Convert source code to formatted text with syntax highlighting
 brew "highlight"
+# Uses CSS selectors to extract bits content from HTML files
 brew "htmlq"
+# Tools and libraries to manipulate images in select formats
+brew "imagemagick"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Handy way to save and run project-specific commands
 brew "just"
+# Terminal file manager
 brew "lf"
+# ISO-C API and CLI for generating UUIDs
+brew "ossp-uuid"
+# Mac App Store command-line interface
+brew "mas"
+# Video processing framework with simplicity in mind
 brew "vapoursynth"
+# Feature-rich command-line audio/video downloader
 brew "yt-dlp"
+# Media player based on MPlayer and mplayer2
 brew "mpv"
-brew "openblas"
+# Package for scientific computing with Python
 brew "numpy"
-brew "ollama", restart_service: true
+# Create, run, and share large language models (LLMs)
+brew "ollama", restart_service: :changed
+# Command-line Git information tool
 brew "onefetch"
+# AI coding agent, built for the terminal
+brew "opencode"
+# Open Visual Inference And Optimization toolkit for AI inference
 brew "openvino"
+# 7-Zip (high compression file archiver) implementation
 brew "p7zip"
+# Draw UML diagrams
+brew "plantuml"
+# PDF rendering library (based on the xpdf-3.0 code base)
+brew "poppler"
+# Object-relational database system
 brew "postgresql@16"
+# Python version management
 brew "pyenv"
+# Interpreted, interactive, object-oriented programming language
 brew "python@3.11"
+# Search tool like grep and The Silver Searcher
 brew "ripgrep"
+# Utility that provides fast incremental file transfer
 brew "rsync"
+# Rust toolchain installer
 brew "rustup"
+# Tool for shell commands execution, visualization and alerting
 brew "sampler"
+# Display and control your Android device
 brew "scrcpy"
+# Universal proxy platform
 brew "sing-box"
+# Cross-platform application to monitor your network traffic
+brew "sniffnet"
+# SOcket CAT: netcat on steroids
+brew "socat"
+# Opinionated Lua code formatter
+brew "stylua"
+# Very fast implementation of tldr in Rust
 brew "tealdeer"
+# Program that allows you to count code, quickly
 brew "tokei"
+# Display directories as trees (with optional color/HTML output)
 brew "tree"
+# Network diagnostic tool, inspired by mtr
 brew "trippy"
+# Command-line unarchiving tools supporting multiple formats
 brew "unar"
+# Extremely fast Python package installer and resolver, written in Rust
+brew "uv"
+# Google's JavaScript engine
 brew "v8"
+# Internet file retriever
 brew "wget"
+# Personal information dashboard for your terminal
 brew "wtfutil"
+# Cross-platform build utility based on Lua
 brew "xmake"
+# Yet Another Dotfiles Manager
 brew "yadm"
+# Copy terminal output to clipboard
+brew "yank"
+# Shell extension to navigate your filesystem faster
 brew "zoxide"
-brew "openresty/brew/openresty"
-brew "wader/tap/fq"
+# Tools for building Android applications
+cask "android-studio"
+# Inspect application bundles
 cask "apparency"
+# User-friendly GUI app for Homebrew
 cask "applite"
+# Display management tool
 cask "betterdisplay"
+# Compare files and folders
 cask "beyond-compare"
+# Utility that prevents the system from going to sleep
 cask "caffeine"
-cask "clashx"
+# Configuration manager for Claude Code and Codex providers
+cask "farion1231/ccswitch/cc-switch"
+# Web debugging Proxy application
+cask "charles"
+# Desktop client that supports multiple LLM providers
+cask "cherry-studio"
+# Write, edit, and chat about your code with AI
+cask "cursor"
+# Server and cloud storage browser
 cask "cyberduck"
+# Browser for SQLite databases
 cask "db-browser-for-sqlite"
+# Online diagram software
 cask "drawio"
+# Drag and drop helper app
 cask "dropshelf"
+# Dictionary and translator app
 cask "easydict"
+# Web browser
 cask "firefox"
 cask "font-jetbrains-mono-nerd-font"
+# GIT client
 cask "fork"
+# Mind mapping and knowledge management software
 cask "freeplane"
+# Free and open-source image editor
 cask "gimp"
+# Web browser
 cask "google-chrome"
+# Desktop automation application
 cask "hammerspoon"
-cask "handbrake"
+# Open-source video transcoder
+cask "handbrake-app"
+# Free and open-source media player
 cask "iina"
+# Media file inspector
 cask "invisor-lite"
+# Use your phone's camera as a wireless webcam
+cask "iriunwebcam"
+# Standalone Java Decompiler GUI
 cask "jd-gui"
+# Note taking and to-do application with synchronisation capabilities
 cask "joplin"
+# Utility to render Jupyter notebooks
+cask "jupyter-notebook-viewer"
+# Keyboard customiser
 cask "karabiner-elements"
+# Password manager app
 cask "keepassxc"
+# Blocks all Keyboard and TouchBar input
 cask "keyboardcleantool"
+# GPU-based terminal emulator
 cask "kitty"
+# Free and open-source media player
 cask "kodi"
+# Trims video and audio files losslessly
 cask "losslesscut"
-cask "macvim"
+# Text editor
+cask "macvim-app"
+# Display file information in Finder contextual menu
 cask "mediainfoex"
+# Open-source download manager
 cask "motrix"
+# Unofficial Google Nearby Share app
 cask "neardrop"
+# Retro video game emulation
 cask "openemu"
+# Real-time strategy game engine for Westwood games
 cask "openra"
+# Provides common input methods
 cask "openvanilla"
+# Replacement for Docker Desktop
+cask "orbstack"
+# Administration and development platform for PostgreSQL
 cask "pgadmin4"
+# Quick Look plugin for subtitle (.srt) files
 cask "qladdict"
+# Quick Look plug-in that renders source code with syntax highlighting
 cask "qlcolorcode"
+# Quick Look generator for Markdown files
 cask "qlmarkdown"
+# Quick Look plugin to view patch files
 cask "qlprettypatch"
-cask "qlvideo"
+# Quick Look plugin for JSON files
 cask "quicklook-json"
+# Thumbnails, static previews, cover art and metadata for video files
+cask "quicklook-video"
+# A lightweight and high-performance screen recorder for macOS.
+cask "lihaoyun6/tap/quickrecorder"
+# Control your tools with a few keystrokes
 cask "raycast"
+# Displays all open files and sockets in use by all running processes
 cask "sloth"
+# System monitor for the menu bar
 cask "stats"
+# Video game digital distribution service
 cask "steam"
+# Application for inspecting installer packages
 cask "suspicious-package"
+# Menu bar customization tool
+cask "swiftbar"
+# Quicklook extension for source files
 cask "syntax-highlight"
+# Free and open-source OpenVPN client
+cask "tunnelblick"
+# Open-source code editor
 cask "visual-studio-code"
+# Create, manage, and run virtual machines
 cask "vmware-fusion"
+# Rust-based terminal
 cask "warp"
-cask "xemu"
-cask "zed"
-vscode "amazonwebservices.amazon-q-vscode"
-vscode "bito.bito"
-vscode "dart-code.dart-code"
-vscode "dart-code.flutter"
+vscode "anthropic.claude-code"
+vscode "christian-kohler.path-intellisense"
+vscode "continue.continue"
+vscode "eamodio.gitlens"
+vscode "google.gemini-cli-vscode-ide-companion"
+vscode "gruntfuggly.mermaid-export"
+vscode "jebbs.plantuml"
 vscode "llvm-vs-code-extensions.vscode-clangd"
+vscode "marscode.marscode-extension"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "ms-vscode-remote.remote-containers"
+vscode "ms-vscode-remote.remote-ssh"
+vscode "ms-vscode.copilot-mermaid-diagram"
+vscode "ms-vscode.live-server"
 vscode "nefrob.vscode-just-syntax"
-vscode "rust-lang.rust-analyzer"
+vscode "openai.chatgpt"
+vscode "saoudrizwan.claude-dev"
+vscode "shd101wyy.markdown-preview-enhanced"
 vscode "tboox.xmake-vscode"
 vscode "vadimcn.vscode-lldb"
+vscode "vue.volar"
+go "golang.org/x/mobile/cmd/gobind"
+go "golang.org/x/mobile/cmd/gomobile"
