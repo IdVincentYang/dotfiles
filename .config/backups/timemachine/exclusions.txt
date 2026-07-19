@@ -1,5 +1,7 @@
-# Time Machine fixed-path exclusions.
-# Use ~/ for user-home-relative paths; blank lines and comments are ignored.
+# Time Machine exclusions.
+# ~/ paths are created if missing, then applied with tmutil addexclusion.
+# Absolute system paths are applied to Time Machine SkipPaths.
+# Blank lines and comments are ignored.
 # Machine-specific app container paths should be added manually per machine.
 ~/archives.noindex
 ~/Downloads
