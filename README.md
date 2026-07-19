@@ -171,27 +171,30 @@ yadm checkout
 yadm bootstrap
 ```
 
-`yadm clone` 默认会处理 alternate 文件，通常不需要单独执行 `yadm alt`。如果发现
-`.config/yadm/bootstrap.d/00_init`、`04_brew` 或 `08_shell` 没有链接到对应的
-`##os.Darwin` 文件，再手动运行：
+6. 切换到 dotfiles shell 环境
+
+bootstrap 完成后，关闭当前 shell，新开一个登录 shell，再继续后续步骤。不要在旧 shell
+里继续安装 asdf/npm 相关工具，否则 asdf 可能使用默认的 `~/.asdf` 目录，而不是
+dotfiles 约定的 `~/.local/state/asdf`。
+
+新 shell 中先确认环境已生效：
 
 ```bash
-yadm alt
+echo "$ZDOTDIR"
+echo "$ASDF_DATA_DIR"
+echo "$ASDF_CONFIG_FILE"
+echo "$PATH" | tr ':' '\n' | grep asdf
 ```
 
-bootstrap 会按 `.config/yadm/bootstrap.d` 中的脚本初始化 macOS 环境：
+期望看到：
 
-- `00_init`: 写入 `~/.local/.env` 和 XDG 目录。
-- `04_brew`: 检查 Homebrew，选择/写入 Homebrew mirror 和 shellenv。
-- `05_coretools`: 安装 `Brewfile.core` 中的核心工具，比如 `git`、`git-lfs`、
-  `just`、`vim`、`zsh`。
-- `06_submodules`: 初始化 yadm submodules。
-- `08_shell`: 生成 `~/.zshenv`，并把默认 shell 切到 Homebrew zsh。
-- `10_vim.sh`: 初始化 vim 环境。
+```text
+/Users/yangws/.config/zsh/zdotdir
+/Users/yangws/.local/state/asdf
+/Users/yangws/.config/asdf/asdfrc
+```
 
-如果 `08_shell` 修改了默认 shell，重启 Terminal 后继续后续步骤。
-
-6. 优先恢复入口效率工具
+7. 优先恢复入口效率工具
 
 先安装常用入口工具，切回熟悉的启动器、终端、键盘映射和自动化环境，再继续后续迁移。
 
@@ -212,7 +215,7 @@ Karabiner-Elements 会读取 yadm 已恢复的 `~/.config/karabiner`。打开后
 Input Monitoring、Accessibility 等权限。Hammerspoon 的安装任务会把配置入口指向
 `~/.config/hammerspoon/init.lua`；打开后也需要按系统提示授予 Accessibility 权限。
 
-7. 安装 core 工具
+8. 安装 core 工具
 
 `justfile` 位于 `~/.config/justfile`，在 `$HOME` 下执行时需要显式指定。
 
@@ -228,7 +231,7 @@ just --justfile ~/.config/justfile list main=core
 just --justfile ~/.config/justfile install-menu main=core
 ```
 
-8. 恢复 macOS defaults
+9. 恢复 macOS defaults
 
 在安装其他应用前，先按需恢复 Finder、Dock、Global、Safari 相关系统偏好：
 
@@ -242,7 +245,7 @@ just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin
 just --justfile ~/.config/justfile system-config-timemachine-exclusions-darwin
 ```
 
-9. 安装按需工具
+10. 安装 asdf/npm 工具
 
 ```bash
 # Install asdf plugins
