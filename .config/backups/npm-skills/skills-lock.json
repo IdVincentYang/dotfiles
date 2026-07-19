@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "skills": {
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "3013fdeb8a11b10b1eb795ec3ae8bfca38f7c26d",
+      "installedAt": "2026-06-17T10:14:19.041Z",
+      "updatedAt": "2026-06-17T10:14:28.418Z"
+    },
+    "microsoft-foundry": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/microsoft/azure-skills.git",
+      "skillPath": ".github/plugins/azure-skills/skills/microsoft-foundry/SKILL.md",
+      "skillFolderHash": "71ae7808acf73c852dd87b1da2e3077ff7fc42ac",
+      "installedAt": "2026-03-20T08:16:55.568Z",
+      "updatedAt": "2026-06-02T10:06:38.796Z"
+    },
+    "video-downloader": {
+      "source": "redfox-data/redfox-community",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/redfox-data/redfox-community.git",
+      "skillPath": "skills/video-downloader/SKILL.md",
+      "skillFolderHash": "81b5b19211bd1046bdc3fe5bab3fe1ae8dd0acb1",
+      "installedAt": "2026-06-17T10:17:18.827Z",
+      "updatedAt": "2026-06-17T10:17:18.827Z"
+    }
+  }
+}

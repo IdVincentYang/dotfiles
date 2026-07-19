@@ -43,7 +43,7 @@ mas list | tee ~/.config/backups/mas/<account-name>.list
 mas list | tee ~/.config/backups/mas/<account-name>.list
 ```
 
-先刷新 Raycast、kitty、Karabiner-Elements 和 Hammerspoon 相关备份。Raycast 的
+先刷新 Raycast、kitty、Karabiner-Elements、Hammerspoon 和 npm skills 相关备份。Raycast 的
 `.rayconfig` 需要在 Raycast 应用内执行 Export Settings，并保存到
 `~/.config/backups/raycast/`。如果要重置导入密码，先在 Raycast Settings →
 Advanced → Export 中清除或更新 Export passphrase，再重新导出 `.rayconfig`。旧的
@@ -54,8 +54,12 @@ mkdir -p ~/.config/backups/raycast
 
 find ~/.config/backups/raycast -maxdepth 1 -name '*.rayconfig' -type f | sort
 
+just --justfile ~/.config/justfile cli-config-npm-skills-backup
+ls -l ~/.config/backups/npm-skills/skills-lock.json
+
 yadm add ~/.config/backups/Brewfile \
-         ~/.config/backups/mas
+         ~/.config/backups/mas \
+         ~/.config/backups/npm-skills
 yadm add ~/.config/kitty \
          ~/.config/karabiner/karabiner.json \
          ~/.config/karabiner/assets/complex_modifications \
@@ -261,7 +265,58 @@ which direnv
 
 # Install npm global packages
 just --justfile ~/.config/justfile cli-develop-npm-globals
+
+# Install Claude Code
+just --justfile ~/.config/justfile cli-develop-claude-code-darwin
+
+# Restore npm skills from lock
+just --justfile ~/.config/justfile cli-config-npm-skills-restore
+
+# Install CC Switch
+just --justfile ~/.config/justfile gui-develop-cc-switch-darwin
 ```
+
+11. 手工迁移 AI CLI 配置
+
+AI 配置可能包含 key，不通过 yadm/repo 迁移。用 Handoff 或本地加密介质手工复制需要的文件。
+
+```text
+Codex:
+  ~/.codex/config.toml
+  ~/.codex/auth.json
+  ~/.codex/rules/
+
+Claude:
+  ~/.claude.json
+  ~/.claude/settings.json
+  ~/.claude/agents/
+  ~/.claude/plugins/installed_plugins.json
+  ~/.claude/plugins/known_marketplaces.json
+  ~/.claude-code-router/config.json
+
+Gemini:
+  ~/.gemini/settings.json
+  ~/.gemini/.env
+
+CC Switch:
+  ~/Library/Application Support/com.ccswitch.desktop/
+  ~/Library/WebKit/com.ccswitch.desktop/WebsiteData/
+```
+
+这些工具都不能只迁移 settings/config：
+
+- Codex 需要 `~/.codex/auth.json` 保留当前 key/认证状态。
+- Gemini 需要 `~/.gemini/.env` 保留当前 key。
+- Claude 需要 `~/.claude.json` 保留账户/运行状态；Claude Code Router 还需要
+  `~/.claude-code-router/config.json` 保留 provider/router 配置。
+
+如果不迁移这些 key/认证文件，就在新机器通过 CC Switch 或对应 CLI 重新写入 key/重新登录。
+
+不要迁移历史、缓存和本机工程状态：`history`、`logs`、`sessions`、`projects`、
+`cache`、`paste-cache`、`tmp`、`shell-snapshots`、`file-history`、`session-env`、
+`todos`、`tasks`、`statsig`、`telemetry`、`backups`、`~/.gemini/projects.json`、
+`~/.gemini/trustedFolders.json`。
+`CC Switch.app` 通过 Homebrew cask `cc-switch` 安装；配置仍然手工迁移。
 
 `.config/backups/Brewfile` 和 `.config/backups/mas/*.list` 是旧机器应用清单兜底。
 新机器恢复应用时先用 `just --justfile ~/.config/justfile list` 查看已有 recipe，

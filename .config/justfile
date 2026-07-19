@@ -12,7 +12,7 @@ export HOMEBREW_NO_ASK := "1"
 primary_categories := "core system cli gui extra build"
 domain_categories := "config develop media productivity db vm util other"
 asdf_plugins := "nodejs java direnv"
-npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp clawhub http-server repomix"
+npm_global_packages := "@google/gemini-cli @openai/codex @upstash/context7-mcp clawhub http-server repomix skills"
 
 default:
     @just --justfile "{{justfile()}}" help
@@ -403,6 +403,88 @@ cli-develop-npm-globals:
         npm install -g "$pkg"
     done
 
+cli-config-npm-skills-backup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dest="${HOME}/.config/backups/npm-skills"
+    mkdir -p "$dest"
+    rm -f "$dest/project-skills.json" "$dest/global-skills.json" "$dest/skill-lock.xdg.json" "$dest/skill-lock.legacy-agents.json"
+
+    if ! command -v skills >/dev/null 2>&1; then
+        echo "[npm-skills] skills CLI is not installed. Run cli-develop-npm-globals first." >&2
+        exit 1
+    fi
+
+    node - "$dest" <<'NODE'
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+
+    const dest = process.argv[2];
+    const xdgStateHome = process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local/state");
+    const locks = [
+      path.join(xdgStateHome, "skills/.skill-lock.json"),
+      path.join(os.homedir(), ".agents/.skill-lock.json"),
+    ];
+    const merged = { version: 1, skills: {} };
+
+    for (const lockPath of locks) {
+      if (!fs.existsSync(lockPath)) continue;
+      const parsed = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+      for (const [name, entry] of Object.entries(parsed.skills || {})) {
+        if (!entry || !entry.source || !entry.sourceType) continue;
+        merged.skills[name] = entry;
+      }
+    }
+
+    merged.skills = Object.fromEntries(
+      Object.entries(merged.skills).sort(([a], [b]) => a.localeCompare(b)),
+    );
+
+    const outPath = path.join(dest, "skills-lock.json");
+    fs.writeFileSync(outPath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
+
+    const names = Object.keys(merged.skills);
+    console.log(`[npm-skills] Wrote ${outPath}`);
+    console.log(`[npm-skills] Skills: ${names.length ? names.join(", ") : "(none)"}`);
+    NODE
+
+    if [[ ! -s "$dest/skills-lock.json" ]]; then
+        echo "[npm-skills] Failed to write skills-lock.json" >&2
+        exit 1
+    fi
+
+    echo "[npm-skills] Review ~/.config/backups/npm-skills before yadm add."
+
+cli-config-npm-skills-restore:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src="${HOME}/.config/backups/npm-skills"
+    if [[ ! -d "$src" ]]; then
+        echo "[npm-skills] Missing backup directory: $src" >&2
+        exit 1
+    fi
+    if [[ ! -f "$src/skills-lock.json" ]]; then
+        echo "[npm-skills] Missing backup lock: $src/skills-lock.json" >&2
+        exit 1
+    fi
+    if ! command -v skills >/dev/null 2>&1; then
+        echo "[npm-skills] skills CLI is not installed. Run cli-develop-npm-globals first." >&2
+        exit 1
+    fi
+    if [[ -e "$HOME/skills-lock.json" ]]; then
+        echo "[npm-skills] Refusing to overwrite existing $HOME/skills-lock.json" >&2
+        exit 1
+    fi
+
+    cp -p "$src/skills-lock.json" "$HOME/skills-lock.json"
+    trap 'rm -f "$HOME/skills-lock.json"' EXIT
+
+    (cd "$HOME" && skills experimental_install)
+    skills list
+
+    echo "[npm-skills] Restore complete."
+
 ### Git utilities
 cli-develop-git-archive-all:
     # Archive repository including submodules.
@@ -434,6 +516,14 @@ gui-develop-beyond-compare-darwin:
 
 gui-develop-visual-studio-code:
     brew install --cask visual-studio-code
+
+cli-develop-claude-code-darwin:
+    # Claude Code CLI.
+    brew install --cask claude-code
+
+gui-develop-cc-switch-darwin:
+    # Configuration manager for AI coding agents.
+    brew install --cask cc-switch
 
 ### Network / debugging suite
 cli-develop-iperf3:
