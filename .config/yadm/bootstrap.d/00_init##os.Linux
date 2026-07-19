@@ -67,8 +67,8 @@ write_xdg_config "$XDG_CONFIG"
 # ==============================================================================
 
 # --- Termux ---
-# 使用 :- 防止 unbound variable 报错
-if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+# 使用 ${var+x} 兼容 macOS bash 3.2，并防止 unbound variable 报错
+if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     echo "[BOOTSTRAP] Platform detected: Android (Termux)"
     
     if [[ ! $(yadm config --get-all local.class) == *TE_Termux* ]]; then

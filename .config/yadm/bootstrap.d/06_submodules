@@ -3,7 +3,7 @@
 
 set -eu
 
-if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     echo "[BOOTSTRAP] [06_submodules] Skipping submodule sync on Termux."
     exit 0
 fi

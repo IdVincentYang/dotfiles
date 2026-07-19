@@ -28,7 +28,12 @@ select_mirror() {
         echo "[BREW_HELPER] Non-interactive mode detected. Using default source: $MIRROR_CHOICE"
     else
         echo "------------------------------------------------"
-        echo "Select Homebrew Mirror Source:"
+        echo "Select Homebrew Mirror Source for this bootstrap run:"
+        echo "- The selected source will be written to ~/.local/.env for future shells."
+        echo "- If Homebrew is already installed, its git remotes will be reconciled."
+        echo "- If Homebrew is missing or broken, this source will be used for install."
+        echo "- Choose Official to switch back to GitHub and clear mirror variables."
+        echo ""
         echo "1) USTC     (University of Science and Technology of China) [Recommended for CN]"
         echo "2) Tsinghua (Tsinghua University) [Alternative for CN]"
         echo "3) Official (Global / Default)"
@@ -46,6 +51,34 @@ select_mirror() {
 
     echo "[BREW_HELPER] Selected Mirror: $MIRROR_CHOICE"
     export_mirror_vars "$MIRROR_CHOICE"
+}
+
+expected_brew_remote_for_mirror() {
+    case "$1" in
+        "USTC")
+            echo "https://mirrors.ustc.edu.cn/brew.git"
+            ;;
+        "Tsinghua")
+            echo "https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+            ;;
+        *)
+            echo "https://github.com/Homebrew/brew"
+            ;;
+    esac
+}
+
+expected_core_remote_for_mirror() {
+    case "$1" in
+        "USTC")
+            echo "https://mirrors.ustc.edu.cn/homebrew-core.git"
+            ;;
+        "Tsinghua")
+            echo "https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+            ;;
+        *)
+            echo "https://github.com/Homebrew/homebrew-core"
+            ;;
+    esac
 }
 
 # --- 函数: 导出镜像环境变量 (用于当前会话和生成配置) ---
@@ -75,6 +108,59 @@ export_mirror_vars() {
     esac
 }
 
+reconcile_git_remote() {
+    local repo_dir="$1"
+    local label="$2"
+    local expected_remote="$3"
+    local current_remote=""
+
+    if [ ! -d "$repo_dir/.git" ]; then
+        echo "[BREW_HELPER] $label repo is not a git checkout: $repo_dir"
+        return 0
+    fi
+
+    current_remote="$(git -C "$repo_dir" remote get-url origin 2>/dev/null || true)"
+    if [ "$current_remote" = "$expected_remote" ]; then
+        echo "[BREW_HELPER] $label remote already matches $MIRROR_CHOICE."
+        return 0
+    fi
+
+    echo "[BREW_HELPER] Switching $label remote:"
+    echo "  from: ${current_remote:-<unset>}"
+    echo "  to  : $expected_remote"
+
+    if [ -n "$current_remote" ]; then
+        git -C "$repo_dir" remote set-url origin "$expected_remote"
+    else
+        git -C "$repo_dir" remote add origin "$expected_remote"
+    fi
+}
+
+reconcile_installed_brew_source() {
+    local target_brew_bin="$1"
+    local brew_repo=""
+    local core_repo=""
+    local expected_brew_remote=""
+    local expected_core_remote=""
+
+    expected_brew_remote="$(expected_brew_remote_for_mirror "$MIRROR_CHOICE")"
+    expected_core_remote="$(expected_core_remote_for_mirror "$MIRROR_CHOICE")"
+
+    brew_repo="$("$target_brew_bin" --repo 2>/dev/null || true)"
+    if [ -n "$brew_repo" ]; then
+        reconcile_git_remote "$brew_repo" "Homebrew/brew" "$expected_brew_remote"
+    else
+        echo "[BREW_HELPER] Warning: cannot locate Homebrew/brew repo."
+    fi
+
+    core_repo="$("$target_brew_bin" --repo homebrew/core 2>/dev/null || true)"
+    if [ -n "$core_repo" ]; then
+        reconcile_git_remote "$core_repo" "Homebrew/core" "$expected_core_remote"
+    else
+        echo "[BREW_HELPER] Homebrew/core tap repo not found; API installs will use HOMEBREW_API_DOMAIN when configured."
+    fi
+}
+
 # --- 函数: 通用安装与配置逻辑 ---
 # 参数 $1: 预期的 brew 二进制路径 (如 /opt/homebrew/bin/brew)
 run_brew_install_logic() {
@@ -96,6 +182,7 @@ run_brew_install_logic() {
              need_install=true
         else
              echo "[BREW_HELPER] Homebrew is installed and healthy."
+             reconcile_installed_brew_source "$target_brew_bin"
         fi
     fi
     

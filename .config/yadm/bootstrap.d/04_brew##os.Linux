@@ -4,7 +4,7 @@ set -eu
 
 # [关键] Termux 守卫 (Guard Clause)
 # 如果是 Termux，直接跳过此脚本，不要报错，也不要执行 brew 安装逻辑
-if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     echo "[BOOTSTRAP] [04_brew] Skipping Homebrew installation on Termux."
     exit 0
 fi

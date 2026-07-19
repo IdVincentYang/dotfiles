@@ -80,7 +80,21 @@ export XDG_CACHE_HOME="$HOME/Library/Caches"
 mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"
 
 yadm clone --no-bootstrap git@github-vincent:IdVincentYang/dotfiles.git
-yadm status
+yadm status --short --untracked-files=no
+```
+
+如果新机器上有少量已跟踪文件显示为 `D`，先按 Git 记录的 deleted 路径补一次
+checkout，再确认状态。
+
+```bash
+deleted_paths="$(mktemp)"
+yadm diff --name-only --diff-filter=D -z > "$deleted_paths"
+if [[ -s "$deleted_paths" ]]; then
+    xargs -0 yadm checkout -- < "$deleted_paths"
+fi
+rm -f "$deleted_paths"
+
+yadm status --short --untracked-files=no
 ```
 
 如果 `yadm clone` 提示有本地文件冲突，按提示把冲突文件移到临时目录，然后执行

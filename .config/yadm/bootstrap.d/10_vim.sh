@@ -12,7 +12,7 @@ fi
 
 # 2. 检查 Vim 是否存在
 IS_TERMUX=false
-if [[ -v TERMUX_APP_PID ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
+if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
     IS_TERMUX=true
 fi
 
