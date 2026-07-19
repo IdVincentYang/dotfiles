@@ -293,20 +293,26 @@ system-config-timemachine-exclusions-darwin:
     set -euo pipefail
     exclusions_file="${HOME}/.config/backups/timemachine/exclusions.txt"
 
-    skip_path_exists() {
-        local wanted="$1"
-        defaults read /Library/Preferences/com.apple.TimeMachine SkipPaths 2>/dev/null \
-            | grep -Fq "\"${wanted}\""
+    has_destination() {
+        tmutil destinationinfo >/dev/null 2>&1
     }
 
-    add_skip_path() {
+    apply_fixed_path_exclusion() {
         local path="$1"
-        if skip_path_exists "$path"; then
-            echo "[timemachine] SkipPaths already contains: $path"
+        if tmutil isexcluded "$path" 2>/dev/null | grep -q '^\[Excluded\]'; then
+            echo "[timemachine] Fixed-path exclusion already exists: $path"
             return 0
         fi
-        echo "[timemachine] Adding SkipPaths entry: $path"
-        sudo defaults write /Library/Preferences/com.apple.TimeMachine SkipPaths -array-add "$path"
+        if ! has_destination; then
+            echo "[timemachine] Skipping fixed-path exclusion until a Time Machine backup disk is configured: $path"
+            return 0
+        fi
+        echo "[timemachine] Adding fixed-path exclusion: $path"
+        if ! sudo tmutil addexclusion -p "$path"; then
+            echo "[timemachine] Failed to add fixed-path exclusion: $path" >&2
+            echo "[timemachine] Grant Full Disk Access to your terminal app, then rerun this recipe." >&2
+            exit 1
+        fi
     }
 
     if [[ ! -f "$exclusions_file" ]]; then
@@ -333,7 +339,7 @@ system-config-timemachine-exclusions-darwin:
                 fi
                 ;;
             /*)
-                add_skip_path "$path"
+                apply_fixed_path_exclusion "$path"
                 ;;
             *)
                 echo "[timemachine] Unsupported path. Use ~/ or an absolute path: $raw_path" >&2
@@ -458,9 +464,16 @@ gui-other-aria2gui-darwin:
     # aria2 GUI front-end
     brew install --cask aria2gui
 
+gui-productivity-localsend-darwin:
+    # Cross-platform local file sharing.
+    brew install --cask localsend
+
 ## Browsers
 gui-productivity-google-chrome:
     brew install --cask google-chrome
+
+gui-productivity-firefox:
+    brew install --cask firefox
 
 ## Media
 gui-media-gimp:

@@ -135,7 +135,15 @@ ensure_plugin() {
 
 select_versions() {
     local plugin="$1"
-    mapfile -t available < <(asdf list all "$plugin" 2>/dev/null || true)
+    local list_output list_status
+    list_output="$(asdf list all "$plugin" 2>&1)" || list_status=$?
+    list_status="${list_status:-0}"
+    if [[ "$list_status" -ne 0 ]]; then
+        echo "[asdf-menu] Failed to fetch versions for plugin: $plugin" >&2
+        printf '%s\n' "$list_output" >&2
+        return 1
+    fi
+    mapfile -t available <<<"$list_output"
     if [[ ${#available[@]} -eq 0 ]]; then
         echo "[asdf-menu] Plugin $plugin has no available versions or failed to fetch versions" >&2
         return 1
