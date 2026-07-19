@@ -304,8 +304,12 @@ system-config-timemachine-exclusions-darwin:
             "\$HOME/"*) path="${HOME}/${path#\$HOME/}" ;;
         esac
         echo "[timemachine] Excluding: $path"
-        if ! sudo tmutil addexclusion -p "$path"; then
-            echo "[timemachine] Failed to add exclusion. Grant Full Disk Access to your terminal app, then rerun this recipe." >&2
+        if [[ ! -e "$path" ]]; then
+            echo "[timemachine] Creating missing directory: $path"
+            mkdir -p "$path"
+        fi
+        if ! tmutil addexclusion "$path"; then
+            echo "[timemachine] Failed to add exclusion: $path" >&2
             exit 1
         fi
     done < "$exclusions_file"
