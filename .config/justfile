@@ -23,8 +23,8 @@ help:
     '  用它安装 CLI/GUI 应用、恢复 macOS defaults、配置开发运行时。' \
     '' \
     '推荐流程:' \
-    '  1. 选择性安装 core 工具:' \
-    '       just --justfile ~/.config/justfile install-menu main=core' \
+    '  1. 新机器首次恢复先完整安装 core essentials:' \
+    '       just --justfile ~/.config/justfile core-util-essentials-darwin' \
     '  2. 选择性恢复 macOS 系统偏好:' \
     '       just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin' \
     '  3. 查看并按需安装其他应用:' \
@@ -148,6 +148,33 @@ core-cli-yank:
 
 core-media-yt-dlp:
     brew install yt-dlp
+
+core-util-essentials-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    recipes=(
+        core-develop-autoconf
+        core-develop-automake
+        core-develop-asdf
+        core-util-p7zip
+        core-util-tree
+        core-productivity-zoxide
+        core-media-jetbrains-mono-nerd-font
+        core-cli-bat
+        core-cli-btop
+        core-cli-fd
+        core-cli-fzf
+        core-cli-ripgrep
+        core-cli-tealdeer
+        core-cli-grsync
+        core-cli-rsync
+        core-cli-wget
+        core-cli-yank
+        core-media-yt-dlp
+    )
+    for recipe in "${recipes[@]}"; do
+        just --justfile "{{justfile()}}" "$recipe"
+    done
 
 # --- system: desktop integration & utilities ---
 
