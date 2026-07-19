@@ -356,6 +356,87 @@ system-config-macos-defaults-menu-darwin:
         system-config-safari-defaults-darwin \
         | JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh
 
+_macos-preference-plist-backup name plist:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src="${HOME}/Library/Preferences/{{plist}}"
+    dest="${HOME}/.config/backups/macos/preferences/{{plist}}"
+    if [[ ! -f "$src" ]]; then
+        echo "[macos-preferences] Missing source plist: $src" >&2
+        exit 1
+    fi
+    mkdir -p "$(dirname "$dest")"
+    cp -p "$src" "$dest"
+    echo "[macos-preferences] Backed up {{name}}: $dest"
+
+_macos-preference-plist-restore name plist:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src="${HOME}/.config/backups/macos/preferences/{{plist}}"
+    dest="${HOME}/Library/Preferences/{{plist}}"
+    if [[ ! -f "$src" ]]; then
+        echo "[macos-preferences] Missing backup plist: $src" >&2
+        exit 1
+    fi
+    mkdir -p "$(dirname "$dest")"
+    if [[ -e "$dest" ]]; then
+        backup="${dest}.before-dotfiles-$(date +%Y%m%d%H%M%S)"
+        mv "$dest" "$backup"
+        echo "[macos-preferences] Existing plist moved to: $backup"
+    fi
+    cp -p "$src" "$dest"
+    killall cfprefsd 2>/dev/null || true
+    killall SystemUIServer 2>/dev/null || true
+    echo "[macos-preferences] Restored {{name}}. Logout or reboot recommended."
+
+system-config-keyboard-shortcuts-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup keyboard-shortcuts com.apple.symbolichotkeys.plist
+
+system-config-keyboard-shortcuts-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore keyboard-shortcuts com.apple.symbolichotkeys.plist
+
+system-config-trackpad-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup trackpad com.apple.AppleMultitouchTrackpad.plist
+
+system-config-trackpad-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore trackpad com.apple.AppleMultitouchTrackpad.plist
+
+system-config-bluetooth-trackpad-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup bluetooth-trackpad com.apple.driver.AppleBluetoothMultitouch.trackpad.plist
+
+system-config-bluetooth-trackpad-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore bluetooth-trackpad com.apple.driver.AppleBluetoothMultitouch.trackpad.plist
+
+system-config-bluetooth-mouse-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup bluetooth-mouse com.apple.driver.AppleBluetoothMultitouch.mouse.plist
+
+system-config-bluetooth-mouse-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore bluetooth-mouse com.apple.driver.AppleBluetoothMultitouch.mouse.plist
+
+system-config-hid-mouse-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup hid-mouse com.apple.driver.AppleHIDMouse.plist
+
+system-config-hid-mouse-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore hid-mouse com.apple.driver.AppleHIDMouse.plist
+
+system-config-macos-preferences-backup-menu-darwin:
+    @printf '%s\n' \
+        system-config-keyboard-shortcuts-backup-darwin \
+        system-config-trackpad-backup-darwin \
+        system-config-bluetooth-trackpad-backup-darwin \
+        system-config-bluetooth-mouse-backup-darwin \
+        system-config-hid-mouse-backup-darwin \
+        | JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh
+
+system-config-macos-preferences-restore-menu-darwin:
+    @printf '%s\n' \
+        system-config-keyboard-shortcuts-restore-darwin \
+        system-config-trackpad-restore-darwin \
+        system-config-bluetooth-trackpad-restore-darwin \
+        system-config-bluetooth-mouse-restore-darwin \
+        system-config-hid-mouse-restore-darwin \
+        | JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh
+
 system-util-karabiner-elements-darwin:
     brew install --cask karabiner-elements
 
