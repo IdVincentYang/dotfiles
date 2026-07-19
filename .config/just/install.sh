@@ -19,7 +19,7 @@ if [[ ${#packages[@]} -eq 0 ]]; then
 fi
 
 if [[ -z "${TARGET_PLATFORM:-}" ]]; then
-    echo "TARGET_PLATFORM 未设置" >&2
+    echo "TARGET_PLATFORM is not set" >&2
     exit 1
 fi
 

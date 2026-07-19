@@ -3,7 +3,7 @@ set -euo pipefail
 
 for var in JUSTFILE_PATH TARGET_PLATFORM; do
     if [[ -z "${!var:-}" ]]; then
-        echo "$var 未设置" >&2
+        echo "$var is not set" >&2
         exit 1
     fi
 done
@@ -43,7 +43,7 @@ selection=""
 if command -v fzf >/dev/null 2>&1; then
     selection=$(printf '%s\n' "${candidates[@]}" | fzf -m --prompt="Select packages > " || true)
 else
-    printf 'fzf 未安装，手动输入要安装的名称(以空格分隔)。\n候选: %s\n> ' "${candidates[*]}"
+    printf 'fzf is not installed. Enter recipe names manually, separated by spaces.\nCandidates: %s\n> ' "${candidates[*]}"
     read -r selection || true
 fi
 

@@ -3,12 +3,12 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 export HOMEBREW_NO_ASK := "1"
 
-# 命名约定
-#   <主分类>-<功能领域>-<name>[-<os>]
-#   - 主分类(primary): core/system/cli/gui/extra/build
-#   - 功能领域(domain): config/develop/media/productivity/db/vm/util/other
-#   - 可选 OS 后缀：darwin/linux/termux（缺省表示通用）
-# 新增 recipe 必须遵守上述命名，方可被 `list`/`install` 等命令识别。
+# Naming convention
+#   <primary>-<domain>-<name>[-<os>]
+#   - primary: core/system/cli/gui/extra/build
+#   - domain: config/develop/media/productivity/db/vm/util/other
+#   - optional OS suffix: darwin/linux/termux
+# New recipes must follow this convention to be discoverable by `list`/`install`.
 primary_categories := "core system cli gui extra build"
 domain_categories := "config develop media productivity db vm util other"
 asdf_plugins := "nodejs java direnv"
@@ -19,33 +19,33 @@ default:
 
 help:
     @printf '%s\n' \
-    '用途:' \
-    '  这个 justfile 是 dotfiles 的按需安装和配置入口。' \
-    '  用它安装 CLI/GUI 应用、恢复 macOS defaults、配置开发运行时。' \
-    '  Homebrew 安装默认不再询问确认。' \
+    'Purpose:' \
+    '  This justfile is the on-demand install and configuration entry point for dotfiles.' \
+    '  Use it to install CLI/GUI apps, restore macOS defaults, and configure developer runtimes.' \
+    '  Homebrew installs run without confirmation prompts by default.' \
     '' \
-    '推荐流程:' \
-    '  1. 新机器首次恢复先完整安装 core essentials:' \
+    'Recommended flow:' \
+    '  1. On a new machine, install core essentials first:' \
     '       just --justfile ~/.config/justfile core-util-essentials-darwin' \
-    '  2. 选择性恢复 macOS 系统偏好:' \
+    '  2. Restore selected macOS system preferences:' \
     '       just --justfile ~/.config/justfile system-config-macos-defaults-menu-darwin' \
-    '  3. 查看并按需安装其他应用:' \
+    '  3. Review and install other apps on demand:' \
     '       just --justfile ~/.config/justfile list' \
     '       just --justfile ~/.config/justfile install-menu main=gui' \
     '' \
-    '常用命令:' \
+    'Common commands:' \
     '  just list [main=core] [domain=develop] [os=darwin] [name=git] [raw=1]' \
-    '      - 根据命名规范(<主类>-<领域>-<名称>[-<平台>])筛选可用 recipe。' \
+    '      - Filter recipes by naming convention.' \
     '  just install <name> [name...]' \
-    '      - 根据名称匹配当前平台的 recipe，直接执行安装。' \
+    '      - Resolve recipe names for the current platform and run them.' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
-    '      - 交互式多选安装，支持 fzf (若已安装)。' \
+    '      - Interactive multi-select install; uses fzf when available.' \
     '  just --list' \
-    '      - 显示所有 recipe。' \
+    '      - Show all recipes.' \
     '  just platform-info' \
-    '      - 显示平台判定结果，便于调试。' \
+    '      - Show detected platform for debugging.' \
     '' \
-    '命名规范: <主分类>-<领域>-<name>[-<os>]，例如 core-develop-git-darwin。'
+    'Naming convention: <primary>-<domain>-<name>[-<os>], for example core-develop-git-darwin.'
 
 platform-info:
     @just/platform.sh
@@ -61,7 +61,7 @@ install-menu *filters:
 
 # --- core: base toolchain & CLI essentials ---
 
-# 基础构建依赖
+# Base build dependencies
 core-develop-autoconf:
     brew install autoconf
 
@@ -83,7 +83,7 @@ core-productivity-zoxide:
 core-media-jetbrains-mono-nerd-font:
     brew install font-jetbrains-mono-nerd-font
 
-# asdf 安装流程
+# asdf setup flow
 core-develop-asdf:
     brew install asdf
 
@@ -107,7 +107,7 @@ core-develop-asdf-plugins:
 core-develop-asdf-install-menu:
     ASDF_TARGET_PLUGINS="{{asdf_plugins}}" just/asdf_install_menu.sh
 
-# 通用 CLI 套件
+# Common CLI suite
 core-cli-bat:
     # bat -> cat: Clone of cat(1) with syntax highlighting and Git integration.
     brew install bat
@@ -132,9 +132,9 @@ core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
     brew install tealdeer
 
-# 网络/同步工具
+# Network/sync tools
 # core-util-adwaita-icon-theme:
-#     # 仅用于 macOS 上的 GTK 应用（例如 grsync）补齐主题；等待 grsync 迁移时再一起处理。
+#     # GTK theme support for macOS apps such as grsync; keep disabled until grsync migration.
 
 core-cli-grsync:
     brew install grsync
@@ -328,7 +328,7 @@ system-util-kitty-darwin:
     brew install --cask kitty
 
 system-util-icefloor-darwin:
-    # Firewall / pf 可视化管理
+    # Firewall / pf GUI management
     brew install --cask icefloor
 
 system-other-scrcpy:
@@ -345,7 +345,7 @@ system-db-postgresql16:
 
 ### AI / command line helpers
 cli-develop-aichat:
-    # aichat CLI; functions repo可后续通过 yadm submodule 管理。
+    # aichat CLI; functions repo can be managed later via yadm submodule.
     # submodule init in yadm bootstrap stage: yadm submodule update --init
     brew install aichat
 
@@ -353,12 +353,12 @@ cli-develop-npm-globals:
     #!/usr/bin/env bash
     set -euo pipefail
     if ! command -v npm >/dev/null 2>&1; then
-        echo "[npm-globals] npm 未安装，请先运行 core-develop-asdf 或相关 node 安装流程" >&2
+        echo "[npm-globals] npm is not installed. Run core-develop-asdf or another Node setup flow first." >&2
         exit 1
     fi
     packages=({{npm_global_packages}})
     for pkg in "${packages[@]}"; do
-        echo "[npm-globals] 安装/更新 ${pkg}"
+        echo "[npm-globals] Installing/updating ${pkg}"
         npm install -g "$pkg"
     done
 
@@ -372,7 +372,7 @@ cli-develop-onefetch:
     brew install onefetch
 
 gui-develop-fork-darwin:
-    # Git GUI client (Fork)。
+    # Git GUI client (Fork).
     brew install --cask fork
 
 ### Languages & build tools
@@ -388,7 +388,7 @@ cli-develop-cmake:
     brew install cmake
 
 gui-develop-beyond-compare-darwin:
-    # File diff/merge tool。若需重置试用：删除 ~/Library/Application Support/Beyond Compare/registry.dat
+    # File diff/merge tool. To reset trial state, remove ~/Library/Application Support/Beyond Compare/registry.dat
     brew install --cask beyond-compare
 
 gui-develop-visual-studio-code:
@@ -415,7 +415,7 @@ gui-develop-postman:
 
 # --- gui: desktop applications ---
 
-## 下载/网络工具
+## Downloads/network tools
 gui-productivity-cyberduck-darwin:
     brew install --cask cyberduck
 
@@ -423,11 +423,11 @@ gui-other-aria2gui-darwin:
     # aria2 GUI front-end
     brew install --cask aria2gui
 
-## 浏览器
+## Browsers
 gui-productivity-google-chrome:
     brew install --cask google-chrome
 
-## 多媒体
+## Media
 gui-media-gimp:
     brew install --cask gimp
 
@@ -445,10 +445,10 @@ gui-media-iina-darwin:
     mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
     ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
 
-## 字体/外设
+## Fonts/peripherals
 # (intentionally left blank for future groupings)
 
-## 游戏/虚拟化
+## Games/virtualization
 gui-vm-xemu-darwin:
     brew install --cask xemu
 
@@ -458,18 +458,18 @@ gui-vm-vmware-fusion-darwin:
     # brew install wine-stable
     brew install --cask vmware-fusion
 
-## 数据库客户端
+## Database clients
 gui-db-db-browser-for-sqlite-darwin:
     # sqlite client app
     brew install --cask db-browser-for-sqlite
     xattr -dr com.apple.quarantine "/Applications/DB Browser for SQLite.app" 2>/dev/null || true
 
 gui-db-pgadmin4-darwin:
-    # PostgreSQL GUI 管理工具
+    # PostgreSQL GUI management tool
     brew install --cask pgadmin4
     xattr -dr com.apple.quarantine /Applications/pgAdmin\ 4.app 2>/dev/null || true
 
-## 开发辅助
+## Developer helpers
 extra-productivity-applite-darwin:
     # app: homebrew GUI
     # brew install cakebrew

@@ -1,0 +1,6 @@
+# Time Machine fixed-path exclusions.
+# Use ~/ for user-home-relative paths; blank lines and comments are ignored.
+# Machine-specific app container paths should be added manually per machine.
+~/archives.noindex
+~/Downloads
+/Applications

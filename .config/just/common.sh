@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z "${JUSTFILE_PATH:-}" ]]; then
-    echo "[just-common] JUSTFILE_PATH 未设置" >&2
+    echo "[just-common] JUSTFILE_PATH is not set" >&2
     exit 1
 fi
 

@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 require_cmd() {
     if ! command -v "$1" >/dev/null 2>&1; then
-        echo "[asdf-menu] 未找到命令: $1" >&2
+        echo "[asdf-menu] Command not found: $1" >&2
         exit 1
     fi
 }
@@ -18,7 +18,7 @@ asdf_global_cmd=(asdf set --home)
 
 tool_versions_file="${HOME}/.tool-versions"
 if [[ ! -e "${tool_versions_file}" ]]; then
-    echo "[asdf-menu] 创建 ${tool_versions_file}"
+    echo "[asdf-menu] Creating ${tool_versions_file}"
     mkdir -p "$(dirname "${tool_versions_file}")"
     : >"${tool_versions_file}"
 fi
@@ -48,7 +48,12 @@ if ! has_builtin readarray; then
             fi
             data+=("$line")
         done
-        eval "$array_name=(\"\${data[@]}\")"
+        eval "$array_name=()"
+        local item escaped
+        for item in "${data[@]+"${data[@]}"}"; do
+            printf -v escaped '%q' "$item"
+            eval "$array_name+=($escaped)"
+        done
     }
 fi
 
@@ -68,7 +73,7 @@ else
 fi
 
 if [[ ${#target_plugins[@]} -eq 0 ]]; then
-    echo "[asdf-menu] 未指定任何插件" >&2
+    echo "[asdf-menu] No plugins specified" >&2
     exit 0
 fi
 
@@ -112,7 +117,7 @@ get_global_plan() {
 
 plugin_exists() {
     local plugin="$1"
-    for item in "${existing_plugins[@]}"; do
+    for item in "${existing_plugins[@]+"${existing_plugins[@]}"}"; do
         [[ "$item" == "$plugin" ]] && return 0
     done
     return 1
@@ -123,7 +128,7 @@ ensure_plugin() {
     if plugin_exists "$plugin"; then
         return
     fi
-    echo "[asdf-menu] 添加插件: $plugin"
+    echo "[asdf-menu] Adding plugin: $plugin"
     asdf plugin add "$plugin"
     existing_plugins+=("$plugin")
 }
@@ -132,7 +137,7 @@ select_versions() {
     local plugin="$1"
     mapfile -t available < <(asdf list all "$plugin" 2>/dev/null || true)
     if [[ ${#available[@]} -eq 0 ]]; then
-        echo "[asdf-menu] 插件 $plugin 无可用版本或拉取失败" >&2
+        echo "[asdf-menu] Plugin $plugin has no available versions or failed to fetch versions" >&2
         return 1
     fi
 
@@ -142,7 +147,7 @@ select_versions() {
         | fzf --multi --prompt="$plugin versions> " --height=70% --border --exit-0 || true)
 
     if [[ -z "$selection" ]]; then
-        echo "[asdf-menu] 跳过插件: $plugin"
+        echo "[asdf-menu] Skipping plugin: $plugin"
         return 0
     fi
 
@@ -174,11 +179,11 @@ for plugin in "${target_plugins[@]}"; do
 done
 
 if [[ ${#plugins_in_order[@]} -eq 0 ]]; then
-    echo "[asdf-menu] 未选择任何版本，直接退出"
+    echo "[asdf-menu] No versions selected; exiting"
     exit 0
 fi
 
-echo "================ 安装计划 ================"
+echo "================ Install plan ================"
 for plugin in "${plugins_in_order[@]}"; do
     plan_value="$(get_install_plan "$plugin")"
     printf '%s: %s\n' "$plugin" "$plan_value"
@@ -189,12 +194,12 @@ for plugin in "${plugins_in_order[@]}"; do
 done
 echo "========================================="
 
-read -r -p "确认开始安装? [y/N] " answer
+read -r -p "Start installation? [y/N] " answer
 case "$answer" in
     y|Y|yes|YES)
         ;;
     *)
-        echo "[asdf-menu] 用户取消"
+        echo "[asdf-menu] Canceled by user"
         exit 0
         ;;
 esac
@@ -203,7 +208,7 @@ for plugin in "${plugins_in_order[@]}"; do
     plan_value="$(get_install_plan "$plugin")"
     read -r -a versions <<<"$plan_value"
     for version in "${versions[@]}"; do
-        echo "[asdf-menu] 安装 ${plugin} ${version}"
+        echo "[asdf-menu] Installing ${plugin} ${version}"
         asdf install "$plugin" "$version"
     done
 done
@@ -211,9 +216,9 @@ done
 for plugin in "${plugins_in_order[@]}"; do
     global_value="$(get_global_plan "$plugin")"
     if [[ -n "$global_value" ]]; then
-        echo "[asdf-menu] 设置 global ${plugin} ${global_value}"
+        echo "[asdf-menu] Setting global ${plugin} ${global_value}"
         "${asdf_global_cmd[@]}" "$plugin" "$global_value"
     fi
 done
 
-echo "[asdf-menu] 完成"
+echo "[asdf-menu] Done"
