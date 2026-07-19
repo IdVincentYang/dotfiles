@@ -62,6 +62,8 @@
 	smu = submodule update --init
 	ss = status --show-stash
 	ssl = status --short
+	ssu = status --short --untracked-files=all
+	ssui = status --short --untracked-files=all --ignored
 	sh = stash
 	shls = stash list
 	shll = stash list --stat
