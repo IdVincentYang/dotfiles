@@ -40,9 +40,9 @@ help:
     '      - Resolve recipe names for the current platform and run them.' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
     '      - Interactive multi-select install; uses fzf when available.' \
-    '  just system-config-app-config-backup-menu-darwin' \
+    '  just gui-config-app-config-backup-menu-darwin' \
     '      - Interactive multi-select backup for selected app configs.' \
-    '  just system-config-app-config-restore-menu-darwin' \
+    '  just gui-config-app-config-restore-menu-darwin' \
     '      - Interactive multi-select restore for selected app configs.' \
     '  just --list' \
     '      - Show all recipes.' \
@@ -465,7 +465,7 @@ system-config-macos-preferences-restore-menu-darwin:
     read -r -a selected <<<"$selection"
     JUSTFILE_PATH="{{justfile()}}" just/restore.sh "${selected[@]}"
 
-system-config-app-config-backup-menu-darwin:
+gui-config-app-config-backup-menu-darwin:
     #!/usr/bin/env bash
     set -euo pipefail
     recipes=(
@@ -482,7 +482,7 @@ system-config-app-config-backup-menu-darwin:
     read -r -a selected <<<"$selection"
     JUSTFILE_PATH="{{justfile()}}" just/backup.sh "${selected[@]}"
 
-system-config-app-config-restore-menu-darwin:
+gui-config-app-config-restore-menu-darwin:
     #!/usr/bin/env bash
     set -euo pipefail
     recipes=(
