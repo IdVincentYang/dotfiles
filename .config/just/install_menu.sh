@@ -9,6 +9,7 @@ for var in JUSTFILE_PATH TARGET_PLATFORM; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
 declare -a filters=()
 if [[ $# -gt 0 ]]; then
@@ -34,6 +35,22 @@ else
     done
 fi
 
+declare -a install_candidates=()
+for candidate in "${candidates[@]}"; do
+    IFS='|' read -r _main _domain r_name _os <<<"$(split_recipe "$candidate")"
+    case "$r_name" in
+        *-backup|*-restore|*-backup-menu|*-restore-menu)
+            continue
+            ;;
+    esac
+    install_candidates+=("$candidate")
+done
+if [[ ${#install_candidates[@]} -eq 0 ]]; then
+    candidates=()
+else
+    candidates=("${install_candidates[@]}")
+fi
+
 if [[ "${#candidates[@]}" -eq 0 ]]; then
     echo "No recipes available for the given filters."
     exit 0
@@ -55,4 +72,17 @@ fi
 selection="${selection//$'\n'/ }"
 read -r -a selected <<<"$selection"
 
-JUSTFILE_PATH="$JUSTFILE_PATH" TARGET_PLATFORM="$TARGET_PLATFORM" "$SCRIPT_DIR/install.sh" "${selected[@]}"
+if [[ -z "${DOTFILES_RESTORE_APP_CONFIG+x}" ]]; then
+    DOTFILES_RESTORE_APP_CONFIG=0
+    if [[ -r /dev/tty && -w /dev/tty ]]; then
+        printf 'Restore backed up app configs after install? [y/N] ' > /dev/tty
+        read -r answer < /dev/tty || answer=""
+        case "$answer" in
+            y|Y|yes|YES|Yes)
+                DOTFILES_RESTORE_APP_CONFIG=1
+                ;;
+        esac
+    fi
+fi
+
+JUSTFILE_PATH="$JUSTFILE_PATH" TARGET_PLATFORM="$TARGET_PLATFORM" DOTFILES_RESTORE_APP_CONFIG="$DOTFILES_RESTORE_APP_CONFIG" "$SCRIPT_DIR/install.sh" "${selected[@]}"

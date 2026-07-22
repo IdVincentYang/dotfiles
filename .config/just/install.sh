@@ -56,6 +56,12 @@ normalize_spec() {
 recipes=()
 while IFS= read -r line; do
     [[ -z "$line" ]] && continue
+    IFS='|' read -r _main _domain r_name _os <<<"$(split_recipe "$line")"
+    case "$r_name" in
+        *-backup|*-restore|*-backup-menu|*-restore-menu)
+            continue
+            ;;
+    esac
     recipes+=("$line")
 done < <(collect_recipes || true)
 if [[ "${#recipes[@]}" -eq 0 ]]; then

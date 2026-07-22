@@ -40,6 +40,10 @@ help:
     '      - Resolve recipe names for the current platform and run them.' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
     '      - Interactive multi-select install; uses fzf when available.' \
+    '  just system-config-app-config-backup-menu-darwin' \
+    '      - Interactive multi-select backup for selected app configs.' \
+    '  just system-config-app-config-restore-menu-darwin' \
+    '      - Interactive multi-select restore for selected app configs.' \
     '  just --list' \
     '      - Show all recipes.' \
     '  just platform-info' \
@@ -461,11 +465,52 @@ system-config-macos-preferences-restore-menu-darwin:
     read -r -a selected <<<"$selection"
     JUSTFILE_PATH="{{justfile()}}" just/restore.sh "${selected[@]}"
 
+system-config-app-config-backup-menu-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    recipes=(
+        system-productivity-keepassxc-backup-darwin
+    )
+    if command -v fzf >/dev/null 2>&1; then
+        selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config backups > ' || true)"
+    else
+        printf 'fzf is not installed. Enter backup recipe names manually, separated by spaces.\nCandidates: %s\n> ' "${recipes[*]}"
+        read -r selection || true
+    fi
+    [[ -z "${selection:-}" ]] && { echo "No selection made."; exit 0; }
+    selection="${selection//$'\n'/ }"
+    read -r -a selected <<<"$selection"
+    JUSTFILE_PATH="{{justfile()}}" just/backup.sh "${selected[@]}"
+
+system-config-app-config-restore-menu-darwin:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    recipes=(
+        system-productivity-keepassxc-restore-darwin
+    )
+    if command -v fzf >/dev/null 2>&1; then
+        selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config restores > ' || true)"
+    else
+        printf 'fzf is not installed. Enter restore recipe names manually, separated by spaces.\nCandidates: %s\n> ' "${recipes[*]}"
+        read -r selection || true
+    fi
+    [[ -z "${selection:-}" ]] && { echo "No selection made."; exit 0; }
+    selection="${selection//$'\n'/ }"
+    read -r -a selected <<<"$selection"
+    JUSTFILE_PATH="{{justfile()}}" just/restore.sh "${selected[@]}"
+
 system-util-karabiner-elements-darwin:
     brew install --cask karabiner-elements
 
 system-productivity-keepassxc-darwin:
     brew install --cask keepassxc
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-productivity-keepassxc-restore-darwin
+
+system-productivity-keepassxc-backup-darwin:
+    just/app_config.sh backup "Application Support/KeePassXC" "keepassxc.ini"
+
+system-productivity-keepassxc-restore-darwin:
+    just/app_config.sh restore "Application Support/KeePassXC" "keepassxc.ini"
 
 system-util-macvim-darwin:
     brew install --cask macvim
