@@ -281,11 +281,9 @@ system-productivity-openvanilla-darwin:
     just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-productivity-openvanilla-restore-darwin
 
 system-productivity-openvanilla-backup-darwin:
-    just/app_config.sh backup "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
     just/preference_config.sh backup openvanilla org.openvanilla.OVAFAssociatedPhrases org.openvanilla.OVIMTableBased.cj org.openvanilla.OVIMTableBased.erbi org.openvanilla.inputmethod.OpenVanilla
 
 system-productivity-openvanilla-restore-darwin:
-    just/app_config.sh restore "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
     just/preference_config.sh restore openvanilla org.openvanilla.OVAFAssociatedPhrases org.openvanilla.OVIMTableBased.cj org.openvanilla.OVIMTableBased.erbi org.openvanilla.inputmethod.OpenVanilla
     killall cfprefsd 2>/dev/null || true
 
