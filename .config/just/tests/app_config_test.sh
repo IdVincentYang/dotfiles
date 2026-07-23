@@ -62,21 +62,21 @@ test_backup_replaces_existing_backup_root_with_current_snapshot() {
     assert_file_content "$backup_root/.gitignore" "keep gitignore"
 }
 
-test_backup_with_custom_backup_root_does_not_replace_sibling_preference_backups() {
+test_backup_with_custom_backup_root_does_not_replace_sibling_backups() {
     local home
     home="$(new_home)"
-    local source_root="$home/Library/Preferences"
-    local preference_backup_root="$home/.config/backups/macos/Preferences"
-    local input_backup_root="$preference_backup_root/input-sources"
-    mkdir -p "$source_root" "$preference_backup_root" "$input_backup_root"
-    printf 'source-input' > "$source_root/input.plist"
-    printf 'old-input' > "$input_backup_root/input.plist"
-    printf 'existing-trackpad' > "$preference_backup_root/trackpad.plist"
+    local source_root="$home/Library/Application Support/TestApp"
+    local backup_base="$home/.config/backups/macos/Application Support"
+    local app_backup_root="$backup_base/TestAppSnapshot"
+    mkdir -p "$source_root" "$backup_base/OtherApp" "$app_backup_root"
+    printf 'source-config' > "$source_root/config.ini"
+    printf 'old-config' > "$app_backup_root/config.ini"
+    printf 'existing-other' > "$backup_base/OtherApp/other.ini"
 
-    HOME="$home" "$APP_CONFIG" backup --backup-root "Preferences/input-sources" "Preferences" "input.plist"
+    HOME="$home" "$APP_CONFIG" backup --backup-root "Application Support/TestAppSnapshot" "Application Support/TestApp" "config.ini"
 
-    assert_file_content "$input_backup_root/input.plist" "source-input"
-    assert_file_content "$preference_backup_root/trackpad.plist" "existing-trackpad"
+    assert_file_content "$app_backup_root/config.ini" "source-config"
+    assert_file_content "$backup_base/OtherApp/other.ini" "existing-other"
 }
 
 test_restore_skips_when_all_backups_missing_without_touching_target() {
@@ -134,7 +134,7 @@ SCRIPT
 main() {
     test_backup_skips_when_all_sources_missing_without_removing_old_backup
     test_backup_replaces_existing_backup_root_with_current_snapshot
-    test_backup_with_custom_backup_root_does_not_replace_sibling_preference_backups
+    test_backup_with_custom_backup_root_does_not_replace_sibling_backups
     test_restore_skips_when_all_backups_missing_without_touching_target
     test_restore_applies_snapshot_for_managed_paths_only
     test_restore_helper_only_runs_when_enabled

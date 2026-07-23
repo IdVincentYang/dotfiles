@@ -73,7 +73,6 @@ backup-config-menu:
     recipes=(
         system-config-keyboard-shortcuts-backup-darwin
         system-config-menu-bar-clock-backup-darwin
-        system-config-input-sources-backup-darwin
         system-config-trackpad-backup-darwin
         system-config-bluetooth-trackpad-backup-darwin
         system-config-bluetooth-mouse-backup-darwin
@@ -98,7 +97,6 @@ restore-config-menu:
     recipes=(
         system-config-keyboard-shortcuts-restore-darwin
         system-config-menu-bar-clock-restore-darwin
-        system-config-input-sources-restore-darwin
         system-config-trackpad-restore-darwin
         system-config-bluetooth-trackpad-restore-darwin
         system-config-bluetooth-mouse-restore-darwin
@@ -284,11 +282,11 @@ system-productivity-openvanilla-darwin:
 
 system-productivity-openvanilla-backup-darwin:
     just/app_config.sh backup "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
-    just/app_config.sh backup --backup-root "Preferences/openvanilla" "Preferences" "org.openvanilla.OVAFAssociatedPhrases.plist" "org.openvanilla.OVIMTableBased.cj.plist" "org.openvanilla.OVIMTableBased.erbi.plist" "org.openvanilla.inputmethod.OpenVanilla.plist"
+    just/preference_config.sh backup openvanilla org.openvanilla.OVAFAssociatedPhrases org.openvanilla.OVIMTableBased.cj org.openvanilla.OVIMTableBased.erbi org.openvanilla.inputmethod.OpenVanilla
 
 system-productivity-openvanilla-restore-darwin:
     just/app_config.sh restore "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
-    just/app_config.sh restore --backup-root "Preferences/openvanilla" "Preferences" "org.openvanilla.OVAFAssociatedPhrases.plist" "org.openvanilla.OVIMTableBased.cj.plist" "org.openvanilla.OVIMTableBased.erbi.plist" "org.openvanilla.inputmethod.OpenVanilla.plist"
+    just/preference_config.sh restore openvanilla org.openvanilla.OVAFAssociatedPhrases org.openvanilla.OVIMTableBased.cj org.openvanilla.OVIMTableBased.erbi org.openvanilla.inputmethod.OpenVanilla
     killall cfprefsd 2>/dev/null || true
 
 system-media-aerial-darwin:
@@ -427,12 +425,16 @@ system-config-macos-defaults-menu-darwin:
 _macos-preference-plist-backup name plist:
     #!/usr/bin/env bash
     set -euo pipefail
-    just/app_config.sh backup --backup-root "Preferences/{{name}}" "Preferences" "{{plist}}"
+    domain="{{plist}}"
+    domain="${domain%.plist}"
+    just/preference_config.sh backup "{{name}}" "${domain}"
 
 _macos-preference-plist-restore name plist:
     #!/usr/bin/env bash
     set -euo pipefail
-    just/app_config.sh restore --backup-root "Preferences/{{name}}" "Preferences" "{{plist}}"
+    domain="{{plist}}"
+    domain="${domain%.plist}"
+    just/preference_config.sh restore "{{name}}" "${domain}"
     killall cfprefsd 2>/dev/null || true
     killall SystemUIServer 2>/dev/null || true
     echo "[macos-preferences] Restored {{name}}. Logout or reboot recommended."
@@ -448,15 +450,6 @@ system-config-menu-bar-clock-backup-darwin:
 
 system-config-menu-bar-clock-restore-darwin:
     @just --justfile "{{justfile()}}" _macos-preference-plist-restore menu-bar-clock com.apple.menuextra.clock.plist
-
-system-config-input-sources-backup-darwin:
-    just/app_config.sh backup --backup-root "Preferences/input-sources" "Preferences" "com.apple.HIToolbox.plist" "com.apple.inputsources.plist" "com.apple.TextInputMenu.plist"
-
-system-config-input-sources-restore-darwin:
-    just/app_config.sh restore --backup-root "Preferences/input-sources" "Preferences" "com.apple.HIToolbox.plist" "com.apple.inputsources.plist" "com.apple.TextInputMenu.plist"
-    killall cfprefsd 2>/dev/null || true
-    killall SystemUIServer 2>/dev/null || true
-    echo "[input-sources] Restored input source settings. Logout or reboot may be required."
 
 system-config-trackpad-backup-darwin:
     @just --justfile "{{justfile()}}" _macos-preference-plist-backup trackpad com.apple.AppleMultitouchTrackpad.plist
@@ -488,7 +481,6 @@ system-config-macos-preferences-backup-menu-darwin:
     recipes=(
         system-config-keyboard-shortcuts-backup-darwin
         system-config-menu-bar-clock-backup-darwin
-        system-config-input-sources-backup-darwin
         system-config-trackpad-backup-darwin
         system-config-bluetooth-trackpad-backup-darwin
         system-config-bluetooth-mouse-backup-darwin
@@ -511,7 +503,6 @@ system-config-macos-preferences-restore-menu-darwin:
     recipes=(
         system-config-keyboard-shortcuts-restore-darwin
         system-config-menu-bar-clock-restore-darwin
-        system-config-input-sources-restore-darwin
         system-config-trackpad-restore-darwin
         system-config-bluetooth-trackpad-restore-darwin
         system-config-bluetooth-mouse-restore-darwin
