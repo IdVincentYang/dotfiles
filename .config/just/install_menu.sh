@@ -38,6 +38,11 @@ fi
 declare -a install_candidates=()
 for candidate in "${candidates[@]}"; do
     IFS='|' read -r _main _domain r_name _os <<<"$(split_recipe "$candidate")"
+    case "$candidate" in
+        backup-*|restore-*)
+            continue
+            ;;
+    esac
     case "$r_name" in
         *-backup|*-restore|*-backup-menu|*-restore-menu)
             continue

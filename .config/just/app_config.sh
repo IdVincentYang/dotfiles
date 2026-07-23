@@ -2,16 +2,32 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: app_config.sh <backup|restore> <library-relative-root> <managed-path> [managed-path ...]" >&2
+    echo "Usage: app_config.sh <backup|restore> [--backup-root <backup-relative-root>] <library-relative-root> <managed-path> [managed-path ...]" >&2
 }
 
 mode="${1:-}"
-library_root="${2:-}"
 if [[ $# -lt 3 || "$mode" != "backup" && "$mode" != "restore" ]]; then
     usage
     exit 2
 fi
-shift 2
+shift
+
+backup_root_override=""
+if [[ "${1:-}" == "--backup-root" ]]; then
+    if [[ $# -lt 4 ]]; then
+        usage
+        exit 2
+    fi
+    backup_root_override="$2"
+    shift 2
+fi
+
+library_root="${1:-}"
+if [[ $# -lt 2 ]]; then
+    usage
+    exit 2
+fi
+shift
 managed_paths=("$@")
 
 reject_unsafe_path() {
@@ -49,6 +65,9 @@ unique_before_root() {
 }
 
 reject_unsafe_path "$library_root"
+if [[ -n "$backup_root_override" ]]; then
+    reject_unsafe_path "$backup_root_override"
+fi
 for managed_path in "${managed_paths[@]}"; do
     reject_unsafe_path "$managed_path"
 done
@@ -56,7 +75,7 @@ done
 library_base="${HOME}/Library"
 backup_base="${HOME}/.config/backups/macos"
 source_root="${library_base}/${library_root}"
-backup_root="${backup_base}/${library_root}"
+backup_root="${backup_base}/${backup_root_override:-$library_root}"
 
 backup_config() {
     local existing=()
@@ -79,6 +98,10 @@ backup_config() {
     for managed_path in "${existing[@]}"; do
         copy_path "${source_root}/${managed_path}" "${tmp_root}/${managed_path}"
     done
+
+    if [[ -f "${backup_root}/.gitignore" ]]; then
+        copy_path "${backup_root}/.gitignore" "${tmp_root}/.gitignore"
+    fi
 
     rm -rf "$backup_root"
     mv "$tmp_root" "$backup_root"

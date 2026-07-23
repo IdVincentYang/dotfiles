@@ -40,6 +40,10 @@ help:
     '      - Resolve recipe names for the current platform and run them.' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
     '      - Interactive multi-select install; uses fzf when available.' \
+    '  just backup-config-menu' \
+    '      - Interactive multi-select backup for config recipes.' \
+    '  just restore-config-menu' \
+    '      - Interactive multi-select restore for config recipes.' \
     '  just gui-config-app-config-backup-menu-darwin' \
     '      - Interactive multi-select backup for selected app configs.' \
     '  just gui-config-app-config-restore-menu-darwin' \
@@ -62,6 +66,56 @@ install *packages:
 
 install-menu *filters:
     @JUSTFILE_PATH="{{justfile()}}" TARGET_PLATFORM="$(just/platform.sh)" just/install_menu.sh {{filters}}
+
+backup-config-menu:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    recipes=(
+        system-config-keyboard-shortcuts-backup-darwin
+        system-config-menu-bar-clock-backup-darwin
+        system-config-input-sources-backup-darwin
+        system-config-trackpad-backup-darwin
+        system-config-bluetooth-trackpad-backup-darwin
+        system-config-bluetooth-mouse-backup-darwin
+        system-config-hid-mouse-backup-darwin
+        system-productivity-keepassxc-backup-darwin
+        system-productivity-openvanilla-backup-darwin
+    )
+    if command -v fzf >/dev/null 2>&1; then
+        selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config backups > ' || true)"
+    else
+        printf 'fzf is not installed. Enter backup recipe names manually, separated by spaces.\nCandidates: %s\n> ' "${recipes[*]}"
+        read -r selection || true
+    fi
+    [[ -z "${selection:-}" ]] && { echo "No selection made."; exit 0; }
+    selection="${selection//$'\n'/ }"
+    read -r -a selected <<<"$selection"
+    JUSTFILE_PATH="{{justfile()}}" just/backup.sh "${selected[@]}"
+
+restore-config-menu:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    recipes=(
+        system-config-keyboard-shortcuts-restore-darwin
+        system-config-menu-bar-clock-restore-darwin
+        system-config-input-sources-restore-darwin
+        system-config-trackpad-restore-darwin
+        system-config-bluetooth-trackpad-restore-darwin
+        system-config-bluetooth-mouse-restore-darwin
+        system-config-hid-mouse-restore-darwin
+        system-productivity-keepassxc-restore-darwin
+        system-productivity-openvanilla-restore-darwin
+    )
+    if command -v fzf >/dev/null 2>&1; then
+        selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config restores > ' || true)"
+    else
+        printf 'fzf is not installed. Enter restore recipe names manually, separated by spaces.\nCandidates: %s\n> ' "${recipes[*]}"
+        read -r selection || true
+    fi
+    [[ -z "${selection:-}" ]] && { echo "No selection made."; exit 0; }
+    selection="${selection//$'\n'/ }"
+    read -r -a selected <<<"$selection"
+    JUSTFILE_PATH="{{justfile()}}" just/restore.sh "${selected[@]}"
 
 # --- core: base toolchain & CLI essentials ---
 
@@ -224,8 +278,18 @@ system-util-mediainfo-darwin:
 
 system-productivity-openvanilla-darwin:
     brew install openvanilla
-    mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
-    ln -snf "./backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+    mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased"
+    ln -snf "${HOME}/.config/backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-productivity-openvanilla-restore-darwin
+
+system-productivity-openvanilla-backup-darwin:
+    just/app_config.sh backup "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
+    just/app_config.sh backup --backup-root "Preferences/openvanilla" "Preferences" "org.openvanilla.OVAFAssociatedPhrases.plist" "org.openvanilla.OVIMTableBased.cj.plist" "org.openvanilla.OVIMTableBased.erbi.plist" "org.openvanilla.inputmethod.OpenVanilla.plist"
+
+system-productivity-openvanilla-restore-darwin:
+    just/app_config.sh restore "Application Support/OpenVanilla" "UserData/TableBased/erbi.cin"
+    just/app_config.sh restore --backup-root "Preferences/openvanilla" "Preferences" "org.openvanilla.OVAFAssociatedPhrases.plist" "org.openvanilla.OVIMTableBased.cj.plist" "org.openvanilla.OVIMTableBased.erbi.plist" "org.openvanilla.inputmethod.OpenVanilla.plist"
+    killall cfprefsd 2>/dev/null || true
 
 system-media-aerial-darwin:
     brew install --cask aerial
@@ -363,32 +427,12 @@ system-config-macos-defaults-menu-darwin:
 _macos-preference-plist-backup name plist:
     #!/usr/bin/env bash
     set -euo pipefail
-    src="${HOME}/Library/Preferences/{{plist}}"
-    dest="${HOME}/.config/backups/macos/preferences/{{plist}}"
-    if [[ ! -f "$src" ]]; then
-        echo "[macos-preferences] Missing source plist: $src" >&2
-        exit 1
-    fi
-    mkdir -p "$(dirname "$dest")"
-    cp -p "$src" "$dest"
-    echo "[macos-preferences] Backed up {{name}}: $dest"
+    just/app_config.sh backup --backup-root "Preferences/{{name}}" "Preferences" "{{plist}}"
 
 _macos-preference-plist-restore name plist:
     #!/usr/bin/env bash
     set -euo pipefail
-    src="${HOME}/.config/backups/macos/preferences/{{plist}}"
-    dest="${HOME}/Library/Preferences/{{plist}}"
-    if [[ ! -f "$src" ]]; then
-        echo "[macos-preferences] Missing backup plist: $src" >&2
-        exit 1
-    fi
-    mkdir -p "$(dirname "$dest")"
-    if [[ -e "$dest" ]]; then
-        backup="${dest}.before-dotfiles-$(date +%Y%m%d%H%M%S)"
-        mv "$dest" "$backup"
-        echo "[macos-preferences] Existing plist moved to: $backup"
-    fi
-    cp -p "$src" "$dest"
+    just/app_config.sh restore --backup-root "Preferences/{{name}}" "Preferences" "{{plist}}"
     killall cfprefsd 2>/dev/null || true
     killall SystemUIServer 2>/dev/null || true
     echo "[macos-preferences] Restored {{name}}. Logout or reboot recommended."
@@ -398,6 +442,21 @@ system-config-keyboard-shortcuts-backup-darwin:
 
 system-config-keyboard-shortcuts-restore-darwin:
     @just --justfile "{{justfile()}}" _macos-preference-plist-restore keyboard-shortcuts com.apple.symbolichotkeys.plist
+
+system-config-menu-bar-clock-backup-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-backup menu-bar-clock com.apple.menuextra.clock.plist
+
+system-config-menu-bar-clock-restore-darwin:
+    @just --justfile "{{justfile()}}" _macos-preference-plist-restore menu-bar-clock com.apple.menuextra.clock.plist
+
+system-config-input-sources-backup-darwin:
+    just/app_config.sh backup --backup-root "Preferences/input-sources" "Preferences" "com.apple.HIToolbox.plist" "com.apple.inputsources.plist" "com.apple.TextInputMenu.plist"
+
+system-config-input-sources-restore-darwin:
+    just/app_config.sh restore --backup-root "Preferences/input-sources" "Preferences" "com.apple.HIToolbox.plist" "com.apple.inputsources.plist" "com.apple.TextInputMenu.plist"
+    killall cfprefsd 2>/dev/null || true
+    killall SystemUIServer 2>/dev/null || true
+    echo "[input-sources] Restored input source settings. Logout or reboot may be required."
 
 system-config-trackpad-backup-darwin:
     @just --justfile "{{justfile()}}" _macos-preference-plist-backup trackpad com.apple.AppleMultitouchTrackpad.plist
@@ -428,6 +487,8 @@ system-config-macos-preferences-backup-menu-darwin:
     set -euo pipefail
     recipes=(
         system-config-keyboard-shortcuts-backup-darwin
+        system-config-menu-bar-clock-backup-darwin
+        system-config-input-sources-backup-darwin
         system-config-trackpad-backup-darwin
         system-config-bluetooth-trackpad-backup-darwin
         system-config-bluetooth-mouse-backup-darwin
@@ -449,6 +510,8 @@ system-config-macos-preferences-restore-menu-darwin:
     set -euo pipefail
     recipes=(
         system-config-keyboard-shortcuts-restore-darwin
+        system-config-menu-bar-clock-restore-darwin
+        system-config-input-sources-restore-darwin
         system-config-trackpad-restore-darwin
         system-config-bluetooth-trackpad-restore-darwin
         system-config-bluetooth-mouse-restore-darwin
@@ -470,6 +533,7 @@ gui-config-app-config-backup-menu-darwin:
     set -euo pipefail
     recipes=(
         system-productivity-keepassxc-backup-darwin
+        system-productivity-openvanilla-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config backups > ' || true)"
@@ -487,6 +551,7 @@ gui-config-app-config-restore-menu-darwin:
     set -euo pipefail
     recipes=(
         system-productivity-keepassxc-restore-darwin
+        system-productivity-openvanilla-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config restores > ' || true)"

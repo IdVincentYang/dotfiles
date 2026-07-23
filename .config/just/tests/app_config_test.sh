@@ -53,11 +53,30 @@ test_backup_replaces_existing_backup_root_with_current_snapshot() {
     printf 'new-a' > "$source_root/a.ini"
     printf 'old-a' > "$backup_root/a.ini"
     printf 'old-b' > "$backup_root/b.ini"
+    printf 'keep gitignore' > "$backup_root/.gitignore"
 
     HOME="$home" "$APP_CONFIG" backup "Application Support/TestApp" "a.ini" "b.ini"
 
     assert_file_content "$backup_root/a.ini" "new-a"
     assert_not_exists "$backup_root/b.ini"
+    assert_file_content "$backup_root/.gitignore" "keep gitignore"
+}
+
+test_backup_with_custom_backup_root_does_not_replace_sibling_preference_backups() {
+    local home
+    home="$(new_home)"
+    local source_root="$home/Library/Preferences"
+    local preference_backup_root="$home/.config/backups/macos/Preferences"
+    local input_backup_root="$preference_backup_root/input-sources"
+    mkdir -p "$source_root" "$preference_backup_root" "$input_backup_root"
+    printf 'source-input' > "$source_root/input.plist"
+    printf 'old-input' > "$input_backup_root/input.plist"
+    printf 'existing-trackpad' > "$preference_backup_root/trackpad.plist"
+
+    HOME="$home" "$APP_CONFIG" backup --backup-root "Preferences/input-sources" "Preferences" "input.plist"
+
+    assert_file_content "$input_backup_root/input.plist" "source-input"
+    assert_file_content "$preference_backup_root/trackpad.plist" "existing-trackpad"
 }
 
 test_restore_skips_when_all_backups_missing_without_touching_target() {
@@ -115,6 +134,7 @@ SCRIPT
 main() {
     test_backup_skips_when_all_sources_missing_without_removing_old_backup
     test_backup_replaces_existing_backup_root_with_current_snapshot
+    test_backup_with_custom_backup_root_does_not_replace_sibling_preference_backups
     test_restore_skips_when_all_backups_missing_without_touching_target
     test_restore_applies_snapshot_for_managed_paths_only
     test_restore_helper_only_runs_when_enabled
