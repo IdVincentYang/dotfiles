@@ -268,7 +268,7 @@ system-util-stats-darwin:
 
 ### system applications
 system-media-quickrecorder-darwin:
-    brew install lihaoyun6/tap/quickrecorder
+    brew install --cask lihaoyun6/tap/quickrecorder
 
 system-productivity-raycast-darwin:
     # spotlight replacement
@@ -279,7 +279,7 @@ system-util-mediainfo-darwin:
     brew install --cask mediainfo
 
 system-productivity-openvanilla-darwin:
-    brew install openvanilla
+    brew install --cask openvanilla
     mkdir -p "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased"
     ln -snf "${HOME}/.config/backups/erbi/OpenVanilla/erbi.cin" "${HOME}/Library/Application Support/OpenVanilla/UserData/TableBased/erbi.cin"
     just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-productivity-openvanilla-restore-darwin
@@ -617,6 +617,10 @@ system-db-postgresql16:
     brew services start postgresql@16
 
 # --- cli: developer tooling & productivity ---
+
+cli-productivity-mas-darwin:
+    # Mac App Store command-line interface.
+    brew install mas
 
 ### AI / command line helpers
 cli-develop-aichat:
