@@ -80,6 +80,7 @@ backup-config-menu:
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
+        gui-media-iina-backup-darwin
         gui-develop-cc-switch-backup-darwin
         system-util-swiftbar-backup-darwin
     )
@@ -107,6 +108,7 @@ restore-config-menu:
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
+        gui-media-iina-restore-darwin
         gui-develop-cc-switch-restore-darwin
         system-util-swiftbar-restore-darwin
     )
@@ -574,6 +576,7 @@ gui-config-app-config-backup-menu-darwin:
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
+        gui-media-iina-backup-darwin
         gui-develop-cc-switch-backup-darwin
         system-util-swiftbar-backup-darwin
     )
@@ -595,6 +598,7 @@ gui-config-app-config-restore-menu-darwin:
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
+        gui-media-iina-restore-darwin
         gui-develop-cc-switch-restore-darwin
         system-util-swiftbar-restore-darwin
     )
@@ -872,8 +876,17 @@ gui-media-invisor-lite-darwin:
 
 gui-media-iina-darwin:
     brew install --cask iina
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" gui-media-iina-restore-darwin
+
+gui-media-iina-backup-darwin:
+    just/preference_config.sh backup iina com.colliderli.iina
+
+gui-media-iina-restore-darwin:
     mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
     ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
+    just/preference_config.sh restore iina com.colliderli.iina
+    killall IINA 2>/dev/null || true
+    killall cfprefsd 2>/dev/null || true
 
 gui-media-handbrake-darwin:
     brew install --cask handbrake-app
