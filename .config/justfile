@@ -201,7 +201,8 @@ core-cli-tealdeer:
 #     # GTK theme support for macOS apps such as grsync; keep disabled until grsync migration.
 
 core-cli-grsync:
-    brew install grsync
+    # librsvg provides the gdk-pixbuf SVG loader used by GTK/Adwaita icons.
+    brew install grsync librsvg
 
 core-cli-rsync:
     brew install rsync
