@@ -81,6 +81,7 @@ backup-config-menu:
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
         gui-develop-cc-switch-backup-darwin
+        system-util-swiftbar-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config backups > ' || true)"
@@ -107,6 +108,7 @@ restore-config-menu:
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
         gui-develop-cc-switch-restore-darwin
+        system-util-swiftbar-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config restores > ' || true)"
@@ -266,9 +268,31 @@ system-util-stats-darwin:
     # tray: system monitor utility
     brew install --cask stats
 
+system-util-swiftbar-darwin:
+    # tray: custom menu bar plugins
+    brew install --cask swiftbar
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-util-swiftbar-restore-darwin
+
+system-util-swiftbar-backup-darwin:
+    just/preference_config.sh backup swiftbar com.ameba.SwiftBar
+
+system-util-swiftbar-restore-darwin:
+    just/preference_config.sh restore swiftbar com.ameba.SwiftBar
+    killall SwiftBar 2>/dev/null || true
+    killall cfprefsd 2>/dev/null || true
+
+system-util-keyboardcleantool-darwin:
+    brew install --cask keyboardcleantool
+
+system-util-tunnelblick-darwin:
+    brew install --cask tunnelblick
+
 ### system applications
 system-media-quickrecorder-darwin:
     brew install --cask lihaoyun6/tap/quickrecorder
+
+system-media-iriunwebcam-darwin:
+    brew install --cask iriunwebcam
 
 system-productivity-raycast-darwin:
     # spotlight replacement
@@ -551,6 +575,7 @@ gui-config-app-config-backup-menu-darwin:
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
         gui-develop-cc-switch-backup-darwin
+        system-util-swiftbar-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config backups > ' || true)"
@@ -571,6 +596,7 @@ gui-config-app-config-restore-menu-darwin:
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
         gui-develop-cc-switch-restore-darwin
+        system-util-swiftbar-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config restores > ' || true)"
@@ -736,6 +762,18 @@ gui-develop-fork-darwin:
     # Git GUI client (Fork).
     brew install --cask fork
 
+gui-develop-android-studio-darwin:
+    brew install --cask android-studio
+
+gui-develop-jd-gui-darwin:
+    brew install --cask jd-gui
+
+gui-develop-jupyter-notebook-viewer-darwin:
+    brew install --cask jupyter-notebook-viewer
+
+gui-develop-cherry-studio-darwin:
+    brew install --cask cherry-studio
+
 ### Languages & build tools
 cli-develop-rustup:
     brew install rustup
@@ -799,6 +837,15 @@ gui-other-aria2gui-darwin:
     # aria2 GUI front-end
     brew install --cask aria2gui
 
+gui-productivity-joplin-darwin:
+    brew install --cask joplin
+
+gui-productivity-freeplane-darwin:
+    brew install --cask freeplane
+
+gui-productivity-drawio-darwin:
+    brew install --cask drawio
+
 gui-productivity-localsend-darwin:
     # Cross-platform local file sharing.
     brew install --cask localsend
@@ -828,12 +875,27 @@ gui-media-iina-darwin:
     mkdir -p "${HOME}/Library/Application Support/com.colliderli.iina/input_conf"
     ln -snf "${HOME}/.config/backups/iina/input_conf/IINA_MY.conf" "${HOME}/Library/Application Support/com.colliderli.iina/input_conf/IINA_MY.conf"
 
+gui-media-handbrake-darwin:
+    brew install --cask handbrake-app
+
+gui-media-kodi-darwin:
+    brew install --cask kodi
+
+gui-media-mediainfoex-darwin:
+    brew install --cask mediainfoex
+
 ## Fonts/peripherals
 # (intentionally left blank for future groupings)
 
 ## Games/virtualization
+gui-other-openemu-darwin:
+    brew install --cask openemu
+
 gui-vm-xemu-darwin:
     brew install --cask xemu
+
+gui-vm-orbstack-darwin:
+    brew install --cask orbstack
 
 gui-vm-vmware-fusion-darwin:
     # vm ware, replacing older solutions
