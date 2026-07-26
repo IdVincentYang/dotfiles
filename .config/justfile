@@ -80,6 +80,7 @@ backup-config-menu:
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
+        gui-develop-cc-switch-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config backups > ' || true)"
@@ -105,6 +106,7 @@ restore-config-menu:
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
+        gui-develop-cc-switch-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config restores > ' || true)"
@@ -548,6 +550,7 @@ gui-config-app-config-backup-menu-darwin:
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
         system-media-syntax-highlight-backup-darwin
+        gui-develop-cc-switch-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config backups > ' || true)"
@@ -567,6 +570,7 @@ gui-config-app-config-restore-menu-darwin:
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
         system-media-syntax-highlight-restore-darwin
+        gui-develop-cc-switch-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config restores > ' || true)"
@@ -754,6 +758,13 @@ cli-develop-claude-code-darwin:
 gui-develop-cc-switch-darwin:
     # Configuration manager for AI coding agents.
     brew install --cask cc-switch
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" gui-develop-cc-switch-restore-darwin
+
+gui-develop-cc-switch-backup-darwin:
+    just/app_config.sh backup "Application Support/com.ccswitch.desktop" "app_paths.json"
+
+gui-develop-cc-switch-restore-darwin:
+    just/app_config.sh restore "Application Support/com.ccswitch.desktop" "app_paths.json"
 
 ### Network / debugging suite
 cli-develop-iperf3:

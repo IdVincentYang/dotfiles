@@ -279,6 +279,9 @@ just --justfile ~/.config/justfile cli-config-npm-skills-restore
 
 # Install CC Switch
 just --justfile ~/.config/justfile gui-develop-cc-switch-darwin
+
+# Restore CC Switch local config
+just --justfile ~/.config/justfile gui-develop-cc-switch-restore-darwin
 ```
 
 11. 手工迁移 AI CLI 配置
