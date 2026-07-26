@@ -79,6 +79,7 @@ backup-config-menu:
         system-config-hid-mouse-backup-darwin
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
+        system-media-syntax-highlight-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config backups > ' || true)"
@@ -103,6 +104,7 @@ restore-config-menu:
         system-config-hid-mouse-restore-darwin
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
+        system-media-syntax-highlight-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select config restores > ' || true)"
@@ -291,9 +293,23 @@ system-media-aerial-darwin:
     brew install --cask aerial
 
 ### Quick Look enhancements
+system-media-syntax-highlight-darwin:
+    brew install --cask syntax-highlight
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-media-syntax-highlight-restore-darwin
+    qlmanage -r cache >/dev/null 2>&1 || true
+
+system-media-syntax-highlight-backup-darwin:
+    just/preference_config.sh backup syntax-highlight org.sbarex.SourceCodeSyntaxHighlight
+
+system-media-syntax-highlight-restore-darwin:
+    just/preference_config.sh restore syntax-highlight org.sbarex.SourceCodeSyntaxHighlight
+    killall cfprefsd 2>/dev/null || true
+    qlmanage -r cache >/dev/null 2>&1 || true
+
 system-media-quicklook-suite-darwin:
     brew install --cask apparency suspicious-package
     brew install --cask qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
+    just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-media-syntax-highlight-restore-darwin
     xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
     xattr -cr ~/Library/QuickLook/QLColorCode.qlgenerator
     xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
@@ -523,6 +539,7 @@ gui-config-app-config-backup-menu-darwin:
     recipes=(
         system-productivity-keepassxc-backup-darwin
         system-productivity-openvanilla-backup-darwin
+        system-media-syntax-highlight-backup-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config backups > ' || true)"
@@ -541,6 +558,7 @@ gui-config-app-config-restore-menu-darwin:
     recipes=(
         system-productivity-keepassxc-restore-darwin
         system-productivity-openvanilla-restore-darwin
+        system-media-syntax-highlight-restore-darwin
     )
     if command -v fzf >/dev/null 2>&1; then
         selection="$(printf '%s\n' "${recipes[@]}" | fzf -m --prompt='Select app config restores > ' || true)"
