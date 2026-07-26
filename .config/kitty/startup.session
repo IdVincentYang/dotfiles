@@ -1,13 +1,13 @@
 # https://sw.kovidgoyal.net/kitty/overview/#startup-sessions
 cd ~/archives.noindex
-launch zsh
+launch zsh -l
 
 new_tab
 cd ~/Documents/Runtime/
-launch zsh
+launch zsh -l
 
 new_tab
 cd ~/Downloads/
 focus
-launch zsh
+launch zsh -l
 
