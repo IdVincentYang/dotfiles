@@ -295,6 +295,8 @@ system-media-aerial-darwin:
 ### Quick Look enhancements
 system-media-syntax-highlight-darwin:
     brew install --cask syntax-highlight
+    # Open once so macOS registers the Quick Look extension and prompts for approval if needed.
+    open -a "Syntax Highlight" || true
     just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-media-syntax-highlight-restore-darwin
     qlmanage -r cache >/dev/null 2>&1 || true
 
@@ -306,17 +308,23 @@ system-media-syntax-highlight-restore-darwin:
     killall cfprefsd 2>/dev/null || true
     qlmanage -r cache >/dev/null 2>&1 || true
 
+system-media-qlmarkdown-darwin:
+    brew install --cask qlmarkdown
+    # Open once so macOS registers the Quick Look extension and prompts for approval if needed.
+    open -a "QLMarkdown" || true
+    qlmanage -r cache >/dev/null 2>&1 || true
+
 system-media-quicklook-suite-darwin:
     brew install --cask apparency suspicious-package
-    brew install --cask qladdict qlcolorcode qlprettypatch qlvideo quicklook-json syntax-highlight
+    brew install --cask quicklook-video qlmarkdown syntax-highlight
+    # Open extension-backed apps once so macOS registers their Quick Look extensions.
+    open -a "Apparency" || true
+    open -a "Suspicious Package" || true
+    open -a "QuickLook Video" || true
+    open -a "QLMarkdown" || true
+    open -a "Syntax Highlight" || true
     just/app_config_restore_if_enabled.sh just --justfile "{{justfile()}}" system-media-syntax-highlight-restore-darwin
-    xattr -cr ~/Library/QuickLook/QLAddict.qlgenerator
-    xattr -cr ~/Library/QuickLook/QLColorCode.qlgenerator
-    xattr -cr ~/Library/QuickLook/qlprettypatch.qlgenerator
-    xattr -cr ~/Library/QuickLook/QLVideo.qlgenerator
-    xattr -cr ~/Library/QuickLook/QuickLookJSON.qlgenerator
     qlmanage -r cache
-    open /Applications/QuickLook\ Video.app
 
 ### system tweaks
 system-config-finder-defaults-darwin:
