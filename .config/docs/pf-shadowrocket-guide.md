@@ -1,141 +1,304 @@
-# 在 macOS 上用 pf 转发 Shadowrocket 代理给局域网
+# macOS pf 转发 Shadowrocket 给局域网
 
-本文档记录了如何在 macOS 上使用 `pf`（Packet Filter）将 Shadowrocket 打开的本地代理端口分享给同一个局域网中的其他设备。每个阶段都包含**目的、操作步骤、预期结果、验证方法**以及**常见错误与修复办法**，方便排查。
+目标：优先使用 Shadowrocket 自带的 `Proxy Share`。只有当原生共享入口在客户端不可用，或 Shadowrocket 选择的共享 IP 不是客户端要使用的入口时，才用 macOS `pf` 把一个客户端可达的 Mac 地址转发到本机 loopback 代理。
 
-## 前置条件
-- **目的**：确保系统满足执行步骤的基本要求。
-- **操作**：
-  - 使用具有管理员权限的账户登录，终端中确认 `sudo` 可用：`sudo -v`。
-  - Shadowrocket 已安装并能在本机访问被墙站点，且启用了「Settings → Proxy → Proxy Share」，设置 `Proxy Type` 为支持 HTTPS CONNECT（推荐 Mixed/SOCKS5），端口示例为 `1082`。
-  - 确认 Shadowrocket 绑定的监听地址为 `127.0.0.1` 或 `198.18.0.3`，这决定了我们必须依赖 `pf` 做转发。
-- **预期结果**：本机通过 `curl -x http://127.0.0.1:1082 https://www.google.com -v` 可以成功访问 Google。
-- **验证**：同上命令返回 200/302，即表示代理本身可用。
-- **常见错误/修复**：
-  - Curl 卡住：Shadowrocket 规则把站点走了 DIRECT → 将模式切到 Proxy 或 Global。
-  - 返回 407：检查 Shadowrocket 是否设置了身份验证，必要时在客户端提供账号密码。
+## 变量
 
-## 步骤 0：按照 Shadowrocket 界面设置共享参数
-- **目的**：确保 Shadowrocket 的共享端口配置完整，让 `pf` 转发的流量能被其监听并走代理节点。
-- **操作**：
-  1. 打开 Shadowrocket → `Settings → Proxy → Proxy Share`。
-  2. 在 `Proxy Share` 页面将 `Enable Share` 切换为 `On`。
-  3. `Proxy Address` 按界面提供的两个选项选择：
-     - `127.0.0.1`：仅绑定回环地址；需要结合本文的 `pf` 方案把局域网请求转到本地。
-     - `198.18.0.3`：Shadowrocket 虚拟网卡地址，可被局域网直接访问；若计划直接公布此地址，可不依赖 `pf`。
-  4. `Proxy Port` 设置为准备共享的端口（示例 `1082`，需与 `pf` 规则保持一致）。
-  5. `Proxy Type` 按需选择（界面可见 `HTTP` / `SOCKS5` / 其它类型）。若希望处理 HTTPS，建议选 `HTTP` 搭配 `Compatibility Mode On`，或直接选择 `Mixed/SOCKS5`。
-  6. `Compatibility Mode` 保持 `On`。
-  7. `Proxy Chain`（界面显示为 `Enable Chain`）保持 `Off`，除非确实要做级联。
-  8. 返回 `Settings → Proxy`，在 `Proxy Share` 部分确认 `IP` 字段已显示可被局域网访问的地址（如 `192.168.61.207`）。
-- **预期结果**：Shadowrocket 在所选 `Proxy Address`/`Proxy Port` 上监听，并接受 HTTP/HTTPS 请求。
-- **验证**：
-  - 本机执行 `curl -x http://127.0.0.1:1082 https://www.google.com -v`（或对应的 `Proxy Address`），应能访问。
-  - `lsof -iTCP:1082 -sTCP:LISTEN` 可看到 `PacketTunnel` 进程处于监听状态。
-  - Shadowrocket → `Logs` 会记录来自共享端口的请求。
-- **常见错误/修复**：
-  - `Enable Share` 忘记打开：局域网设备连接会直接被拒绝。
-  - `Proxy Type` 仅为 `HTTP` 且 `Compatibility Mode Off`：HTTPS CONNECT 会失败 → 打开 `Compatibility Mode` 或换成支持 CONNECT 的类型。
-  - `Proxy Address` 选 `127.0.0.1` 却让局域网直连：需要结合 `pf` 按本文配置 `en6` 转发；若想绕过 `pf`，应改选 `198.18.0.3` 并直接发布该地址。
+| 变量 | 含义 |
+| --- | --- |
+| `<PROXY_SHARE_IP>` | Shadowrocket `Proxy Share` 页面显示的 `IP` |
+| `<PORT>` | Shadowrocket `Proxy Share` 页面显示的 `Port` |
+| `<LAN_IF>` | 准备用作 pf 入口的 Mac 网络接口 |
+| `<LAN_IP>` | `<LAN_IF>` 上客户端可访问的 Mac IP |
 
-## 步骤 1：确认局域网接口和 IP
-- **目的**：找到 Shadowrocket 虚拟网卡对应的接口（示例为 `en6`，IP `192.168.60.253`），以便在 `pf` 中使用正确的网卡名称和地址。
-- **操作**：
-  - `networksetup -listallhardwareports` 或 `ifconfig en0`, `ifconfig en6` 等命令查看接口与 IP 的对应关系。
-  - 记录局域网客户端所在网段（示例 `192.168.60.0/24`）。
-- **预期结果**：知道“局域网机器访问哪个 IP 才能找到这台 Mac”。
-- **验证**：`ifconfig en6` 输出中包含 `inet 192.168.60.253 netmask 0xffffff00` 且 `status: active`。
-- **常见错误/修复**：
-  - 找错接口：抓包 `sudo tcpdump -i <interface> port 1082`，无流量则说明接口不对。
-  - 接口 inactive：确保 Shadowrocket/VPN 已启动，否则 `en6` 不会出现。
+参考文件：
 
-## 步骤 2：编辑 `/etc/pf.conf`
-- **目的**：把端口转发及允许规则直接写入系统主配置，避免依赖额外文件。
-- **操作**：
- 1. 备份：`sudo cp /etc/pf.conf /etc/pf.conf.backup.$(date +%Y%m%d%H%M%S)`。
- 2. 在 `rdr-anchor "com.apple/*"` 后、`anchor "com.apple/*"` 之前插入：
-    ```
-    rdr pass on en6 inet proto tcp from 192.168.60.0/24 to 192.168.60.253 port 1082 -> 127.0.0.1 port 1082
-    ```
- 3. 在文件末尾或其它过滤段添加：
-    ```
-    pass in on en6 proto tcp from 192.168.60.0/24 to 192.168.60.253 port 1082 keep state
-    pass out all keep state
-    ```
-- **预期结果**：`/etc/pf.conf` 内联包含了局域网转发所需的 `rdr` 与 `pass` 规则。
-- **验证**：`sudo pfctl -nf /etc/pf.conf` 显示无错误。
-- **常见错误/修复**：
-  - “Rules must be in order ...” → 确保 `rdr` 行位于 `anchor "com.apple/*"` 之前。
-  - “syntax error” → 重新检查是否遗漏 `proto tcp` 或端口写法。
+| 文件 | 用途 |
+| --- | --- |
+| `~/.config/docs/pf-shadowrocket-references/pf.conf` | 本机已验证的 `/etc/pf.conf` 参考配置；迁移到别的机器前必须检查接口名 |
+| `~/.config/docs/pf-shadowrocket-references/com.shadowrocket.pfctl.plist` | 开机启动 `pfctl` 的 LaunchDaemon |
 
-## 步骤 3：加载并启用 `pf`
-- **目的**：让新规则立即生效并在当前会话中启用 `pf`。
-- **操作**：
-  - `sudo pfctl -f /etc/pf.conf`
-  - `sudo pfctl -e`（若已启用会提示 `pf already enabled`）
-- **预期结果**：`pfctl` 成功加载配置，状态为 Enabled。
-- **验证**：
-  - `sudo pfctl -s nat` 能看到 `rdr pass on en6 ...` 条目。
-  - `sudo pfctl -s info | grep Status` 显示 `Enabled`。
-- **常见错误/修复**：
-  - `pfctl: pf already enabled` → 只是提示，无需处理。
-  - `No ALTQ support in kernel` → macOS 默认无 ALTQ，可忽略。
+## 判断流程
 
-## 步骤 4：局域网测试
-- **目的**：确保其他设备可以通过 Mac 的共享端口访问互联网。
-- **操作**：
-  - 在客户端设置 `http_proxy`、`https_proxy` 或浏览器代理为 `http://192.168.60.253:1082`。
-  - 运行 `curl -x http://192.168.60.253:1082 https://www.google.com -v`。
-- **预期结果**：客户端能访问 Google 等被墙站点，说明流量经由 Shadowrocket。
-- **验证**：
-  - 命令返回 HTML 或 200/302。
-  - 在 Mac 上 `sudo tcpdump -i en6 port 1082` 可看到 `CONNECT` 请求，Shadowrocket 日志也会出现对应 IP。
-- **常见错误/修复**：
-  - `curl` 超时：客户端和 Mac 不在同一网段或代理地址写成 `192.168.61.xxx` → 改用 `192.168.60.253`。
-  - 仍访问不了：Shadowrocket “Proxy Type” 未支持 CONNECT → 改成 Mixed/SOCKS5 或 HTTP(CONNECT)。
+1. 先测试 Shadowrocket 原生 `Proxy Share`。
+2. 如果 `<PROXY_SHARE_IP>:<PORT>` 在客户端可用，直接使用它，不需要 `pf`。
+3. 如果原生共享不可用，但 Mac 本机 `127.0.0.1:<PORT>` 可用，再测试 `pf` 绕过。
+4. 如果启用了 `pf`，它会接管匹配接口上的 `<PORT>` 入站流量；要重新测试原生 Proxy Share，需要先停用 `pf`。
+5. 换网络、换接口、插拔网卡后，重新跑 `nc` / `curl` 验证，不只看 UI 显示或 `ping`。
 
-## 步骤 5：配置自启动（可选）
-- **目的**：系统重启后自动加载 `pf` 规则，并启用防火墙。
-- **操作**：
-  1. 在 `~/com.shadowrocket.pfctl.plist` 写入：
-     ```xml
-     <?xml version="1.0" encoding="UTF-8"?>
-     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-     <plist version="1.0">
-     <dict>
-       <key>Label</key>
-       <string>com.shadowrocket.pfctl</string>
-       <key>ProgramArguments</key>
-       <array>
-         <string>/bin/sh</string>
-         <string>-c</string>
-         <string>pfctl -f /etc/pf.conf && pfctl -e</string>
-       </array>
-       <key>RunAtLoad</key>
-       <true/>
-       <key>StandardErrorPath</key>
-       <string>/var/log/pfctl-launchd.err</string>
-       <key>StandardOutPath</key>
-       <string>/var/log/pfctl-launchd.out</string>
-     </dict>
-     </plist>
-     ```
-  2. 移动到 `/Library/LaunchDaemons/` 并设置权限：
-     ```
-     sudo mv ~/com.shadowrocket.pfctl.plist /Library/LaunchDaemons/
-     sudo chown root:wheel /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     sudo chmod 644 /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     sudo launchctl load /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
-     ```
-- **预期结果**：开机后自动运行 `pfctl -f` 和 `pfctl -e`。
-- **验证**：重启后执行 `sudo pfctl -s info`，应显示 `Status: Enabled`；`log show --predicate 'process == "pfctl"' --last 5m` 可查看启动日志。
-- **常见错误/修复**：
-  - `launchctl: Permission denied` → 确保 plist 放在 `/Library/LaunchDaemons` 并归属 `root:wheel`。
-  - 日志提示找不到 `/etc/pf.conf` → 文件路径写错或权限不足，修复后 `launchctl unload` 再 `load`。
+## 1. 测试原生 Proxy Share
 
-## 维护与回滚
-- **修改端口或网段**：直接编辑 `/etc/pf.conf` 中的 `rdr/pass` 行，调整端口/子网后运行 `sudo pfctl -f /etc/pf.conf`。
-- **临时停用**：`sudo pfctl -d` 会禁用 `pf`（直到下次 `pfctl -e` 或重启由 launchd 重新加载）。
-- **回滚到原始配置**：`sudo cp /etc/pf.conf.backup.<timestamp> /etc/pf.conf && sudo pfctl -f /etc/pf.conf && sudo pfctl -d`。
-- **常见日志位置**：`/var/log/pfctl-launchd.out`、`/var/log/pfctl-launchd.err`、`log show --predicate 'process == "pfctl"' --last 5m`。
+Shadowrocket：
 
-通过以上步骤即可稳定地把 Shadowrocket 的本地代理端口分享给局域网电脑，同时保证配置在系统重启后可自动恢复。
+| 项 | 值 |
+| --- | --- |
+| `Enable Share` | `On` |
+| `Proxy Port` | `<PORT>` |
+| `Proxy Type` | `HTTP` |
+| `Compatibility Mode` | 优先 `On`；若本机和客户端测试都成功，`Off` 也可用 |
+
+记录 `Proxy Share` 页面显示的 `<PROXY_SHARE_IP>:<PORT>`。UI 显示的 IP 只表示 Shadowrocket 选择了这个共享入口，不代表客户端一定能连通。
+
+客户端测试：
+
+```bash
+# 只测 TCP 端口
+nc -vz -w 3 <PROXY_SHARE_IP> <PORT>
+
+# 测 HTTP 代理
+curl -x http://<PROXY_SHARE_IP>:<PORT> https://www.google.com -v --connect-timeout 5
+```
+
+成功输出：
+
+```text
+Connection to <PROXY_SHARE_IP> <PORT> port [tcp/*] succeeded!
+< HTTP/1.1 200 Connection established
+< HTTP/2 200
+```
+
+如果这里成功，停止；不需要 `pf`。
+
+## 2. 准备 pf 绕过
+
+如果原生 Proxy Share 失败，把 Shadowrocket 的 `Proxy Address` 改为：
+
+```text
+127.0.0.1 / Loopback HTTP Proxy Server
+```
+
+Mac 本机验证 loopback 代理：
+
+```bash
+curl -x http://127.0.0.1:<PORT> https://www.google.com -v --connect-timeout 5
+lsof -nP -iTCP:<PORT> -sTCP:LISTEN
+```
+
+期望输出：
+
+```text
+< HTTP/1.1 200 Connection established
+< HTTP/2 200
+```
+
+如果 `127.0.0.1:<PORT>` 不可用，先修 Shadowrocket；不要继续配 `pf`。
+
+## 3. 选择 pf 入口
+
+找出 Mac 上客户端可访问的接口和 IP：
+
+```bash
+# 在 Mac 上查看局域网接口和 IP
+ifconfig | grep -E "^[a-z0-9]+:|inet "
+```
+
+选择客户端准备连接的 Mac 入口地址 `<LAN_IP>`，并记录它所在接口 `<LAN_IF>`。
+
+`<LAN_IP>` 可以等于 `<PROXY_SHARE_IP>`。原生 Proxy Share 在这个 IP 上失败，不代表 `pf rdr -> 127.0.0.1:<PORT>` 一定失败；但必须单独测试 `pf` 入口。
+
+客户端确认路由：
+
+```bash
+# Linux 客户端：确认访问 Mac 入口 IP 时使用的源地址和接口
+ip route get <LAN_IP>
+
+# ping 只证明 IP 可达，不证明代理端口可用
+ping -c 2 <LAN_IP>
+```
+
+选择规则：
+
+| 场景 | 处理 |
+| --- | --- |
+| `<PROXY_SHARE_IP>:<PORT>` 客户端可用 | 直接使用 Shadowrocket 原生共享 |
+| `<PROXY_SHARE_IP>:<PORT>` 不可用，但 `<PROXY_SHARE_IP>` 是唯一入口 | 可以在这个 IP 对应接口上测试 `pf` |
+| Mac 有多个 IP | 只为实际需要且 `pf` 测试成功的接口写正式规则 |
+| `.local` 解析到不可用 IP | 不要默认把 `.local` 作为客户端代理地址 |
+| 只有单 IP 且原生共享不可用 | 仍可测试 `pf`；如果 `pf` 也失败，需要换网络、换监听方式或加中转服务 |
+
+## 4. 临时测试 pf
+
+建议先写临时文件，不要直接覆盖 `/etc/pf.conf`：
+
+```pf
+scrub-anchor "com.apple/*"
+nat-anchor "com.apple/*"
+rdr-anchor "com.apple/*"
+
+# shadowrocket rdr
+rdr pass on <LAN_IF> inet proto tcp from (<LAN_IF>:network) to (<LAN_IF>) port <PORT> -> 127.0.0.1 port <PORT>
+
+dummynet-anchor "com.apple/*"
+anchor "com.apple/*"
+load anchor "com.apple" from "/etc/pf.anchors/com.apple"
+
+# shadowrocket share lan
+pass in on <LAN_IF> proto tcp from (<LAN_IF>:network) to (<LAN_IF>) port <PORT> keep state
+pass out all keep state
+```
+
+写入 `/tmp/pf.conf.shadowrocket-test` 后测试：
+
+```bash
+# 只检查语法
+sudo pfctl -nf /tmp/pf.conf.shadowrocket-test
+
+# 临时加载，不覆盖 /etc/pf.conf
+sudo pfctl -f /tmp/pf.conf.shadowrocket-test
+sudo pfctl -e
+
+# 验证规则
+sudo pfctl -s nat
+sudo pfctl -s rules | grep -E '<PORT>|<LAN_IF>'
+sudo pfctl -s info | grep Status
+```
+
+期望输出：
+
+```text
+rdr pass on <LAN_IF> inet proto tcp from (<LAN_IF>:network) to (<LAN_IF>) port = <PORT> -> 127.0.0.1 port <PORT>
+pass in on <LAN_IF> inet proto tcp from (<LAN_IF>:network) to (<LAN_IF>) port = <PORT> flags S/SA keep state
+Status: Enabled
+```
+
+客户端测试：
+
+```bash
+nc -vz -w 3 <LAN_IP> <PORT>
+curl -x http://<LAN_IP>:<PORT> https://www.google.com -v --connect-timeout 5
+```
+
+成功后再写入正式配置。
+
+## 5. 写入正式 pf 配置
+
+备份：
+
+```bash
+sudo cp /etc/pf.conf /etc/pf.conf.backup.$(date +%Y%m%d%H%M%S)
+```
+
+把已验证成功的临时配置写入 `/etc/pf.conf`：
+
+```bash
+sudo cp /tmp/pf.conf.shadowrocket-test /etc/pf.conf
+sudo pfctl -nf /etc/pf.conf
+sudo pfctl -f /etc/pf.conf
+sudo pfctl -e
+```
+
+说明：
+
+- `(<LAN_IF>)` 会跟随该接口的 IP 变化自动更新。
+- `(<LAN_IF>:network)` 会跟随该接口所在网段变化自动更新。
+- 如果接口名变化，仍需修改 `/etc/pf.conf`。
+- 不要无差别给所有接口加规则；每个接口都必须单独验证。
+
+## 6. 客户端使用
+
+```bash
+export http_proxy=http://<LAN_IP>:<PORT>
+export https_proxy=http://<LAN_IP>:<PORT>
+```
+
+验证：
+
+```bash
+curl https://www.google.com -v --connect-timeout 5
+```
+
+## 7. 开机启动
+
+安装 plist：
+
+```bash
+sudo cp ~/.config/docs/pf-shadowrocket-references/com.shadowrocket.pfctl.plist /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+sudo chown root:wheel /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+sudo chmod 644 /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+plutil -lint /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+```
+
+如果任务已存在：
+
+```bash
+sudo launchctl bootout system /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+```
+
+验证：
+
+```bash
+sudo launchctl print system/com.shadowrocket.pfctl
+sudo pfctl -s info | grep Status
+```
+
+期望输出：
+
+```text
+arguments = {
+        /bin/sh
+        -c
+        /sbin/pfctl -f /etc/pf.conf && /sbin/pfctl -e
+}
+Status: Enabled
+```
+
+## 已知结论
+
+以下结论来自当前网络实测，换网络后应重新验证：
+
+| 项 | 结论 |
+| --- | --- |
+| Shadowrocket 原生 Proxy Share | 单网卡场景下可以开箱即用；多网卡场景下 UI 显示的 IP 可能端口不可用 |
+| `ping <PROXY_SHARE_IP>` | 只证明 IP 可达，不证明代理端口可用 |
+| `127.0.0.1:<PORT>` | Mac 本机 loopback HTTP proxy 可用时，可作为 `pf rdr` 目标 |
+| `198.18.0.3:<PORT>` | Mac 本机可访问，但客户端不能直连；当前测试中不适合作为 `pf rdr` 目标 |
+| `.local` 主机名 | 可能解析到不可用共享 IP；需要用 `nc` / `curl` 验证 |
+| 已启用 `pf` | 会接管匹配接口上的 `<PORT>` 入站流量；测试原生 Proxy Share 前应先停用 `pf` |
+
+## 换网络后的检查
+
+```bash
+# 查看当前接口/IP
+ifconfig | grep -E "^[a-z0-9]+:|inet "
+
+# 查看当前 pf 规则
+sudo pfctl -s nat
+sudo pfctl -s rules | grep <PORT>
+
+# 客户端重新验证
+nc -vz -w 3 <LAN_IP> <PORT>
+curl -x http://<LAN_IP>:<PORT> https://www.google.com -v --connect-timeout 5
+```
+
+## 维护
+
+重新加载：
+
+```bash
+sudo pfctl -nf /etc/pf.conf
+sudo pfctl -f /etc/pf.conf
+```
+
+临时停用：
+
+```bash
+sudo pfctl -d
+```
+
+回滚：
+
+```bash
+sudo cp /etc/pf.conf.backup.<timestamp> /etc/pf.conf
+sudo pfctl -f /etc/pf.conf
+sudo pfctl -d
+```
+
+日志：
+
+```bash
+cat /var/log/pfctl-launchd.out
+cat /var/log/pfctl-launchd.err
+log show --predicate 'process == "pfctl"' --last 5m
+```
