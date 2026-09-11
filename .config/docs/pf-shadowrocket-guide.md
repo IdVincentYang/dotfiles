@@ -15,7 +15,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
-| `~/.config/docs/pf-shadowrocket-references/pf.conf` | 本机已验证的 `/etc/pf.conf` 参考配置；迁移到别的机器前必须检查接口名 |
+| `~/.config/docs/pf-shadowrocket-references/pf.conf` | 本机已验证的 PF 配置源；安装到 `/usr/local/etc/pf-shadowrocket.conf`，迁移前必须检查接口名 |
 | `~/.config/docs/pf-shadowrocket-references/com.shadowrocket.pfctl.plist` | 开机启动 `pfctl` 的 LaunchDaemon |
 
 ## 判断流程
@@ -170,20 +170,15 @@ curl -x http://<LAN_IP>:<PORT> https://www.google.com -v --connect-timeout 5
 
 成功后再写入正式配置。
 
-## 5. 写入正式 pf 配置
+## 5. 安装正式 pf 配置
 
-备份：
-
-```bash
-sudo cp /etc/pf.conf /etc/pf.conf.backup.$(date +%Y%m%d%H%M%S)
-```
-
-把已验证成功的临时配置写入 `/etc/pf.conf`：
+不要把自定义规则长期存放在 `/etc/pf.conf`。macOS 更新可能还原该系统文件。把验证成功的配置安装到独立路径：
 
 ```bash
-sudo cp /tmp/pf.conf.shadowrocket-test /etc/pf.conf
-sudo pfctl -nf /etc/pf.conf
-sudo pfctl -f /etc/pf.conf
+sudo install -d -o root -g wheel -m 755 /usr/local/etc
+sudo install -o root -g wheel -m 644 /tmp/pf.conf.shadowrocket-test /usr/local/etc/pf-shadowrocket.conf
+sudo pfctl -nf /usr/local/etc/pf-shadowrocket.conf
+sudo pfctl -f /usr/local/etc/pf-shadowrocket.conf
 sudo pfctl -e
 ```
 
@@ -191,7 +186,8 @@ sudo pfctl -e
 
 - `(<LAN_IF>)` 会跟随该接口的 IP 变化自动更新。
 - `(<LAN_IF>:network)` 会跟随该接口所在网段变化自动更新。
-- 如果接口名变化，仍需修改 `/etc/pf.conf`。
+- 如果接口名变化，仍需修改 `/usr/local/etc/pf-shadowrocket.conf`，并同步更新工作区参考配置。
+- `/etc/pf.conf` 保持由 macOS 管理；正式自定义配置位于 `/usr/local/etc/pf-shadowrocket.conf`。
 - 不要无差别给所有接口加规则；每个接口都必须单独验证。
 
 ## 6. 客户端使用
@@ -209,9 +205,13 @@ curl https://www.google.com -v --connect-timeout 5
 
 ## 7. 开机启动
 
-安装 plist：
+先安装参考配置，再安装 plist：
 
 ```bash
+sudo install -d -o root -g wheel -m 755 /usr/local/etc
+sudo install -o root -g wheel -m 644 ~/.config/docs/pf-shadowrocket-references/pf.conf /usr/local/etc/pf-shadowrocket.conf
+sudo pfctl -nf /usr/local/etc/pf-shadowrocket.conf
+
 sudo cp ~/.config/docs/pf-shadowrocket-references/com.shadowrocket.pfctl.plist /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 sudo chown root:wheel /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 sudo chmod 644 /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
@@ -239,7 +239,7 @@ sudo pfctl -s info | grep Status
 arguments = {
         /bin/sh
         -c
-        /sbin/pfctl -f /etc/pf.conf && /sbin/pfctl -e
+        /sbin/pfctl -f /usr/local/etc/pf-shadowrocket.conf && /sbin/pfctl -e
 }
 Status: Enabled
 ```
@@ -256,6 +256,7 @@ Status: Enabled
 | `198.18.0.3:<PORT>` | Mac 本机可访问，但客户端不能直连；当前测试中不适合作为 `pf rdr` 目标 |
 | `.local` 主机名 | 可能解析到不可用共享 IP；需要用 `nc` / `curl` 验证 |
 | 已启用 `pf` | 会接管匹配接口上的 `<PORT>` 入站流量；测试原生 Proxy Share 前应先停用 `pf` |
+| macOS 更新 | 可能还原 `/etc/pf.conf`；正式规则应放在 `/usr/local/etc/pf-shadowrocket.conf` 并由 LaunchDaemon 直接加载 |
 
 ## 换网络后的检查
 
@@ -277,8 +278,8 @@ curl -x http://<LAN_IP>:<PORT> https://www.google.com -v --connect-timeout 5
 重新加载：
 
 ```bash
-sudo pfctl -nf /etc/pf.conf
-sudo pfctl -f /etc/pf.conf
+sudo pfctl -nf /usr/local/etc/pf-shadowrocket.conf
+sudo pfctl -f /usr/local/etc/pf-shadowrocket.conf
 ```
 
 临时停用：
@@ -290,7 +291,6 @@ sudo pfctl -d
 回滚：
 
 ```bash
-sudo cp /etc/pf.conf.backup.<timestamp> /etc/pf.conf
 sudo pfctl -f /etc/pf.conf
 sudo pfctl -d
 ```

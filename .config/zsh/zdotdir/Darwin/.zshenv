@@ -4,3 +4,4 @@ if [[ "${__ZDOT_DARWIN_ZSHENV_LOADED:-}" != "1" ]]; then
 fi
 
 export __ZDOTLOADED="$__ZDOTLOADED:$ZDOTDIR/Darwin/.zshenv"
+
