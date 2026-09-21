@@ -107,7 +107,7 @@ local _HotkeyMap = {
 }
 
 hs.window.animationDuration = 0
-hs.window.setFrameCorrectness = true
+hs.window.setFrameCorrectness = false
 
 --  创建一个定时器来加载其它配置, 防止脚本出错导致 ReloadConfiguration 配置加载失败
 hs.timer
