@@ -1,2 +1,12 @@
+/.android/debug.keystore*
+/crossnote/
+/filezilla/filezilla.xml
+/filezilla/layout.xml
+/filezilla/lockfile
+/filezilla/queue.sqlite3
+/filezilla/trustedcerts.xml
+/homebrew/*.lock
 /joplin-desktop/
+/karabiner/automatic_backups/
 /raycast/
+/swiftpm/
