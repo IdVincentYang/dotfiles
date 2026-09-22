@@ -32,4 +32,3 @@ write_xdg_config "$XDG_CONFIG"
 echo "[BOOTSTRAP] Installing Termux base packages..."
 pkg update -y
 pkg upgrade -y
-pkg install -y git curl zsh vim tree fzf fd zoxide direnv
