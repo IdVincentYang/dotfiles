@@ -19,6 +19,7 @@ Termux:Widget；Termux:Styling 仅用于字体和配色，可选。插件应与 
 
 ```bash
 pkg update
+pkg upgrade
 pkg install git openssh yadm
 ```
 
