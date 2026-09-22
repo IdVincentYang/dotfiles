@@ -17,5 +17,5 @@ setup_zshenv "$CONFIG_ZDOTDIR"
 
 TARGET_SHELL="$(command -v zsh)"
 if [[ "${SHELL:-}" != "$TARGET_SHELL" ]]; then
-    chsh -s "$TARGET_SHELL"
+    chsh -s zsh
 fi

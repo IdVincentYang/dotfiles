@@ -31,6 +31,12 @@ else
     echo "[BOOTSTRAP] Using standard Vim directory: $VIM_CONFIG_DIR"
 fi
 
+VIM_CONFIG_FILE="$VIM_CONFIG_DIR/vimrc"
+if [ ! -f "$VIM_CONFIG_FILE" ]; then
+    echo "[BOOTSTRAP] Error: Vim config not found: $VIM_CONFIG_FILE"
+    exit 1
+fi
+
 PLUG_FILE="$VIM_CONFIG_DIR/autoload/plug.vim"
 PLUG_URL="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 
@@ -63,9 +69,20 @@ echo "[BOOTSTRAP] Running Vim plugin operations..."
 # 3. +PlugClean!  : 移除 .vimrc 中已删除的插件
 # 4. +qall        : 全部退出
 #
-# 使用 || true 防止因为某些非致命错误(如配色缺失)导致脚本中断
-vim -E -s +PlugUpgrade +PlugUpdate +PlugClean! +qall || {
-    echo "[BOOTSTRAP] Vim plugin operations finished (with non-critical warnings)."
-}
+# vim-plug's temporary UI mappings can report harmless errors in Ex mode.
+# Run synchronously, then verify the actual result instead of trusting that
+# process status.
+vim -Nu "$VIM_CONFIG_FILE" -E -s \
+    '+silent! PlugUpgrade' \
+    '+silent! PlugUpdate --sync' \
+    '+silent! PlugClean!' \
+    +qall
+
+if ! vim -Nu "$VIM_CONFIG_FILE" -E -s \
+    "+if len(filter(values(g:plugs), '!isdirectory(v:val.dir)')) | cquit | endif" \
+    +qall; then
+    echo "[BOOTSTRAP] Error: One or more Vim plugins are missing."
+    exit 1
+fi
 
 echo "[BOOTSTRAP] Vim setup completed."
