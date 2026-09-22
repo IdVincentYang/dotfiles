@@ -6,7 +6,7 @@ set -eu
 echo "[BOOTSTRAP] [05_coretools] Installing Termux core tools..."
 
 pkg install -y \
-    git git-lfs just ripgrep yadm vim zsh curl \
+    git git-lfs just yadm vim zsh curl \
     tree fzf fd zoxide direnv
 
 echo "[BOOTSTRAP] [05_coretools] Running git lfs install..."

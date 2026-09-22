@@ -192,6 +192,10 @@ core-cli-ripgrep:
     # ripgrep -> find: Search tool like grep.
     brew install ripgrep
 
+core-cli-ripgrep-termux:
+    # ripgrep -> grep: Search tool like grep.
+    pkg install -y ripgrep
+
 core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
     brew install tealdeer
