@@ -1,0 +1,21 @@
+#!/bin/bash
+# vi:set ft=sh
+set -eu
+
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/zsh_helper.sh"
+LOCAL_ENV="$HOME/.local/.env"
+CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir"
+
+echo "[BOOTSTRAP] Configuring Termux shell environment..."
+
+source "$LOCAL_ENV"
+source "$LIB_HELPER"
+
+mkdir -p "$CONFIG_ZDOTDIR"
+setup_zshenv "$CONFIG_ZDOTDIR"
+
+TARGET_SHELL="$(command -v zsh)"
+if [[ "${SHELL:-}" != "$TARGET_SHELL" ]]; then
+    chsh -s "$TARGET_SHELL"
+fi

@@ -11,19 +11,9 @@ if [ -f "$LOCAL_ENV" ]; then
 fi
 
 # 2. 检查 Vim 是否存在
-IS_TERMUX=false
-if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
-    IS_TERMUX=true
-fi
-
 if ! command -v vim >/dev/null 2>&1; then
-    if [ "$IS_TERMUX" = true ]; then
-        echo "[BOOTSTRAP] Vim not found on Termux. Installing via pkg..."
-        pkg install -y vim
-    else
-        echo "[BOOTSTRAP] Error: Vim not found. Run 05_coretools to install core tools."
-        exit 1
-    fi
+    echo "[BOOTSTRAP] Error: Vim not found. Run the platform initialization first."
+    exit 1
 fi
 
 # 定义 XDG_CONFIG_HOME 默认值

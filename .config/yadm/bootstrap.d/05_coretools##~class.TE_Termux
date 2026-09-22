@@ -3,12 +3,6 @@
 
 set -eu
 
-# Termux 环境不支持 Homebrew，直接跳过
-if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
-    echo "[BOOTSTRAP] [05_coretools] Skipping core tools installation on Termux."
-    exit 0
-fi
-
 BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
 BREWFILE_CORE="$BOOTSTRAP_DIR/Brewfile.core"
 LOCAL_ENV="$HOME/.local/.env"

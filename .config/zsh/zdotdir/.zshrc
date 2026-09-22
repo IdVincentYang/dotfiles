@@ -27,7 +27,7 @@ if [[ "${__ASDF_DIRENV_SOURCED_PID:-}" != "$$" ]]; then
   fi
 fi
 
-case "$MY_PLATFORM" in
+case "$ZDOT_PLATFORM" in
   Darwin)
     [[ -f "$MYSH/alias.osx" ]] && source "$MYSH/alias.osx"
     [[ -f "$MYSH/utils.osx" ]] && source "$MYSH/utils.osx"
@@ -35,6 +35,10 @@ case "$MY_PLATFORM" in
   Linux)
     [[ -f "$MYSH/alias.linux" ]] && source "$MYSH/alias.linux"
     [[ -f "$MYSH/utils.linux" ]] && source "$MYSH/utils.linux"
+    ;;
+  Termux)
+    [[ -f "$MYSH/alias.termux" ]] && source "$MYSH/alias.termux"
+    [[ -f "$MYSH/utils.termux" ]] && source "$MYSH/utils.termux"
     ;;
  esac
 
@@ -71,9 +75,9 @@ if command -v fzf >/dev/null 2>&1 && [[ -f "$MYSH/fzf" ]]; then
 fi
 
 # Java defaults
-if [[ "$MY_PLATFORM" == "Darwin" && -x /usr/libexec/java_home ]]; then
+if [[ "$ZDOT_PLATFORM" == "Darwin" && -x /usr/libexec/java_home ]]; then
   export JAVA_HOME=$(/usr/libexec/java_home -v 11 2>/dev/null)
-elif [[ "$MY_PLATFORM" == "Linux" ]]; then
+elif [[ "$ZDOT_PLATFORM" == "Linux" ]]; then
   for java_dir in /usr/lib/jvm/java-11-openjdk-amd64 /usr/lib/jvm/java-11-openjdk /usr/lib/jvm/default-java; do
     if [[ -d "$java_dir" ]]; then
       export JAVA_HOME="$java_dir"
@@ -100,7 +104,7 @@ if [[ ! "${__CFBundleIdentifier:-}" =~ warp ]]; then
   fi
 fi
 
-platform_rc="$ZDOTDIR/${MY_PLATFORM}/.zshrc"
+platform_rc="$ZDOTDIR/${ZDOT_PLATFORM}/.zshrc"
 if [[ -f "$platform_rc" ]]; then
   source "$platform_rc"
 fi

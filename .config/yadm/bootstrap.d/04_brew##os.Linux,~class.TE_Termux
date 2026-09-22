@@ -1,0 +1,13 @@
+#!/bin/bash
+# vi:set ft=sh
+set -eu
+
+BOOTSTRAP_DIR=$(dirname "${BASH_SOURCE[0]}")
+LIB_HELPER="$BOOTSTRAP_DIR/lib/brew_helper.sh"
+
+source "$LIB_HELPER"
+
+BREW_BIN="/home/linuxbrew/.linuxbrew/bin/brew"
+
+echo "[BOOTSTRAP] [04_brew] Setting up Homebrew for Linux..."
+run_brew_install_logic "$BREW_BIN"

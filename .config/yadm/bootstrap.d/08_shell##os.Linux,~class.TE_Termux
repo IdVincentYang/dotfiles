@@ -14,20 +14,7 @@ if [ -f "$LOCAL_ENV" ]; then
     source "$LOCAL_ENV"
 fi
 
-# 2. Termux 快速通道 (Termux 通常直接用 ~/.zshrc，或者你可以统一架构)
-if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
-    echo "[BOOTSTRAP] Termux detected."
-    if ! command -v zsh >/dev/null 2>&1; then
-        pkg install -y zsh
-    fi
-    if [[ "$SHELL" != *"zsh"* ]]; then
-        chsh -s zsh
-    fi
-    # Termux 结束
-    exit 0
-fi
-
-# 3. 加载 Zsh 公共库
+# 2. 加载 Zsh 公共库
 if [ -f "$LIB_HELPER" ]; then
     source "$LIB_HELPER"
 else
@@ -53,15 +40,8 @@ fi
 # ==============================================================================
 # 步骤 2: 生成 ~/.zshenv (调用公共库)
 # ==============================================================================
-# 定义跨平台共享的 ZDOTDIR
 CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir"
-
-# 确保目录存在 (避免指向空目录导致 zsh 启动报错)
-if [ ! -d "$CONFIG_ZDOTDIR" ]; then
-    echo "[BOOTSTRAP] Warning: $CONFIG_ZDOTDIR does not exist. Creating it..."
-    mkdir -p "$CONFIG_ZDOTDIR"
-    # 你可能需要在这里 touch .zshrc 或者做些初始化
-fi
+mkdir -p "$CONFIG_ZDOTDIR"
 
 setup_zshenv "$CONFIG_ZDOTDIR"
 

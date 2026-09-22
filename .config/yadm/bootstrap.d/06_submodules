@@ -3,11 +3,6 @@
 
 set -eu
 
-if [[ -n "${TERMUX_APP_PID+x}" ]] || [[ "$(uname -o 2>/dev/null)" == *"Android"* ]]; then
-    echo "[BOOTSTRAP] [06_submodules] Skipping submodule sync on Termux."
-    exit 0
-fi
-
 LOCAL_ENV="$HOME/.local/.env"
 if [ -f "$LOCAL_ENV" ]; then
     source "$LOCAL_ENV"

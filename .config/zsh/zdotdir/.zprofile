@@ -81,7 +81,7 @@ case ":$PATH:" in
     ;;
 esac
 
-platform_profile="$ZDOTDIR/${MY_PLATFORM}/.zprofile"
+platform_profile="$ZDOTDIR/${ZDOT_PLATFORM}/.zprofile"
 if [[ -f "$platform_profile" ]]; then
   source "$platform_profile"
 fi

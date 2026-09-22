@@ -9,6 +9,71 @@
 
 ### install required apps
 
+#### Android Termux
+
+安装本仓库本身不依赖 Termux 插件。需要从 Android 桌面运行 Termux 快捷脚本时安装
+Termux:Widget；Termux:Styling 仅用于字体和配色，可选。插件应与 Termux 使用相同的
+安装来源。
+
+1. 安装基础工具
+
+```bash
+pkg update
+pkg install git openssh yadm
+```
+
+2. 固定 XDG 目标路径
+
+以下路径是 dotfiles 在 Termux 中的长期约定。这里的 `export` 只对当前安装 shell
+临时生效，用于确保 yadm 从一开始就把内部仓库放在预定的
+`$XDG_DATA_HOME/yadm/repo.git`；安装后的持久 shell 配置继续使用相同的值。
+
+```bash
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"
+```
+
+3. 配置仓库访问
+
+准备 GitHub SSH key。默认直接使用 `github.com`；只有需要区分多个 GitHub 账号或密钥时，
+才配置自定义 SSH Host alias。私钥和 `~/.ssh/config` 不加入 yadm。
+
+```bash
+ssh -T git@github.com
+```
+
+4. 使用 yadm 部署 dotfiles
+
+`yadm clone` 会把仓库克隆到 yadm 的内部仓库并将配置检出到 `$HOME`，无需另外执行
+`git clone`。执行前可确认 yadm 将使用预定目录：
+
+```bash
+yadm introspect repo
+```
+
+预期路径为：
+
+```text
+$HOME/.local/share/yadm/repo.git
+```
+
+```bash
+yadm clone --no-bootstrap git@github.com:IdVincentYang/dotfiles.git
+yadm config local.class TE_Termux
+yadm alt
+yadm bootstrap
+yadm status --short --untracked-files=no
+```
+
+`local.class` 是本机 yadm 的持久标识，必须在 `yadm alt` 前设置，用于选择
+Termux 专用的 bootstrap 文件。
+
+bootstrap 完成后重新打开 Termux，使 Zsh 和 XDG 环境生效。
+
 #### macOS
 
 新 macOS 迁移 dotfiles 的顺序：先在旧机器刷新备份并 push；新机器准备 Xcode
