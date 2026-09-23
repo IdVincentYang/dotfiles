@@ -127,19 +127,19 @@ restore-config-menu:
 
 # Base build dependencies
 core-develop-autoconf:
-    brew install autoconf
+    "{{justfile_directory()}}/just/package-install.sh" autoconf
 
 core-develop-automake:
-    brew install automake
+    "{{justfile_directory()}}/just/package-install.sh" automake
 
 core-util-p7zip:
-    brew install p7zip
+    "{{justfile_directory()}}/just/package-install.sh" p7zip
 
 core-util-tree:
-    brew install tree
+    "{{justfile_directory()}}/just/package-install.sh" tree
 
 core-productivity-zoxide:
-    brew install zoxide
+    "{{justfile_directory()}}/just/package-install.sh" zoxide
 
 ### fonts
 #   nerd fonts(https://github.com/ryanoasis/nerd-fonts/blob/master/readme_cn.md)
@@ -211,23 +211,23 @@ core-develop-asdf-install-menu:
 # Common CLI suite
 core-cli-bat:
     # bat -> cat: Clone of cat(1) with syntax highlighting and Git integration.
-    brew install bat
+    "{{justfile_directory()}}/just/package-install.sh" bat
 
 core-cli-btop:
     # btop -> top: Resource monitor. Enhanced top command.
-    brew install btop
+    "{{justfile_directory()}}/just/package-install.sh" btop
 
 core-cli-fd:
     # fd -> find: Simple, fast and user-friendly alternative to find.
-    brew install fd
+    "{{justfile_directory()}}/just/package-install.sh" fd
 
 core-cli-fzf:
     # fzf: Command-line fuzzy finder.
-    brew install fzf
+    "{{justfile_directory()}}/just/package-install.sh" fzf
 
 core-cli-ripgrep:
     # ripgrep -> find: Search tool like grep.
-    brew install ripgrep
+    "{{justfile_directory()}}/just/package-install.sh" ripgrep
 
 core-cli-ripgrep-termux:
     # ripgrep -> grep: Search tool like grep.
@@ -235,7 +235,7 @@ core-cli-ripgrep-termux:
 
 core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
-    brew install tealdeer
+    "{{justfile_directory()}}/just/package-install.sh" tealdeer
 
 # Network/sync tools
 # core-util-adwaita-icon-theme:
@@ -246,10 +246,10 @@ core-cli-grsync:
     brew install grsync librsvg
 
 core-cli-rsync:
-    brew install rsync
+    "{{justfile_directory()}}/just/package-install.sh" rsync
 
 core-cli-wget:
-    brew install wget
+    "{{justfile_directory()}}/just/package-install.sh" wget
 
 core-cli-yank:
     brew install yank
