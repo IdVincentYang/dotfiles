@@ -1,0 +1,25 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -Eeuo pipefail
+
+DOWNLOAD_DIR=/sdcard/Download/ytdl
+
+fail() {
+    printf '[yt-dlp] %s\n' "$*" >&2
+    exit 1
+}
+
+command -v termux-clipboard-get >/dev/null 2>&1 || fail 'termux-clipboard-get is missing; install the Termux:API app and the termux-api package.'
+command -v yt-dlp >/dev/null 2>&1 || fail 'yt-dlp is missing; run: just install core-media-yt-dlp-termux'
+
+url="$(termux-clipboard-get | tr -d '\r' | sed -n '1{s/^[[:space:]]*//;s/[[:space:]]*$//;p;}')"
+[[ -n "$url" ]] || fail 'The clipboard is empty.'
+
+case "$url" in
+    http://*|https://*) ;;
+    *) fail 'The clipboard does not contain an http(s) URL.' ;;
+esac
+
+mkdir -p "$DOWNLOAD_DIR"
+printf '[yt-dlp] downloading to %s\n' "$DOWNLOAD_DIR"
+yt-dlp --paths "$DOWNLOAD_DIR" "$url"
+printf '[yt-dlp] download finished\n'
