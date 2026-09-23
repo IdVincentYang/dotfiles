@@ -22,7 +22,9 @@ case "$platform" in
             echo "Termux pkg is required for platform termux." >&2
             exit 1
         fi
-        exec pkg install -y "$@"
+        # The repository index is still refreshed by pkg when needed, but the
+        # mirror HEAD check is avoided for each separate menu selection.
+        TERMUX_PKG_NO_MIRROR_SELECT=1 pkg install -y "$@"
         ;;
     *)
         echo "Unsupported platform: ${platform}" >&2

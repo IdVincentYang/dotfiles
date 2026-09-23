@@ -5,7 +5,7 @@ set -eu
 
 echo "[BOOTSTRAP] [05_coretools] Installing Termux core tools..."
 
-pkg install -y \
+TERMUX_PKG_NO_MIRROR_SELECT=1 pkg install -y \
     git git-lfs just yadm vim zsh curl \
     tree fzf fd zoxide direnv
 

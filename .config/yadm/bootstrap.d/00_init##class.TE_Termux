@@ -30,5 +30,5 @@ EOF
 write_xdg_config "$XDG_CONFIG"
 
 echo "[BOOTSTRAP] Installing Termux base packages..."
-pkg update -y
-pkg upgrade -y
+TERMUX_PKG_NO_MIRROR_SELECT=1 pkg update -y
+TERMUX_PKG_NO_MIRROR_SELECT=1 pkg upgrade -y
