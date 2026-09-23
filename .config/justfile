@@ -258,6 +258,10 @@ core-cli-yank:
 core-media-yt-dlp:
     brew install yt-dlp
 
+# Termux packages yt-dlp under its Python package name.
+core-media-yt-dlp-termux:
+    pkg install -y python-yt-dlp
+
 core-util-essentials-darwin:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -689,6 +693,10 @@ system-db-postgresql16:
     brew install postgresql@16
     brew services start postgresql@16
 
+# Termux provides PostgreSQL without versioned Homebrew formula names.
+system-db-postgresql16-termux:
+    pkg install -y postgresql
+
 # --- cli: developer tooling & productivity ---
 
 cli-productivity-mas-darwin:
@@ -699,7 +707,7 @@ cli-productivity-mas-darwin:
 cli-develop-aichat:
     # aichat CLI; functions repo can be managed later via yadm submodule.
     # submodule init in yadm bootstrap stage: yadm submodule update --init
-    brew install aichat
+    "{{justfile_directory()}}/just/package-install.sh" aichat
 
 cli-develop-npm-globals:
     #!/usr/bin/env bash
@@ -803,7 +811,7 @@ cli-develop-git-archive-all:
 
 cli-develop-onefetch:
     # Git repo summary in terminal.
-    brew install onefetch
+    "{{justfile_directory()}}/just/package-install.sh" onefetch
 
 gui-develop-fork-darwin:
     # Git GUI client (Fork).
@@ -826,12 +834,16 @@ cli-develop-rustup:
     brew install rustup
     rustup default stable
 
+# Termux uses its packaged Rust toolchain instead of rustup.
+cli-develop-rustup-termux:
+    pkg install -y rust
+
 cli-develop-tokei:
     # Count source lines of code.
-    brew install tokei
+    "{{justfile_directory()}}/just/package-install.sh" tokei
 
 cli-develop-cmake:
-    brew install cmake
+    "{{justfile_directory()}}/just/package-install.sh" cmake
 
 gui-develop-beyond-compare-darwin:
     # File diff/merge tool. To reset trial state, remove ~/Library/Application Support/Beyond Compare/registry.dat
@@ -857,7 +869,7 @@ gui-develop-cc-switch-restore-darwin:
 
 ### Network / debugging suite
 cli-develop-iperf3:
-    brew install iperf3
+    "{{justfile_directory()}}/just/package-install.sh" iperf3
 
 cli-develop-iproute2mac-darwin:
     brew install iproute2mac
