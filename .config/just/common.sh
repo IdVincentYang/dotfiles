@@ -28,3 +28,14 @@ split_recipe() {
     done
     printf '%s|%s|%s|%s' "$primary" "$domain" "$name" "$os"
 }
+
+recipe_uses_brew() {
+    local recipe="$1"
+    awk -v target="$recipe" '
+        $0 == target ":" { inside=1; next }
+        inside && $0 == "" { next }
+        inside && $0 !~ /^[[:space:]]/ { inside=0 }
+        inside && $0 ~ /(^|[[:space:]])brew([[:space:]]|$)/ { found=1 }
+        END { exit(found ? 0 : 1) }
+    ' "$JUSTFILE_PATH"
+}

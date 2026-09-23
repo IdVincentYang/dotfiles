@@ -76,6 +76,9 @@ if [[ "${#recipes[@]}" -gt 0 ]]; then
             elif has_platform_specific_name "$r_name"; then
                 continue
             fi
+            if [[ "$os_filter" == "termux" && -z "${r_os:-}" ]] && recipe_uses_brew "$recipe"; then
+                continue
+            fi
         fi
         filtered+=("$recipe")
     done

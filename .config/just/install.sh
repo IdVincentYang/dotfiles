@@ -113,6 +113,11 @@ for pkg in "${packages[@]}"; do
     IFS='|' read -r pkg_name pkg_os_hint <<<"$(normalize_spec "$pkg")"
     target=""
     if target=$(select_recipe "$pkg_name" "$pkg_os_hint"); then
+        IFS='|' read -r _target_main _target_domain _target_name target_os <<<"$(split_recipe "$target")"
+        if [[ "$TARGET_PLATFORM" == "termux" && -z "${target_os:-}" ]] && recipe_uses_brew "$target"; then
+            echo "Skipped $pkg: recipe $target uses Homebrew and has no Termux implementation." >&2
+            continue
+        fi
         echo "Installing ${target}..."
         just --justfile "$JUSTFILE_PATH" "$target"
     else
