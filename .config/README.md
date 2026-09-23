@@ -52,10 +52,10 @@ just system-config-termux-widget-restore-termux
 管理范围包括 `~/.termux/widget/dynamic_shortcuts` 和 `~/.shortcuts`。
 `~/.local/private/termux.env` 等凭据文件不在备份范围内。
 
-其中 `download video` 会读取 Termux 剪贴板中的 URL，并将内容下载到
-`/sdcard/Download/ytdl`。它需要 Android 端的 Termux:API 插件、Termux
-中的 `termux-api` 包，以及已安装的 `yt-dlp`（可运行
-`just install core-media-yt-dlp-termux`）。
+其中 `download video` 会读取 Termux 剪贴板中的 URL，并按 `,ydv` 的画质、
+编码和命名选项下载到 `/sdcard/Download/ytdl`。它需要 Android 端的
+Termux:API 插件、Termux 中的 `termux-api` 包，以及已安装的 `yt-dlp`
+（可运行 `just install core-media-yt-dlp-termux`）。
 
 恢复后，需要在 Termux:Widget 中执行 `REMOVE SHORTCUTS`，再执行
 `CREATE SHORTCUTS`，让 Android 启动器重新生成快捷方式。

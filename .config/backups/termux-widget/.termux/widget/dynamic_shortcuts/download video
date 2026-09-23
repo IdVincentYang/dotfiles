@@ -2,6 +2,8 @@
 set -Eeuo pipefail
 
 DOWNLOAD_DIR=/sdcard/Download/ytdl
+YDV_RES=${MY_YDV_RES:-1080}
+YDV_FORMAT="bv[ext=mp4][height<=${YDV_RES}]+ba[ext=m4a]/b[ext=mp4][height<=?${YDV_RES}]/bv*[height<=${YDV_RES}]+ba/b[height<=?${YDV_RES}]"
 
 fail() {
     printf '[yt-dlp] %s\n' "$*" >&2
@@ -23,5 +25,12 @@ esac
 
 mkdir -p "$DOWNLOAD_DIR"
 printf '[yt-dlp] downloading to %s\n' "$DOWNLOAD_DIR"
-yt-dlp --paths "$DOWNLOAD_DIR" "$url"
+yt-dlp \
+    --paths "$DOWNLOAD_DIR" \
+    --no-playlist \
+    --console-title \
+    --format "$YDV_FORMAT" \
+    --sort 'vcodec:h265' \
+    --output '%(title)s %(id)s.%(ext)s' \
+    "$url"
 printf '[yt-dlp] download finished\n'
