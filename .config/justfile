@@ -53,6 +53,10 @@ help:
     '      - Show all recipes.' \
     '  just platform-info' \
     '      - Show detected platform for debugging.' \
+    '  just --evaluate primary_categories' \
+    '      - Show the available primary categories.' \
+    '  just --evaluate domain_categories' \
+    '      - Show the available domain categories.' \
     '' \
     'Naming convention: <primary>-<domain>-<name>[-<os>], for example core-develop-git-darwin.'
 
