@@ -133,10 +133,22 @@ restore-config-menu:
     JUSTFILE_PATH="{{justfile()}}" just/restore.sh "${selected[@]}"
 
 system-config-termux-widget-backup-termux:
-    "{{justfile_directory()}}/just/termux_widget_config.sh" backup
+    test "$(just/platform.sh)" = termux
+    "{{justfile_directory()}}/just/config_snapshot.sh" backup \
+        --source-root "$HOME" \
+        --backup-root "$HOME/.config/backups/termux-widget" \
+        --label termux-widget \
+        -- ".termux/widget/dynamic_shortcuts" ".shortcuts"
 
 system-config-termux-widget-restore-termux:
-    "{{justfile_directory()}}/just/termux_widget_config.sh" restore
+    test "$(just/platform.sh)" = termux
+    "{{justfile_directory()}}/just/config_snapshot.sh" restore \
+        --source-root "$HOME" \
+        --backup-root "$HOME/.config/backups/termux-widget" \
+        --before-root "$HOME/.local/state/termux-widget" \
+        --label termux-widget \
+        -- ".termux/widget/dynamic_shortcuts" ".shortcuts"
+    @echo '[termux-widget] Open Termux:Widget and choose REMOVE SHORTCUTS, then CREATE SHORTCUTS.'
 
 # --- core: base toolchain & CLI essentials ---
 
