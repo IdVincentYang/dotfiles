@@ -260,7 +260,7 @@ core-media-yt-dlp:
 
 # Termux packages yt-dlp under its Python package name.
 core-media-yt-dlp-termux:
-    pkg install -y python-yt-dlp
+    TERMUX_PKG_NO_MIRROR_SELECT=1 pkg install -y python-yt-dlp
 
 core-util-essentials-darwin:
     #!/usr/bin/env bash
@@ -695,7 +695,7 @@ system-db-postgresql16:
 
 # Termux provides PostgreSQL without versioned Homebrew formula names.
 system-db-postgresql16-termux:
-    pkg install -y postgresql
+    TERMUX_PKG_NO_MIRROR_SELECT=1 pkg install -y postgresql
 
 # --- cli: developer tooling & productivity ---
 
@@ -836,7 +836,7 @@ cli-develop-rustup:
 
 # Termux uses its packaged Rust toolchain instead of rustup.
 cli-develop-rustup-termux:
-    pkg install -y rust
+    TERMUX_PKG_NO_MIRROR_SELECT=1 pkg install -y rust
 
 cli-develop-tokei:
     # Count source lines of code.
