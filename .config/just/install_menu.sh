@@ -17,8 +17,15 @@ if [[ $# -gt 0 ]]; then
 fi
 
 list_args=()
+has_os_filter=0
 if [[ ${#filters[@]} -gt 0 ]]; then
     list_args=("${filters[@]}")
+    for filter in "${filters[@]}"; do
+        [[ "$filter" == os=* ]] && has_os_filter=1
+    done
+fi
+if [[ "$has_os_filter" -eq 0 ]]; then
+    list_args+=("os=$TARGET_PLATFORM")
 fi
 list_args+=("raw=lines")
 

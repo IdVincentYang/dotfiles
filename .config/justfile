@@ -40,6 +40,7 @@ help:
     '      - Resolve recipe names for the current platform and run them.' \
     '  just install-menu [main=core] [domain=develop] [os=linux]' \
     '      - Interactive multi-select install; uses fzf when available.' \
+    '      - Without os=..., only the current platform and generic recipes are shown.' \
     '  just backup-config-menu' \
     '      - Interactive multi-select backup for config recipes.' \
     '  just restore-config-menu' \
