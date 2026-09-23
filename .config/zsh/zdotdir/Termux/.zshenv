@@ -1,4 +1,10 @@
 # Termux-specific environment settings belong here.
+termux_private_env="${HOME}/.local/private/termux.env"
+if [[ -r "$termux_private_env" ]]; then
+  source "$termux_private_env"
+fi
+unset termux_private_env
+
 if (( $+commands[direnv] )); then
   export ASDF_DIRENV_BIN="$commands[direnv]"
 fi

@@ -1,0 +1,11 @@
+PRIVATE_ENV="${HOME}/.local/private/termux.env"
+
+if [ ! -r "$PRIVATE_ENV" ]; then
+    printf 'Missing private environment file: %s\n' "$PRIVATE_ENV" >&2
+    exit 1
+fi
+
+. "$PRIVATE_ENV"
+
+rsync -e "sshpass -e ssh -p 1022" --progress -avs "$HOME/storage/dcim/Camera/" yangws@192.168.1.10:/volume1/PhotoGallery/Pixel8Pro/
+sshpass -e ssh -p 1022 yangws@192.168.1.10 "chmod -R a+r,a-x /volume1/PhotoGallery/Pixel8Pro && chmod a+x /volume1/PhotoGallery/Pixel8Pro"
