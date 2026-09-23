@@ -39,3 +39,18 @@ just restore-config-menu
 - 不保存 cache、日志、token、凭据等不适合进入 dotfiles 的内容。
 
 macOS 应用配置的详细规则见 [`docs/macos-app-config-backup-restore.md`](docs/macos-app-config-backup-restore.md)。
+
+## Termux:Widget 配置
+
+Termux:Widget 的脚本属于可迁移配置，由 Termux 专用 recipe 备份和恢复：
+
+```sh
+just system-config-termux-widget-backup-termux
+just system-config-termux-widget-restore-termux
+```
+
+管理范围包括 `~/.termux/widget/dynamic_shortcuts` 和 `~/.shortcuts`。
+`~/.local/private/termux.env` 等凭据文件不在备份范围内。
+
+恢复后，需要在 Termux:Widget 中执行 `REMOVE SHORTCUTS`，再执行
+`CREATE SHORTCUTS`，让 Android 启动器重新生成快捷方式。
