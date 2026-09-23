@@ -40,6 +40,25 @@ while IFS= read -r line; do
 done < <(collect_recipes || true)
 
 filtered=()
+platform_specific_names=()
+if [[ -n "$os_filter" && "${#recipes[@]}" -gt 0 ]]; then
+    for recipe in "${recipes[@]}"; do
+        IFS='|' read -r _r_main _r_domain r_name r_os <<<"$(split_recipe "$recipe")"
+        if [[ "${r_os:-}" == "$os_filter" ]]; then
+            platform_specific_names+=("$r_name")
+        fi
+    done
+fi
+
+has_platform_specific_name() {
+    local candidate="$1"
+    local name
+    for name in "${platform_specific_names[@]}"; do
+        [[ "$name" == "$candidate" ]] && return 0
+    done
+    return 1
+}
+
 if [[ "${#recipes[@]}" -gt 0 ]]; then
     for recipe in "${recipes[@]}"; do
         IFS='|' read -r r_main r_domain r_name r_os <<<"$(split_recipe "$recipe")"
@@ -54,6 +73,8 @@ if [[ "${#recipes[@]}" -gt 0 ]]; then
         if [[ -n "$os_filter" ]]; then
             if [[ -n "${r_os:-}" ]]; then
                 [[ "$r_os" != "$os_filter" ]] && continue
+            elif has_platform_specific_name "$r_name"; then
+                continue
             fi
         fi
         filtered+=("$recipe")

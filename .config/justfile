@@ -230,10 +230,6 @@ core-cli-ripgrep:
     # ripgrep -> find: Search tool like grep.
     "{{justfile_directory()}}/just/package-install.sh" ripgrep
 
-core-cli-ripgrep-termux:
-    # ripgrep -> grep: Search tool like grep.
-    pkg install -y ripgrep
-
 core-cli-tealdeer:
     # tealdeer -> man: short TLDR client.
     "{{justfile_directory()}}/just/package-install.sh" tealdeer
