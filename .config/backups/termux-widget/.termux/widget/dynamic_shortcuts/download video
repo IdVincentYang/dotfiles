@@ -11,7 +11,9 @@ fail() {
 command -v termux-clipboard-get >/dev/null 2>&1 || fail 'termux-clipboard-get is missing; install the Termux:API app and the termux-api package.'
 command -v yt-dlp >/dev/null 2>&1 || fail 'yt-dlp is missing; run: just install core-media-yt-dlp-termux'
 
-url="$(termux-clipboard-get | tr -d '\r' | sed -n '1{s/^[[:space:]]*//;s/[[:space:]]*$//;p;}')"
+if ! url="$(timeout 10 termux-clipboard-get | tr -d '\r' | sed -n '1{s/^[[:space:]]*//;s/[[:space:]]*$//;p;}')"; then
+    fail 'Unable to read the clipboard; install and open the Termux:API Android plugin.'
+fi
 [[ -n "$url" ]] || fail 'The clipboard is empty.'
 
 case "$url" in
