@@ -147,6 +147,43 @@ core-productivity-zoxide:
 core-media-jetbrains-mono-nerd-font:
     brew install font-jetbrains-mono-nerd-font
 
+# Download the official Nerd Font archive and set a Termux font with Powerline glyphs.
+# The previous font is kept once as ~/.termux/font.ttf.before-jetbrains-mono-nerd-font.
+core-media-jetbrains-mono-nerd-font-termux:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    font_dir="${HOME}/.termux"
+    font_file="${font_dir}/font.ttf"
+    backup_file="${font_file}.before-jetbrains-mono-nerd-font"
+    temp_dir="$(mktemp -d)"
+    trap 'rm -rf -- "$temp_dir"' EXIT
+
+    archive="${temp_dir}/JetBrainsMono.tar.xz"
+    curl -fL --retry 3 \
+        "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz" \
+        -o "$archive"
+    tar -xJf "$archive" -C "$temp_dir"
+
+    source_font="$(find "$temp_dir" -type f -name 'JetBrainsMonoNerdFontMono-Regular.ttf' -print -quit)"
+    if [[ -z "$source_font" ]]; then
+        echo "JetBrainsMonoNerdFontMono-Regular.ttf was not found in the archive." >&2
+        exit 1
+    fi
+
+    mkdir -p "$font_dir"
+    if [[ -f "$font_file" && ! -e "$backup_file" ]]; then
+        cp -p "$font_file" "$backup_file"
+    fi
+
+    staged_font="${temp_dir}/font.ttf"
+    install -m 600 "$source_font" "$staged_font"
+    mv "$staged_font" "$font_file"
+
+    if command -v termux-reload-settings >/dev/null 2>&1; then
+        termux-reload-settings || echo "Warning: Termux did not reload settings; restart the app if needed." >&2
+    fi
+
 # asdf setup flow
 core-develop-asdf:
     brew install asdf
