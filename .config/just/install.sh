@@ -40,7 +40,7 @@ normalize_spec() {
     done
 
     case "$base" in
-        core-*|system-*|cli-*|gui-*|extra-*)
+        core-*|system-*|cli-*|gui-*|extra-*|build-*)
             local trimmed="${base#*-}"
             if [[ "$trimmed" == *"-"* ]]; then
                 base="${trimmed#*-}"
