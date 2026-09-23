@@ -30,7 +30,7 @@ yt-dlp \
     --no-playlist \
     --console-title \
     --format "$YDV_FORMAT" \
-    --sort 'vcodec:h265' \
+    -S 'vcodec:h265' \
     --output '%(title)s %(id)s.%(ext)s' \
     "$url"
 printf '[yt-dlp] download finished\n'
