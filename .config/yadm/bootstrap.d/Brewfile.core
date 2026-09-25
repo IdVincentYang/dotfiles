@@ -5,4 +5,6 @@ brew "just"     # Task Runner
 brew "yadm"     # Dotfiles Manager
 brew "vim"      # Editor
 brew "zsh"      # Shell
+brew "gnu-sed" if OS.mac?
+brew "gawk" if OS.mac?
 # brew "tmux"   # (Optional: Add if needed immediately)

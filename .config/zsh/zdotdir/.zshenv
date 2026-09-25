@@ -20,6 +20,16 @@ fi
 
 export LANG="${LANG:-en_US.UTF-8}"
 
+# Add executable directories without duplicating entries in PATH.
+__zdot_prepend_path() {
+  local path_entry="$1"
+  [[ -d "$path_entry" ]] || return 0
+  case ":$PATH:" in
+    *:"$path_entry":*) ;;
+    *) path=("$path_entry" $path) ;;
+  esac
+}
+
 platform_env="$ZDOTDIR/${ZDOT_PLATFORM}/.zshenv"
 if [[ -f "$platform_env" ]]; then
   source "$platform_env"
@@ -42,16 +52,6 @@ if [[ -z "${JAVA_HOME:-}" ]]; then
     unset java_dir
   fi
 fi
-
-# Add executable directories without duplicating entries in PATH.
-__zdot_prepend_path() {
-  local path_entry="$1"
-  [[ -d "$path_entry" ]] || return 0
-  case ":$PATH:" in
-    *:"$path_entry":*) ;;
-    *) path=("$path_entry" $path) ;;
-  esac
-}
 
 # Configure XDG data locations only when Homebrew's rustup is installed.
 rustup_bin="${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/opt/rustup/bin}"

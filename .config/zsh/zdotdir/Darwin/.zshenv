@@ -5,6 +5,12 @@ if [[ "${__ZDOT_DARWIN_ZSHENV_LOADED:-}" != "1" ]]; then
   export __ZDOT_DARWIN_ZSHENV_LOADED=1
 fi
 
+# Prefer Homebrew GNU sed and awk when available.
+if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  __zdot_prepend_path "$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin"
+  __zdot_prepend_path "$HOMEBREW_PREFIX/opt/gawk/libexec/gnubin"
+fi
+
 # OrbStack may add command paths or environment needed by scripts.
 if [[ -f "$HOME/.orbstack/shell/init.zsh" ]]; then
   source "$HOME/.orbstack/shell/init.zsh" >/dev/null 2>&1 || :
