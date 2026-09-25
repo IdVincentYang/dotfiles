@@ -1,0 +1,8 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -Eeuo pipefail
+
+if pkill -x sshd; then
+    printf '[sshd] stopped\n'
+else
+    printf '[sshd] is not running\n'
+fi
