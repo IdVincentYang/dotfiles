@@ -1,0 +1,51 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -Eeuo pipefail
+
+while :; do
+    if pgrep -x sshd >/dev/null 2>&1; then
+        printf '\n[sshd] running\n'
+    else
+        printf '\n[sshd] stopped\n'
+    fi
+
+    printf '1) Start sshd\n'
+    printf '2) Stop sshd\n'
+    printf 'q) Quit\n'
+    IFS= read -r -p 'Select: ' action || exit 0
+
+    case "$action" in
+        1)
+            if pgrep -x sshd >/dev/null 2>&1; then
+                printf '[sshd] already running\n'
+            else
+                sshd -D -e >/dev/null 2>&1 </dev/null &
+                sleep 1
+                if pgrep -x sshd >/dev/null 2>&1; then
+                    printf '[sshd] started; keep this session open\n'
+                else
+                    printf '[sshd] failed to start\n' >&2
+                fi
+            fi
+            ;;
+        2)
+            if pkill -x sshd; then
+                while pgrep -x sshd >/dev/null 2>&1; do
+                    sleep 0.2
+                done
+                printf '[sshd] stopped\n'
+            else
+                printf '[sshd] is not running\n'
+            fi
+            ;;
+        q|Q)
+            if pgrep -x sshd >/dev/null 2>&1; then
+                printf '[sshd] stop it before quitting; this session keeps it alive\n'
+            else
+                exit 0
+            fi
+            ;;
+        *)
+            printf '[sshd] invalid selection\n' >&2
+            ;;
+    esac
+done
