@@ -5,7 +5,9 @@ set -eu
 
 LOCAL_ENV="$HOME/.local/.env"
 if [ -f "$LOCAL_ENV" ]; then
+    ZDOT_SKIP_LOCAL_ENV_D=1
     source "$LOCAL_ENV"
+    unset ZDOT_SKIP_LOCAL_ENV_D
 fi
 
 echo "[BOOTSTRAP] [06_submodules] Syncing yadm submodules..."

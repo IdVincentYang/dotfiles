@@ -1,5 +1,8 @@
 #!/bin/bash
 # file: bootstrap.d/lib/env_helper.sh
+#
+# 目标：为各平台 bootstrap 提供用户级 shell 环境配置的生成工具。
+# 结果：~/.local/.env 保存共享环境设置并加载 ~/.local/env.d 中的本地环境片段。
 
 # 定义主环境文件和模块化配置目录
 ENV_FILE="$HOME/.local/.env"
@@ -16,6 +19,7 @@ reset_env_file() {
     # 确保主目录和模块化目录都存在
     mkdir -p "$ENV_DIR"
     mkdir -p "$ENV_D_DIR"
+    chmod 700 "$ENV_D_DIR"
 
     echo "[ENV_HELPER] Overwriting $ENV_FILE ..."
     cat > "$ENV_FILE" <<EOF
@@ -24,8 +28,8 @@ reset_env_file() {
 # This file contains XDG Base Directory definitions and Global Environment Variables.
 
 # 1. Export Self Path & Config Dir
-export MY_LOCAL_ENV="$ENV_FILE"
-export MY_ENV_D="$ENV_D_DIR"
+export MY_LOCAL_ENV="\$HOME/.local/.env"
+export MY_LOCAL_ENV_D="\$HOME/.local/env.d"
 
 EOF
 }
@@ -70,6 +74,15 @@ write_xdg_config() {
         # 使用间接引用获取变量值
         local dir_path="${!var}"
         if [ -n "$dir_path" ]; then
+            # Linux XDG_RUNTIME_DIR (normally /run/user/$UID) is managed by the
+            # login/session manager. Do not try to create it as an unprivileged
+            # bootstrap process; continue creating the user-owned XDG folders.
+            if [ "$var" = "XDG_RUNTIME_DIR" ] && [[ "$dir_path" == /run/user/* ]]; then
+                if [ ! -d "$dir_path" ]; then
+                    echo "  -> Runtime directory is session-managed and not present: $dir_path"
+                fi
+                continue
+            fi
             if [ ! -d "$dir_path" ]; then
                 echo "  -> Creating: $dir_path"
                 mkdir -p "$dir_path"
@@ -93,6 +106,30 @@ append_to_env() {
     } >> "$ENV_FILE"
 }
 
+# --- 函数: 在主环境文件末尾加载本机/工具环境片段 ---
+# Keep this block Bash-compatible because bootstrap scripts also source .local/.env.
+append_env_fragments_loader() {
+    cat >> "$ENV_FILE" <<'EOF'
+
+# Load local environment fragments after the shared XDG and Homebrew settings.
+# Bootstrap scripts set ZDOT_SKIP_LOCAL_ENV_D to avoid importing user secrets.
+if [[ -z "${ZDOT_SKIP_LOCAL_ENV_D:-}" && -n "${MY_LOCAL_ENV_D:-}" && -d "$MY_LOCAL_ENV_D" ]]; then
+    __zdot_load_local_env_d() {
+        local env_file
+        if [[ -n "${ZSH_VERSION:-}" ]]; then
+            setopt local_options null_glob
+        fi
+        for env_file in "$MY_LOCAL_ENV_D"/*; do
+            [[ -f "$env_file" ]] || continue
+            . "$env_file"
+        done
+    }
+    __zdot_load_local_env_d
+    unset -f __zdot_load_local_env_d
+fi
+EOF
+}
+
 # --- [新] 函数: 创建模块化应用配置 ---
 # 职责: 供 Justfile 或其他安装脚本调用，生成独立的 env 文件
 # 参数 $1: 文件名 (例如 go.env)
@@ -108,4 +145,5 @@ write_app_env() {
 # Generated for $filename
 $content
 EOF
+    chmod 600 "$target_file"
 }

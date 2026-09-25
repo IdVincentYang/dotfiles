@@ -9,7 +9,9 @@ CONFIG_ZDOTDIR="$HOME/.config/zsh/zdotdir"
 
 echo "[BOOTSTRAP] Configuring Termux shell environment..."
 
+ZDOT_SKIP_LOCAL_ENV_D=1
 source "$LOCAL_ENV"
+unset ZDOT_SKIP_LOCAL_ENV_D
 source "$LIB_HELPER"
 
 mkdir -p "$CONFIG_ZDOTDIR"

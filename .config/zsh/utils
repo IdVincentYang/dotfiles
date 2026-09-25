@@ -1,5 +1,33 @@
 # vi: set ft=sh:
 
+# 预览：只打印 Markdown 中的 bash/sh 代码块，不执行。
+runmd_dummy() {
+    if [[ -z "${1:-}" ]]; then
+        echo "用法: runmd_dummy <markdown文件>" >&2
+        return 1
+    fi
+    if [[ ! -r "$1" ]]; then
+        echo "无法读取 Markdown 文件: $1" >&2
+        return 1
+    fi
+
+    sed -nE '/^```(bash|sh)/,/^```$/p' "$1" | sed -E 's/^```.*//'
+}
+
+# 子 Shell 执行：代码块在同一个 Bash 子进程中运行，变量和目录切换不影响当前终端。
+runmd() {
+    local md_script
+    md_script="$(runmd_dummy "$@")" || return $?
+    bash -c "$md_script"
+}
+
+# 当前 Shell 执行：在当前 Zsh 中 eval，变量和目录切换会保留。
+runmd_here() {
+    local md_script
+    md_script="$(runmd_dummy "$@")" || return $?
+    eval "$md_script"
+}
+
 function ,interval() {
     local _ARGC=$#
     if [[ $_ARGC -eq 0 ]]; then

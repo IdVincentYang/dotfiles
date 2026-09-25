@@ -4,13 +4,7 @@ set -eu
 
 echo "[BOOTSTRAP] [10_vim] Configuring Vim..."
 
-# 1. 加载环境变量 (Termux 由 00_init 生成，Ubuntu 由 04_brew 生成)
-LOCAL_ENV="$HOME/.local/.env"
-if [ -f "$LOCAL_ENV" ]; then
-    source "$LOCAL_ENV"
-fi
-
-# 2. 检查 Vim 是否存在
+# 1. 检查 Vim 是否存在
 if ! command -v vim >/dev/null 2>&1; then
     echo "[BOOTSTRAP] Error: Vim not found. Run the platform initialization first."
     exit 1

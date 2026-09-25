@@ -10,15 +10,31 @@ if [[ -f "$MYSH/zshrc" ]]; then
   source "$MYSH/zshrc"
 fi
 
+# Keep legacy asdf shell hooks in interactive shells; executable shims are
+# already placed in PATH by .zshenv for scripts.
+if command -v asdf >/dev/null 2>&1 && [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  asdf_shell="$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
+  if [[ -f "$asdf_shell" ]]; then
+    source "$asdf_shell"
+  fi
+  unset asdf_shell
+fi
+
 if [[ -f "$MYSH/alias" ]]; then
   source "$MYSH/alias"
+fi
+
+# PM2 alias is an interactive convenience; scripts should invoke authbind
+# explicitly when they need it.
+if command -v pm2 >/dev/null 2>&1 && command -v authbind >/dev/null 2>&1; then
+  alias pm2='authbind --deep pm2'
 fi
 
 if [[ -f "$MYSH/utils" ]]; then
   source "$MYSH/utils"
 fi
 
-# Ensure asdf-direnv hook is available even in non-login shells.
+# Provide the asdf-direnv hook in interactive login and non-login shells.
 if [[ "${__ASDF_DIRENV_SOURCED_PID:-}" != "$$" ]]; then
   asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
   if [[ -f "$asdf_direnv_rc" ]]; then
@@ -72,18 +88,6 @@ fi
 # fzf configuration
 if command -v fzf >/dev/null 2>&1 && [[ -f "$MYSH/fzf" ]]; then
   source "$MYSH/fzf"
-fi
-
-# Java defaults
-if [[ "$ZDOT_PLATFORM" == "Darwin" && -x /usr/libexec/java_home ]]; then
-  export JAVA_HOME=$(/usr/libexec/java_home -v 11 2>/dev/null)
-elif [[ "$ZDOT_PLATFORM" == "Linux" ]]; then
-  for java_dir in /usr/lib/jvm/java-11-openjdk-amd64 /usr/lib/jvm/java-11-openjdk /usr/lib/jvm/default-java; do
-    if [[ -d "$java_dir" ]]; then
-      export JAVA_HOME="$java_dir"
-      break
-    fi
-  done
 fi
 
 # Optional terminal plugins

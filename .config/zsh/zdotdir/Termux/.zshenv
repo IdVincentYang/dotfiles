@@ -1,9 +1,10 @@
-# Termux-specific environment settings belong here.
-termux_private_env="${HOME}/.local/private/termux.env"
-if [[ -r "$termux_private_env" ]]; then
-  source "$termux_private_env"
+# Termux package commands should be available without relying on a login shell.
+if [[ -n "${PREFIX:-}" && -d "$PREFIX/bin" ]]; then
+  case ":$PATH:" in
+    *:"$PREFIX/bin":*) ;;
+    *) path=("$PREFIX/bin" $path) ;;
+  esac
 fi
-unset termux_private_env
 
 if (( $+commands[direnv] )); then
   export ASDF_DIRENV_BIN="$commands[direnv]"

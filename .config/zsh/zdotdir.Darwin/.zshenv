@@ -24,9 +24,6 @@ if [ -z "${__ZDOTLOADED}" ]; then
     # Define home env variables
     export MYSH="$HOME/.config/zsh"
 
-    # Define XDG like system dirs
-    source "${MYSH}/xdg_dirs"
-
     # set variable __ZDOTLOADED for dot file load track
     export __ZDOTLOADED="$__ZDOTLOADED:$ZDOTDIR/.zshenv"
 fi

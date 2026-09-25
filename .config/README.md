@@ -50,7 +50,7 @@ just system-config-termux-widget-restore-termux
 ```
 
 管理范围包括 `~/.termux/widget/dynamic_shortcuts` 和 `~/.shortcuts`。
-`~/.local/private/termux.env` 等凭据文件不在备份范围内。
+`~/.local/env.d/*.env` 等机器私有环境片段不在备份范围内。
 
 其中 `download video` 会读取 Termux 剪贴板中的 URL，并按 `,ydv` 的画质、
 编码和命名选项下载到 `/sdcard/Download/ytdl`。它需要 Android 端的

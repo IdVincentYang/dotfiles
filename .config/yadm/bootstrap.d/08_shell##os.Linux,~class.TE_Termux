@@ -11,7 +11,9 @@ echo "[BOOTSTRAP] Configuring Linux Shell environment..."
 # 1. 加载环境
 LOCAL_ENV="$HOME/.local/.env"
 if [ -f "$LOCAL_ENV" ]; then
+    ZDOT_SKIP_LOCAL_ENV_D=1
     source "$LOCAL_ENV"
+    unset ZDOT_SKIP_LOCAL_ENV_D
 fi
 
 # 2. 加载 Zsh 公共库

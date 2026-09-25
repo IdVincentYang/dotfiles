@@ -28,6 +28,7 @@ export XDG_VIDEOS_DIR="\${HOME}/Movies"
 EOF
 
 write_xdg_config "$XDG_CONFIG"
+append_env_fragments_loader
 
 echo "[BOOTSTRAP] Installing Termux base packages..."
 TERMUX_PKG_NO_MIRROR_SELECT=1 pkg update -y

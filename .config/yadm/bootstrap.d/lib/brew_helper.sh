@@ -203,16 +203,22 @@ run_brew_install_logic() {
         # 使用 read -d '' 将多行文本读入变量
         read -r -d '' BREW_ENV_CONTENT <<EOF || true
 # Homebrew Mirror Settings
-$(env | grep "^HOMEBREW_" | sed 's/^/export /')
+$(env | grep "^HOMEBREW_" | grep -v '^HOMEBREW_CURL_PATH=' | sed 's/^/export /')
 
 # Initialize Homebrew Path
 if [ -x "$target_brew_bin" ]; then
     eval "\$($target_brew_bin shellenv)"
 fi
+
+# Configure Homebrew's curl when the formula is installed.
+if [ -n "\${HOMEBREW_PREFIX:-}" ] && [ -x "\$HOMEBREW_PREFIX/opt/curl/bin/curl" ]; then
+    export HOMEBREW_CURL_PATH="\$HOMEBREW_PREFIX/opt/curl/bin/curl"
+fi
 EOF
         
         # 调用 env_helper 追加配置
         append_to_env "Homebrew Configuration (Added by 04_brew)" "$BREW_ENV_CONTENT"
+        append_env_fragments_loader
         
         # 5. 加载到当前 Shell，供后续脚本使用
         eval "$("$target_brew_bin" shellenv)"

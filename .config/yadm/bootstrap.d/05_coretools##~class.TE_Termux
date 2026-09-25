@@ -13,7 +13,9 @@ if [ ! -f "$LOCAL_ENV" ]; then
 fi
 
 # 加载前置阶段写入的环境变量，以便当前 shell 获得 Homebrew PATH
+ZDOT_SKIP_LOCAL_ENV_D=1
 source "$LOCAL_ENV"
+unset ZDOT_SKIP_LOCAL_ENV_D
 
 if [ ! -f "$BREWFILE_CORE" ]; then
     echo "[BOOTSTRAP] [05_coretools] Brewfile not found: $BREWFILE_CORE"

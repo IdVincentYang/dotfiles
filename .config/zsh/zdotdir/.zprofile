@@ -1,102 +1,18 @@
 # vi:set ft=sh
 
-# Initialize Homebrew if available
-for brew_candidate in \
-  "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew}" \
-  "/opt/homebrew/bin/brew" \
-  "/usr/local/bin/brew" \
-  "/home/linuxbrew/.linuxbrew/bin/brew"
-do
-  if [[ -x "$brew_candidate" ]]; then
-    eval "$($brew_candidate shellenv)"
-    break
-  fi
-done
-
+# Homebrew completion functions are only needed by interactive shells.
 if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
   site_functions="$HOMEBREW_PREFIX/share/zsh/site-functions"
   if [[ -d "$site_functions" ]]; then
     fpath=("$site_functions" $fpath)
   fi
-
-  brew_curl="$HOMEBREW_PREFIX/opt/curl/bin/curl"
-  if [[ -x "$brew_curl" ]]; then
-    export HOMEBREW_CURL_PATH="$brew_curl"
-  fi
+  unset site_functions
 fi
-
-# Keep Rust toolchain and Cargo data under the XDG data directory on macOS.
-if [[ "$ZDOT_PLATFORM" == "Darwin" ]]; then
-  rust_data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-  export CARGO_HOME="$rust_data_home/cargo"
-  export RUSTUP_HOME="$rust_data_home/rustup"
-  unset rust_data_home
-
-  # Homebrew keeps rustup keg-only; its bin directory contains the tool proxies.
-  rustup_bin="${HOMEBREW_PREFIX:-}/opt/rustup/bin"
-  if [[ -x "$rustup_bin/rustup" ]]; then
-    case ":$PATH:" in
-      *:"$rustup_bin":*) ;;
-      *) path=("$rustup_bin" $path) ;;
-    esac
-  fi
-  unset rustup_bin
-fi
-
-# asdf configuration
-if command -v asdf >/dev/null 2>&1; then
-  export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
-  export ASDF_DATA_DIR="${XDG_STATE_HOME}/asdf"
-
-  asdf_shims="${ASDF_DATA_DIR}/shims"
-  case ":$PATH:" in
-    *:"$asdf_shims":*) ;;
-    *) export PATH="$asdf_shims:$PATH" ;;
-  esac
-
-  _BREW_ASDF_PREFIX=""
-  if command -v brew >/dev/null 2>&1; then
-    _BREW_ASDF_PREFIX="$(brew --prefix asdf 2>/dev/null || true)"
-  fi
-  if [[ -n "$_BREW_ASDF_PREFIX" && -f "$_BREW_ASDF_PREFIX/libexec/asdf.sh" ]]; then
-    source "$_BREW_ASDF_PREFIX/libexec/asdf.sh"
-  fi
-fi
-
-# Go environment variables
-if command -v go >/dev/null 2>&1; then
-  export GOBIN="$HOME/.local/bin"
-  export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
-fi
-
-# npm configuration
-if command -v npm >/dev/null 2>&1; then
-  export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/npm/config"
-  export NPM_CONFIG_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/npm"
-fi
-
-# pm2 configuration (silent when missing to keep instant prompt clean)
-if command -v pm2 >/dev/null 2>&1; then
-  export PM2_HOME="${XDG_STATE_HOME:-$HOME/.local/state}/pm2"
-  if command -v authbind >/dev/null 2>&1; then
-    alias pm2='authbind --deep pm2'
-  fi
-fi
-
-# ensure ~/.local/bin present in PATH
-local_bin="$HOME/.local/bin"
-case ":$PATH:" in
-  *:"$local_bin":*) ;;
-  *)
-    if [[ -d "$local_bin" ]]; then
-      export PATH="$local_bin:$PATH"
-    fi
-    ;;
-esac
 
 platform_profile="$ZDOTDIR/${ZDOT_PLATFORM}/.zprofile"
 if [[ -f "$platform_profile" ]]; then
   source "$platform_profile"
 fi
+unset platform_profile
 
 export __ZDOTLOADED="$__ZDOTLOADED:$ZDOTDIR/.zprofile"

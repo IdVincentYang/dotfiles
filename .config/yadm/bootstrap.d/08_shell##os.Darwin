@@ -11,7 +11,9 @@ echo "[BOOTSTRAP] Configuring macOS Shell environment..."
 # 1. 加载 00_init 生成的环境变量
 LOCAL_ENV="$HOME/.local/.env"
 if [ -f "$LOCAL_ENV" ]; then
+    ZDOT_SKIP_LOCAL_ENV_D=1
     source "$LOCAL_ENV"
+    unset ZDOT_SKIP_LOCAL_ENV_D
 else
     echo "[BOOTSTRAP] Error: $LOCAL_ENV not found. Run 00_init first."
     exit 1
