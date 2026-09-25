@@ -25,6 +25,24 @@ if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
   fi
 fi
 
+# Keep Rust toolchain and Cargo data under the XDG data directory on macOS.
+if [[ "$ZDOT_PLATFORM" == "Darwin" ]]; then
+  rust_data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+  export CARGO_HOME="$rust_data_home/cargo"
+  export RUSTUP_HOME="$rust_data_home/rustup"
+  unset rust_data_home
+
+  # Homebrew keeps rustup keg-only; its bin directory contains the tool proxies.
+  rustup_bin="${HOMEBREW_PREFIX:-}/opt/rustup/bin"
+  if [[ -x "$rustup_bin/rustup" ]]; then
+    case ":$PATH:" in
+      *:"$rustup_bin":*) ;;
+      *) path=("$rustup_bin" $path) ;;
+    esac
+  fi
+  unset rustup_bin
+fi
+
 # asdf configuration
 if command -v asdf >/dev/null 2>&1; then
   export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
@@ -63,11 +81,6 @@ if command -v pm2 >/dev/null 2>&1; then
   if command -v authbind >/dev/null 2>&1; then
     alias pm2='authbind --deep pm2'
   fi
-fi
-
-# rustup toolchain
-if [[ -d "$HOME/.cargo" ]]; then
-  source "$HOME/.cargo/env"
 fi
 
 # ensure ~/.local/bin present in PATH
