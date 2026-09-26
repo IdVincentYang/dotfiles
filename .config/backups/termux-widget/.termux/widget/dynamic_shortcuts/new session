@@ -1,2 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/bash
-exec /data/data/com.termux/files/usr/bin/zsh -il
+
+termux_prefix="${TERMUX__PREFIX:-${PREFIX:-/data/data/com.termux/files/usr}}"
+termux_exec="$termux_prefix/lib/libtermux-exec-ld-preload.so"
+if [[ ! -r "$termux_exec" ]]; then
+    termux_exec="$termux_prefix/lib/libtermux-exec.so"
+fi
+
+if [[ ! -r "$termux_exec" ]]; then
+    printf '[new session] termux-exec library not found: %s\n' "$termux_exec" >&2
+    exit 1
+fi
+
+case " ${LD_PRELOAD//:/ } " in
+    *" $termux_exec "*) ;;
+    *) export LD_PRELOAD="$termux_exec${LD_PRELOAD:+:$LD_PRELOAD}" ;;
+esac
+
+exec "$termux_prefix/bin/zsh" -il
