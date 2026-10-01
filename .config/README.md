@@ -52,8 +52,8 @@ just system-config-termux-widget-restore-termux
 管理范围包括 `~/.termux/widget/dynamic_shortcuts` 和 `~/.shortcuts`。
 `~/.local/env.d/*.env` 等机器私有环境片段不在备份范围内。
 
-其中 `download video` 会读取 Termux 剪贴板中的 URL，并按 `,ydv` 的画质、
-编码和命名选项下载到 `/sdcard/Download/ytdl`。它需要 Android 端的
+其中 `yt-dlp` 快捷方式从 Termux 剪贴板读取 URL，支持单个或列表的视频、音频下载。
+视频保存到 `~/storage/movies`，音频保存到 `~/storage/music`。需要 Android 端的
 Termux:API 插件、Termux 中的 `termux-api` 包，以及已安装的 `yt-dlp`
 （可运行 `just install core-media-yt-dlp-termux`）。
 
