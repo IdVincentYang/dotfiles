@@ -1,5 +1,12 @@
 # vi:set ft=sh
 
+# Load generated local environment before using XDG paths or local fragments.
+# This also handles shells that start with ZDOTDIR already set and therefore
+# bypass the generated ~/.zshenv entry point.
+if [[ -f "$HOME/.local/.env" ]]; then
+  source "$HOME/.local/.env"
+fi
+
 if [[ -z "${__ZDOTLOADED:-}" ]]; then
   export __ZDOTLOADED=""
 fi
