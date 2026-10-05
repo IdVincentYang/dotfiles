@@ -98,7 +98,7 @@ if [[ "$MEDIA_TYPE" == video ]]; then
         "$PLAYLIST_OPTION"
         --console-title
         --format "$YTDLP_FORMAT"
-        --sort 'vcodec:h265'
+        --format-sort 'vcodec:h265'
         --output "$YTDLP_OUTPUT"
     )
 else
@@ -108,7 +108,7 @@ else
         --console-title
         --no-embed-subs
         --format 'ba'
-        --sort '+acodec:mp3,abr,asr'
+        --format-sort '+acodec:mp3,abr,asr'
         --output "$YTDLP_OUTPUT"
     )
 fi
