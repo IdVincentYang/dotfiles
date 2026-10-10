@@ -1,5 +1,21 @@
 # vi:set ft=sh
 
+# Initialize direnv before the Powerlevel10k instant prompt preamble. This
+# loads the startup directory's environment early so its status output does not
+# interrupt instant prompt initialization.
+if [[ "${__ASDF_DIRENV_SOURCED_PID:-}" != "$$" ]]; then
+  asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+  if [[ -f "$asdf_direnv_rc" ]]; then
+    source "$asdf_direnv_rc"
+    __ASDF_DIRENV_SOURCED_PID="$$"
+  fi
+  unset asdf_direnv_rc
+fi
+
+if [[ -n "${ASDF_DIRENV_BIN:-}" && -x "$ASDF_DIRENV_BIN" ]]; then
+  eval "$("$ASDF_DIRENV_BIN" export zsh)"
+fi
+
 # Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -32,15 +48,6 @@ fi
 
 if [[ -f "$MYSH/utils" ]]; then
   source "$MYSH/utils"
-fi
-
-# Provide the asdf-direnv hook in interactive login and non-login shells.
-if [[ "${__ASDF_DIRENV_SOURCED_PID:-}" != "$$" ]]; then
-  asdf_direnv_rc="${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-  if [[ -f "$asdf_direnv_rc" ]]; then
-    source "$asdf_direnv_rc"
-    __ASDF_DIRENV_SOURCED_PID="$$"
-  fi
 fi
 
 case "$ZDOT_PLATFORM" in
