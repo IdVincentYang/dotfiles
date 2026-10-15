@@ -84,7 +84,7 @@ alias ,adbscr='scrcpy --shortcut-mod=ralt --show-touches '
 if [ -f "$HOME/.local/share/yadb/yadb" ]
 then
     alias ,adbkbw='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard'
-    alias ,adbkbr='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -readkeyboard'
+    alias ,adbkbr='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -readClipboard'
     alias ,adblayout='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -layout && adb pull /data/local/tmp/yadb_layout_dump.xml && adb shell rm /data/local/tmp/yadb_layout_dump.xml'
     alias ,adbpress='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -touch'
 else
