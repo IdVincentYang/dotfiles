@@ -81,14 +81,29 @@ alias ,adbip="adb shell ip route | awk '{print $9}'"
 alias ,adbpower='adb shell input keyevent 26'
 alias ,adbpoweroff='adb shell reboot -p'
 alias ,adbscr='scrcpy --shortcut-mod=ralt --show-touches '
+unalias ,adbkbw 2>/dev/null || true
+function ,adbkbw() {
+    emulate -L zsh
+    if [ "$#" -ne 1 ]; then
+        printf 'Usage: ,adbkbw <text> (pass text as one quoted argument)\n' >&2
+        return 2
+    fi
+
+    # adb shell 会再次解析命令；用 POSIX 单引号保护完整文本。
+    local quoted_text="${(qq)1}"
+    if [ -f "$HOME/.local/share/yadb/yadb" ]; then
+        adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp &&
+            adb shell "app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard $quoted_text"
+    else
+        adb shell "input text $quoted_text"
+    fi
+}
+
 if [ -f "$HOME/.local/share/yadb/yadb" ]
 then
-    alias ,adbkbw='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard'
     alias ,adbkbr='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -readClipboard'
     alias ,adblayout='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -layout && adb pull /data/local/tmp/yadb_layout_dump.xml && adb shell rm /data/local/tmp/yadb_layout_dump.xml'
     alias ,adbpress='adb push --sync "$HOME/.local/share/yadb/yadb" /data/local/tmp && adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -touch'
-else
-    alias ,adbkbw='adb shell input text'
 fi
 alias ,adbtopactivity='adb shell dumpsys activity top | grep ACTIVITY' # get top activity name
 alias ,adbwifisignal='adb shell settings put global captive_portal_detection_enabled' # 0, 1
