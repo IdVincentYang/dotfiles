@@ -17,7 +17,7 @@
 --retry-sleep http:exp=4
 --retry-sleep exp=4
 
---force-ipv4
+# --force-ipv4
 --buffer-size 1M
 --concurrent-fragments 4
 --http-chunk-size 10M
