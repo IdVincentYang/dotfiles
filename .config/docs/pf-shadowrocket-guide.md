@@ -215,9 +215,14 @@ sudo pfctl -nf /usr/local/etc/pf-shadowrocket.conf
 sudo cp ~/.config/docs/pf-shadowrocket-references/com.shadowrocket.pfctl.plist /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 sudo chown root:wheel /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 sudo chmod 644 /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+if xattr -p com.apple.quarantine /Library/LaunchDaemons/com.shadowrocket.pfctl.plist >/dev/null 2>&1; then
+  sudo xattr -d com.apple.quarantine /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
+fi
 plutil -lint /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 sudo launchctl bootstrap system /Library/LaunchDaemons/com.shadowrocket.pfctl.plist
 ```
+
+复制可能保留 plist 的 `com.apple.quarantine` 属性。曾出现 `bootstrap` 报错 5，系统日志明确指出 `launchd` 拒绝加载被隔离的 plist；移除该属性后加载成功。以上步骤只在属性存在时移除它。
 
 如果任务已存在：
 
