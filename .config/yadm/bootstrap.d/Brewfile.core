@@ -3,6 +3,7 @@ brew "git"      # Latest Git
 brew "git-lfs"  # Large File Storage
 brew "just"     # Task Runner
 brew "yadm"     # Dotfiles Manager
+brew "gnupg"    # GPG for yadm encrypted files
 brew "vim"      # Editor
 brew "zsh"      # Shell
 brew "gnu-sed" if OS.mac?

@@ -1,5 +1,11 @@
 # vi:set ft=sh
 
+# Make the current terminal available to GnuPG pinentry prompts.
+if [[ -t 0 ]]; then
+  GPG_TTY="$(tty)"
+  export GPG_TTY
+fi
+
 # Initialize direnv before the Powerlevel10k instant prompt preamble. This
 # loads the startup directory's environment early so its status output does not
 # interrupt instant prompt initialization.
