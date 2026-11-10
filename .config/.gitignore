@@ -5,6 +5,9 @@
 /filezilla/lockfile
 /filezilla/queue.sqlite3
 /filezilla/trustedcerts.xml
+/flclash/signing/android-release.jks
+/flclash/signing/android-release.json
+/flclash/signing/last-release.json
 /homebrew/*.lock
 /joplin-desktop/
 /karabiner/automatic_backups/

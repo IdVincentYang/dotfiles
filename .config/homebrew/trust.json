@@ -1,0 +1,9 @@
+{
+  "trustedcasks": [
+    "aixisstudio/tap/snitch",
+    "netbirdio/tap/netbird-ui"
+  ],
+  "trustedtaps": [
+    "netbirdio/tap"
+  ]
+}
