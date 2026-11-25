@@ -5,8 +5,9 @@ if [[ "${__ZDOT_DARWIN_ZSHENV_LOADED:-}" != "1" ]]; then
   export __ZDOT_DARWIN_ZSHENV_LOADED=1
 fi
 
-# Prefer Homebrew GNU sed and awk when available.
+# Prefer Homebrew GNU utilities when available.
 if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  __zdot_prepend_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
   __zdot_prepend_path "$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin"
   __zdot_prepend_path "$HOMEBREW_PREFIX/opt/gawk/libexec/gnubin"
 fi
